@@ -35,6 +35,7 @@ typedef struct DBTrace
     string Floor;
     int MapMark;
     Time time;
+    string TableName;
     int TraceID;
     void readTrace(vector<vector<string>> ret){
         TraceID=atoi(ret[0][0].c_str());

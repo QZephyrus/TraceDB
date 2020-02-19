@@ -94,6 +94,24 @@ bool DataBase::useDB(const string &database){
     return true;
 }
 
+bool DataBase::autoCommitOff(){
+	mysql_autocommit(sql,0);
+}
+
+bool DataBase::autoCommitOn(){
+	mysql_autocommit(sql,1);
+}
+
+bool DataBase::commit(){
+	mysql_commit(sql);
+	mysql_autocommit(sql,1);
+}
+
+bool DataBase::rollback(){
+	mysql_rollback(sql);
+	mysql_autocommit(sql,1);
+}
+
 bool DataBase::deleteDB(const string &database){
     string str = "drop database " + database;
 	if (mysql_query(sql, str.c_str())) {

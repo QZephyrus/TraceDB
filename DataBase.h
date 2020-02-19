@@ -26,6 +26,10 @@ class DataBase
         bool showDB();
         bool createDB(const string &database);
         bool useDB(const string &database);
+        bool autoCommitOff();
+        bool autoCommitOn();
+        bool commit();
+        bool rollback();
         bool deleteDB(const string &database);
         bool deleteTB(const string &table);
         bool showTB();

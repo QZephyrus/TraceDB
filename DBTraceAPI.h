@@ -9,8 +9,6 @@ class DBTraceAPI
         string localhost;
         string user;
         string passwd;
-        short result_flag;
-        bool judge_flag;
         string database;
         string table;
         string value;
@@ -21,12 +19,18 @@ class DBTraceAPI
         int DBInitialize();
         int DBConnect();
         int DBCreateDB();
+        int DBCreateRelatTB();
         int DBCreateTable(DBTrace trace);
         int DBAddDevice(DBDeviceData deviceData);
+        int DBAddSomeDevice(vector<DBDeviceData> deviceData);
         int DBUpdateDevice(DBDeviceData deviceData);
+        int DBUpdateSomeDevice(vector<DBDeviceData> deviceData);
         int DBAddMap(Map map);
+        int DBAddSomeMap(vector<Map> map);
         int DBAddBCON(BCON bcon);
+        int DBAddSomeBCON(vector<BCON> bcon);
         int DBAddTrace(DBTrace trace);
+        int DBAddSomeTrace(vector<DBTrace> trace);
         int DBSearchDevice(string DeviceID,DBTrace *pTrace);
         int DBSearchSomeDevice(vector<string> DeviceID,vector<DBTrace>&Trace);
         int DBSearchAllDevice(vector<DBTrace>&Traces);
