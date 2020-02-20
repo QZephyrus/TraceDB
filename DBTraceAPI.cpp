@@ -77,7 +77,7 @@ int DBTraceAPI::DBCreateRelatTB(){
     if(flag_state==false){
         flag_success=false;
     }
-    flag_state=DB.createTB("Trace","TableID int UNSIGNED NOT NULL AUTO_INCREMENT,TableName char(11) NULL,Year int NULL,Month int NULL,PRIMARY KEY (TableID)");
+    flag_state=DB.createTB("Trace","TableID int UNSIGNED NOT NULL AUTO_INCREMENT,TableName char(11) NULL,YearMonth int NULL,PRIMARY KEY (TableID)");
     if(flag_state==false){
         flag_success=false;
     }
@@ -282,7 +282,7 @@ int DBTraceAPI::DBAddTrace(DBTrace trace){
     int result;
     table="Trace";
     value="TableName";
-    limits="Year="+to_string(trace.time.year)+" AND Month="+to_string(trace.time.month);
+    limits="YearMonth="+to_string(trace.time.year)+to_string(trace.time.month);
     vector<vector<string>> ret=DB.selectItem(table,value,limits);
     if(ret.size()==0){
         result=DBCreateTable(trace);
@@ -456,35 +456,34 @@ int DBTraceAPI::DBSearchPersonTrace(int PersonID,Time timeBegin,Time timeEnd,vec
     string tracetable1,tracetable2;
     table="Trace";
     value="TableName";
-    limits="(Year="+to_string(timeBegin.year)+" AND Month="+to_string(timeBegin.month)+") OR (Year="+to_string(timeEnd.year)+" AND Month="+to_string(timeEnd.month)+")";
+    limits="YearMonth>="+to_string(timeBegin.year)+to_string(timeBegin.month)+" AND YearMonth<="+to_string(timeEnd.year)+to_string(timeEnd.month);
     vector<vector<string>> ret=DB.selectItem(table,value,limits);
     int rows=ret.size();
     if(rows==0){
         return DB_RET_NULL;
     }
     vector<vector<string>> temp;
-    if(rows==1 || rows==2){
+    if(rows==1){
         table=ret[0][0];
         value="*";
-        limits="PersonID="+to_string(PersonID)+" AND Time>"+timeBegin.todatatime()+" AND Time<"+timeEnd.todatatime();
+        limits="PersonID="+to_string(PersonID)+" AND Time>="+timeBegin.todatatime()+" AND Time<="+timeEnd.todatatime();
         temp=DB.selectItem(table,value,limits);
         DBTrace trace;
-        Traces=trace.readTraces(temp);
-        if(rows==2 && ret[0][0]!=ret[1][0]){
-            table=ret[1][0];
+        Traces=trace.readTraces(temp);  
+    }else{
+        for(int i=0;i<rows;i++){
+            table=ret[i][0];
             value="*";
-            limits="PersonID="+to_string(PersonID)+" AND Time>"+timeBegin.todatatime()+" AND Time<"+timeEnd.todatatime();
+            limits="PersonID="+to_string(PersonID)+" AND Time>="+timeBegin.todatatime()+" AND Time<="+timeEnd.todatatime();
             temp=DB.selectItem(table,value,limits);
             DBTrace trace; 
             Traces.insert(Traces.end,trace.readTraces(temp).begin,trace.readTraces(temp).end);
         }
-        if(Traces.size()==0){
-            return DB_RET_NULL;
-        }else{
-            return DB_RET_OK;
-        }
+    }
+    if(Traces.size()==0){
+        return DB_RET_NULL;
     }else{
-        return DB_RET_ERORR;
+        return DB_RET_OK;
     }
 }
 
@@ -492,35 +491,34 @@ int DBTraceAPI::DBSearchDeviceTrace(string DeviceID,Time timeBegin,Time timeEnd,
     string tracetable1,tracetable2;
     table="Trace";
     value="TableName";
-    limits="(Year="+to_string(timeBegin.year)+" AND Month="+to_string(timeBegin.month)+") OR (Year="+to_string(timeEnd.year)+" AND Month="+to_string(timeEnd.month)+")";
+    limits="YearMonth>="+to_string(timeBegin.year)+to_string(timeBegin.month)+" AND YearMonth<="+to_string(timeEnd.year)+to_string(timeEnd.month);
     vector<vector<string>> ret=DB.selectItem(table,value,limits);
     int rows=ret.size();
     if(rows==0){
         return DB_RET_NULL;
     }
     vector<vector<string>> temp;
-    if(rows==1 || rows==2){
+    if(rows==1){
         table=ret[0][0];
         value="*";
-        limits="DeviceID="+DeviceID+" AND Time>"+timeBegin.todatatime()+" AND Time<"+timeEnd.todatatime();
+        limits="DeviceID="+DeviceID+" AND Time>="+timeBegin.todatatime()+" AND Time<="+timeEnd.todatatime();
         temp=DB.selectItem(table,value,limits);
         DBTrace trace;
-        Traces=trace.readTraces(temp);
-        if(rows==2 && ret[0][0]!=ret[1][0]){
-            table=ret[1][0];
+        Traces=trace.readTraces(temp);  
+    }else{
+        for(int i=0;i<rows;i++){
+            table=ret[i][0];
             value="*";
-            limits="DeviceID="+DeviceID+" AND Time>"+timeBegin.todatatime()+" AND Time<"+timeEnd.todatatime();
+            limits="DeviceIDID="+DeviceID+" AND Time>="+timeBegin.todatatime()+" AND Time<="+timeEnd.todatatime();
             temp=DB.selectItem(table,value,limits);
             DBTrace trace; 
             Traces.insert(Traces.end,trace.readTraces(temp).begin,trace.readTraces(temp).end);
         }
-        if(Traces.size()==0){
-            return DB_RET_NULL;
-        }else{
-            return DB_RET_OK;
-        }
+    }
+    if(Traces.size()==0){
+        return DB_RET_NULL;
     }else{
-        return DB_RET_ERORR;
+        return DB_RET_OK;
     }
 }
 
@@ -541,7 +539,7 @@ int DBTraceAPI::DBDeleteTrace(DBTrace trace){
     table="Trace";
     trace.time.getdatatime();
     value="TableName";
-    limits="Year="+to_string(trace.time.year)+" AND Month="+to_string(trace.time.month);
+    limits="YearMonth="+to_string(trace.time.year)+to_string(trace.time.month);
     vector<vector<string>> ret=DB.selectItem(table,value,limits);
     if(ret.size()==0){
         return DB_RET_NULL;
@@ -590,7 +588,7 @@ int DBTraceAPI::DBUpdateTrace(DBTrace traceOld,DBTrace traceNew){
     table="Trace";
     traceOld.time.getdatatime();
     value="TableName";
-    limits="Year="+to_string(traceOld.time.year)+" AND Month="+to_string(traceOld.time.month);
+    limits="YearMonth="+to_string(traceOld.time.year)+to_string(traceOld.time.month);
     vector<vector<string>> ret=DB.selectItem(table,value,limits);
     if(ret.size()==0){
         return DB_RET_NULL;
