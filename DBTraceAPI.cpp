@@ -12,35 +12,54 @@ using namespace std;
 #define DB_RET_PERSON_ERROR 8
 #define DB_RET_ERORR 9
 
+//定义每张具体轨迹表存储的月份
 #define MemoryMonth 3
 
-DBTraceAPI::DBTraceAPI(){   
+//构造函数，保存默认的数据库连接信息
+DBTraceAPI::DBTraceAPI(){  
+    localhost="localhost";
+    user="root";
+    passwd="zenos"; 
     database="TraceDB";
+}
+//构造函数，构造时不使用默认参数
+DBTraceAPI::DBTraceAPI(string host,string username,string password,string databasename){
+    localhost=host;
+    user=username;
+    passwd=password;
+    database=databasename;
 }
 
 DBTraceAPI::~DBTraceAPI(){   
-}
 
-int DBTraceAPI::DBInitialize(){
-    
 }
-
+//初始化，初始化数据库信息
+int DBTraceAPI::DBInitialize(string host,string username,string password,string databasename){
+    localhost=host;
+    user=username;
+    passwd=password;
+    database=databasename;
+}
+//建立数据库连接
 int DBTraceAPI::DBConnect(){
     bool flag_connect=true;
     flag_connect=DB.connect(localhost,user,passwd);
+    //判断数据库是否连接成功
     if(flag_connect){
         return DB_RET_OK;
     }else{
         return DB_RET_FALL;
     }
 }
-
+//创建数据库以及基础关联表格
 int DBTraceAPI::DBCreateDB(){
+    //判断数据库是否连接成功
     if(DB.createDB(database)==false){
         return DB_RET_CREATE_DB_ERROR;
     }
     DB.useDB(database);
-    bool flag_createTB=true;
+    //判断数据库关联基础表格是否创建成功
+    int flag_createTB;
     flag_createTB=DBCreateRelatTB();
     if(flag_createTB==DB_RET_OK){
         return DB_RET_OK;
@@ -48,8 +67,9 @@ int DBTraceAPI::DBCreateDB(){
         return DB_RET_CREATE_TB_ERROR;
     }
 }
-
+//创建数据库基础关联表格
 int DBTraceAPI::DBCreateRelatTB(){
+    //通过两个flag判断在创建表的过程中是否出现错误，若出现错误flag_success为false，并且事件回滚到创建表之前
     bool flag_state =true;
     bool flag_success =true;
     DB.autoCommitOff();
@@ -741,4 +761,12 @@ int DBTraceAPI::DBMapMarkCount(int MapMark,Time timeBegin,Time timeEnd,vector<DB
         MapData.push_back(*tempMapData);
     }
     return DB_RET_OK;
+}
+
+int DBTraceAPI::DBDeleteDB(){
+    if(DB.deleteDB(database)){
+        return DB_RET_OK;
+    }else{
+        return DB_RET_FALL;
+    }
 }

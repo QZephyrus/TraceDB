@@ -1,8 +1,14 @@
+#pragma once
+
 #include<string>
-
+#include<vector>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
 using std::string;
+using namespace boost::posix_time;
+using namespace boost::gregorian;
 
-typedef struct Time
+/*typedef struct Time
 {
     short year;
     short month;
@@ -23,92 +29,103 @@ typedef struct Time
         datatime=to_string(year)+"-"+to_string(month)+"-"+to_string(Day)+" "+to_string(hour)+":"+to_string(minute)+":"+to_string(second);
         return datatime;
     }
-};
+}Time;*/
 
-typedef struct DBTrace
+//定义双重vector构成的存储string类型的表，定义为string_table
+typedef vector<vector<string>> string_table;
+
+//定义类DBTrace，用来存储轨迹信息
+class DBTrace
 {
-	int PersonID;
-	short PersonModule;
-    string DeviceID;
-    float X;
-    float Y;
-    string Floor;
-    int MapMark;
-    Time time;
-    string TableName;
-    int TraceID;
-    void readTrace(vector<vector<string>> ret){
-        TraceID=atoi(ret[0][0].c_str());
-        PersonID=atoi(ret[0][1].c_str());
-        PersonModule=atoi(ret[0][2].c_str());
-        DeviceID=ret[0][3];
-        X=atof(ret[0][4].c_str());
-        Y=atof(ret[0][5].c_str());
-        Floor=ret[0][6];
-        MapMark=atof(ret[0][7].c_str());
-        time.datatime=ret[0][8];
-    }
-    vector<DBTrace> readTraces(vector<vector<string>> ret){
-        int rows=ret.size();
-        vector<DBTrace> Trace;
-        DBTrace trace;
-        for(int i=0;i<rows;i++){
-            trace.TraceID=atoi(ret[i][0].c_str());
-            trace.PersonID=atoi(ret[i][1].c_str());
-            trace.PersonModule=atoi(ret[i][2].c_str());
-            trace.DeviceID=ret[i][3];
-            trace.X=atof(ret[i][4].c_str());
-            trace.Y=atof(ret[i][5].c_str());
-            trace.Floor=ret[i][6];
-            trace.MapMark=atof(ret[i][7].c_str());
-            trace.time.datatime=ret[i][8];
-            Trace.push_back(trace);
+    public:
+	    int PersonID;
+	    short PersonModule;
+        string DeviceID;
+        float X;
+        float Y;
+        string Floor;
+        int MapMark;
+        string time;
+        string TableName;
+        int TraceID;
+
+        //用于从双重vector构成的string表（string_table）获取单条的轨迹信息并且保存自身
+        void readTrace(string_table ret){
+            TraceID=atoi(ret[0][0].c_str());
+            PersonID=atoi(ret[0][1].c_str());
+            PersonModule=atoi(ret[0][2].c_str());
+            DeviceID=ret[0][3];
+            X=atof(ret[0][4].c_str());
+            Y=atof(ret[0][5].c_str());
+            Floor=ret[0][6];
+            MapMark=atof(ret[0][7].c_str());
+            time=ret[0][8];
         }
-        return Trace;
-    }
+        //用于从双重vector构成的string表（string_table）获取多条的轨迹信息并且返回一个用vector<DBTrace>存储的轨迹链
+        vector<DBTrace> readTraces(string_table ret){
+            int rows=ret.size();
+            vector<DBTrace> Trace;
+            DBTrace trace;
+            for(int i=0;i<rows;i++){
+                trace.TraceID=atoi(ret[i][0].c_str());
+                trace.PersonID=atoi(ret[i][1].c_str());
+                trace.PersonModule=atoi(ret[i][2].c_str());
+                trace.DeviceID=ret[i][3];
+                trace.X=atof(ret[i][4].c_str());
+                trace.Y=atof(ret[i][5].c_str());
+                trace.Floor=ret[i][6];
+                trace.MapMark=atof(ret[i][7].c_str());
+                trace.time=ret[i][8];
+                Trace.push_back(trace);
+            }
+            return Trace;
+        }
 };
 
-typedef struct DBDeviceData
+//自定义类用于存储设备和人员之间的绑定关系，已便于更新设备信息和人员信息
+class DBDeviceData
 {
-	int PersonID;
-	short PersonModule;
-    string DeviceID;
+    public:
+	    int PersonID;
+	    short PersonModule;
+        string DeviceID;
 };
 
-typedef struct Map
+//自定义Map类用于存储围栏信息和其对应的BCONID
+class Map
 {
-    int MapID;
-    int MapMark;
-    int BCONID;
+    public:
+        int MapID;
+        int MapMark;
+        int BCONID;
 };
 
-typedef struct BCON
+//自定义BCON类用于存储BCON的位置信息
+class BCON
 {
-    int BCONID;
-    float BCONX;
-    float BCONY;
-    string Floor;
+    public:
+        int BCONID;
+        float BCONX;
+        float BCONY;
+        string Floor;
 };
 
-typedef struct DBMapData
+//自定义DBMaoData类用于统计进出围栏次数和在围栏内持续时间
+class DBMapData
 {
-	int PersonID;
-    int MapMark;
-    int Enter;
-    int Out;
-    Time StayTime;
-    void initPersonData(int PerID,int MMark){
-        PersonID=PerID;
-        MapMark=MMark;
-        Enter=0;
-        Out=0;
-        StayTime.year=0;
-        StayTime.month=0;
-        StayTime.Day=0;
-        StayTime.hour=0;
-        StayTime.minute=0;
-        StayTime.second=0;
-    }
+    public:
+	    int PersonID;
+        int MapMark;
+        int Enter;
+        int Out;
+        ptime StayTime;
+        //构造函数用于初始化数据
+        DBMapData(int PerID,int MMark){
+            PersonID=PerID;
+            MapMark=MMark;
+            Enter=0;
+            Out=0;
+        }
 };
 
 

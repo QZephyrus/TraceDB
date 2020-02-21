@@ -1,37 +1,28 @@
-#include"DataBase.h"
-#include<vector>
+//#include"DBTraceAPI.h"
+//#include<vector>
+#include<iostream>
+#include<string>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
+#define BOOST_DATE_TIME_SOURCE
+using namespace boost::posix_time;
+using namespace boost::gregorian;
 using namespace std;
+using namespace boost;
 
 int main(int argc,char const *argv[]){
-    DataBase DB;
-    DB.connect("localhost","root","zenos");
-    DB.createDB("mydb");
-    DB.useDB("mydb");
-    DB.createTB("tst", "id int default 0, password varchar(255) default \"000000\"");
-	//string tst="tst";
-	//int a=12345;
-	//string b="hshsh";
-	//string value=to_string(a)+", \""+b+"\"";
-	//DB.insertItem(tst,value);
-	/*DB.insertItem("tst", "12345, \"hshsh\"");
-	DB.insertItem("tst", "\"hshsh\"", "password");
-	DB.insertItem("tst", "12346", "id");
-	DB.updateItem("tst", "password = 99999", "id = 12346");*/
-	vector<vector<string>> ret = DB.selectItem("tst", "*");
-	for (auto temp: ret) {
-		for (auto &str: temp)
-			cout << str << " ";
-		cout << endl;
-	}
-	/*DB.deleteItem("tst", "id = 0");
-	ret = DB.selectItem("tst", "*");
-	for (auto temp: ret) {
-		for (auto &str: temp)
-			cout << str << " ";
-		cout << endl;
-	}*/
-    DB.showTB();
-	DB.deleteDB("mydb");
-	DB.disconnect();
+    //ptime p(date(2020,02,20),hours(14));
+	//cout<<p<<endl;
+	//string s=to_simple_string(p);
+	//cout<<s<<endl;
+
+	ptime time = time_from_string("1981-08-20 08:05:00");
+	ptime now=second_clock::local_time();
+	
+	cout <<time.date().month()<<endl;
+  	// ptime to string.
+	string str_time = to_iso_extended_string(time);
+	str_time=str_time.replace(str_time.find("T"),1," ");
+  	cout << str_time << endl;
 	return 0;
 }
