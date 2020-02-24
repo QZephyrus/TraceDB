@@ -118,11 +118,15 @@ class DBMapData
         int MapMark;
         int Enter;
         int Out;
-        ptime StayTime;
+        time_duration StayTime;
         //构造函数用于初始化数据
         DBMapData(int PerID,int MMark){
             PersonID=PerID;
             MapMark=MMark;
+            Enter=0;
+            Out=0;
+        }
+        DBMapData(){
             Enter=0;
             Out=0;
         }

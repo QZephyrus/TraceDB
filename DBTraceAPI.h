@@ -17,6 +17,9 @@ class DBTraceAPI
         string table;//在SQL操作时调用的表
         string value;//在SQL操作时需要获取的值或插入的值
         string limits;//在SQL操作时的限制条件
+
+        //enum tablename{DeviceID,Map,blue,white,black};
+
     public:
         DBTraceAPI();
         DBTraceAPI(string host,string username,string password,string databasename);
@@ -36,22 +39,22 @@ class DBTraceAPI
         int DBAddSomeBCON(vector<BCON> bcon);
         int DBAddTrace(DBTrace trace);
         int DBAddSomeTrace(vector<DBTrace> trace);
-        int DBSearchDevice(string DeviceID,DBTrace&pTrace);
-        int DBSearchSomeDevice(vector<string> DeviceID,vector<DBTrace>&Trace);
-        int DBSearchAllDevice(vector<DBTrace>&Traces);
-        int DBSearchPerson(int PersonID,DBTrace&pTrace);
-        int DBSearchSomePerson(vector<int> PersonID,vector<DBTrace>&Trace);
-        int DBSearchAllPerson (vector<DBTrace>&Traces);
-        int DBSearchPersonTrace(int PersonID,ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces);
-        int DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces);
-        int DBSearchDeviceID(vector<string>&DeviceID);
+        int DBSearchDevice(string DeviceID,const DBTrace&pTrace);
+        int DBSearchSomeDevice(vector<string> DeviceID,const vector<DBTrace>&Trace);
+        int DBSearchAllDevice(const vector<DBTrace>&Traces);
+        int DBSearchPerson(int PersonID,const DBTrace&pTrace);
+        int DBSearchSomePerson(vector<int> PersonID,const vector<DBTrace>&Trace);
+        int DBSearchAllPerson (const vector<DBTrace>&Traces);
+        int DBSearchPersonTrace(int PersonID,ptime timeBegin,ptime timeEnd,const vector<DBTrace>&Traces);
+        int DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEnd,const vector<DBTrace>&Traces);
+        int DBSearchDeviceID(const vector<string>&DeviceID);
         int DBDeleteTrace(DBTrace trace);
         int DBDeleteDevice(string DeviceID);
         int DBDeleteMap(int MapMark);
         int DBUpdateTrace(DBTrace traceOld,DBTrace traceNew);
         int DBClearTable();
-        int DBMapCount(int PersonID,int MapMark,ptime timeBegin,ptime timeEnd,DBMapData&pMapData);
-        int DBMapPersonCount(int PersonID, ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData);
-        int DBMapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData);
+        int DBMapCount(int PersonID,int MapMark,ptime timeBegin,ptime timeEnd,const DBMapData&MapData);
+        int DBMapPersonCount(int PersonID, ptime timeBegin,ptime timeEnd,const vector<DBMapData>&MapData);
+        int DBMapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,const vector<DBMapData>&MapData);
         int DBDeleteDB();
 };
