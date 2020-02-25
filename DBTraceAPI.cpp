@@ -54,7 +54,7 @@ int DBTraceAPI::DBConnect(){
 }
 //创建数据库以及基础关联表格
 int DBTraceAPI::DBCreateDB(){
-    //判断数据库是否连接成功
+    //判断数据库是否创建成功
     if(DB.createDB(database)==false){
         return DB_RET_CREATE_DB_ERROR;
     }
@@ -80,12 +80,12 @@ int DBTraceAPI::DBCreateRelatTB(){
         flag_success=false;
     }
     //创建设备表
-    flag_state=DB.createTB("Device","DeviceID varchar(255) NOT NULL,TableName char(11) NULL,TraceID int UNSIGNED NOT NULL, PRIMARY KEY (DeviceID)");
+    flag_state=DB.createTB("Device","DeviceID varchar(255) NOT NULL,TableName char(11) NULL,TraceID int UNSIGNED NULL, PRIMARY KEY (DeviceID)");
     if(flag_state==false){
         flag_success=false;
     }
     //创建人员表
-    flag_state=DB.createTB("Person","PersonID int NOT NULL,PersonModule tinyint NULL,TableName char(11) NULL,TraceID int UNSIGNED NOT NULL, PRIMARY KEY (PersonID)");
+    flag_state=DB.createTB("Person","PersonID int NOT NULL,PersonModule tinyint NULL,TableName char(11) NULL,TraceID int UNSIGNED NULL, PRIMARY KEY (PersonID)");
     if(flag_state==false){
         flag_success=false;
     }
@@ -122,6 +122,8 @@ int DBTraceAPI::DBCreateRelatTB(){
 }
 //创建具体轨迹表
 int DBTraceAPI::DBCreateTable(DBTrace trace){
+    
+    DB.useDB(database);
     bool flag_create=true;
     bool flag_add=true;
     bool flag_temp=true;
@@ -160,16 +162,17 @@ int DBTraceAPI::DBCreateTable(DBTrace trace){
 }
 //添加设备以及其初始设备人员关系
 int DBTraceAPI::DBAddDevice(DBDeviceData deviceData){
+    DB.useDB(database);
     bool flag_insert_device=true;
     bool flag_insert_relat=true;
     DB.autoCommitOff();
     //将新设备注册到设备表中
     table="Device";
-    value="\""+deviceData.DeviceID+"\"";
+    value="'"+deviceData.DeviceID+"',null,null";
     flag_insert_device=DB.insertItem(table,value);
     //将新设备和对应人员关系更新到关系表中
     table="Device_Person";
-    value="\""+deviceData.DeviceID+"\", "+to_string(deviceData.PersonID)+", "+to_string(deviceData.PersonModule);
+    value="'"+deviceData.DeviceID+"', "+to_string(deviceData.PersonID)+", "+to_string(deviceData.PersonModule);
     flag_insert_relat=DB.insertItem(table,value);
     if(flag_insert_device&&flag_insert_relat){
         DB.commit();
@@ -179,8 +182,9 @@ int DBTraceAPI::DBAddDevice(DBDeviceData deviceData){
         return DB_RET_FALL;
     }
 }
-//设备批量添加
+//设备批量添加设备
 int DBTraceAPI::DBAddSomeDevice(vector<DBDeviceData> deviceData){
+    DB.useDB(database);
     bool flag_insert=true;
     //获得批量输入设备行数
     int row=deviceData.size();
@@ -191,14 +195,55 @@ int DBTraceAPI::DBAddSomeDevice(vector<DBDeviceData> deviceData){
     for(int i=0;i<row;i++){
         //将设备添加到设备表中
         table="Device";
-        value="\""+deviceData[i].DeviceID+"\"";
+        value="'"+deviceData[i].DeviceID+"',null,null";
         if(DB.insertItem(table,value)==false){
             flag_insert=false;
             break;
         }
         //将设备与人员关系添加到关系表中
         table="Device_Person";
-        value="\""+deviceData[i].DeviceID+"\", "+to_string(deviceData[i].PersonID)+", "+to_string(deviceData[i].PersonModule);
+        value="'"+deviceData[i].DeviceID+"', "+to_string(deviceData[i].PersonID)+", "+to_string(deviceData[i].PersonModule);
+        if(DB.insertItem(table,value)==false){
+            flag_insert=false;
+            break;
+        }
+    }
+    if(flag_insert){
+        DB.commit();
+        return DB_RET_OK;
+    }else{
+        DB.rollback();
+        return DB_RET_FALL;
+    }
+}
+//添加人员
+int DBTraceAPI::DBAddPerson(DBDeviceData deviceData){
+    DB.useDB(database);
+    bool flag_insert_person=true;
+    //将新设备注册到设备表中
+    table="Person";
+    value=to_string(deviceData.PersonID)+", "+to_string(deviceData.PersonModule)+",null,null";
+    flag_insert_person=DB.insertItem(table,value);
+    if(flag_insert_person){
+        return DB_RET_OK;
+    }else{
+        return DB_RET_FALL;
+    }
+}
+//设备批量添加人员
+int DBTraceAPI::DBAddSomePerson(vector<DBDeviceData> deviceData){
+    DB.useDB(database);
+    bool flag_insert=true;
+    //获得批量输入设备行数
+    int row=deviceData.size();
+    if(row==0){
+        return DB_RET_NULL;
+    }
+    DB.autoCommitOff();
+    for(int i=0;i<row;i++){
+        //将设备添加到设备表中
+        table="Person";
+        value=to_string(deviceData[i].PersonID)+", "+to_string(deviceData[i].PersonModule)+",null,null";
         if(DB.insertItem(table,value)==false){
             flag_insert=false;
             break;
@@ -213,11 +258,12 @@ int DBTraceAPI::DBAddSomeDevice(vector<DBDeviceData> deviceData){
     }
 }
 //更新设备和人员关系
-int DBTraceAPI::DBUpdateDevice(DBDeviceData deviceData){
+int DBTraceAPI::DBUpdateDeviceRelat(DBDeviceData deviceData){
+    DB.useDB(database);
     bool flag_updata=true;
     table="Device_Person";
     value="PersonID="+to_string(deviceData.PersonID)+", PersonModule="+to_string(deviceData.PersonModule);
-    limits="DeviceID="+deviceData.DeviceID;
+    limits="DeviceID='"+deviceData.DeviceID+"'";
     flag_updata=DB.updateItem(table,value,limits);
     if(flag_updata){
         return DB_RET_OK;
@@ -226,7 +272,8 @@ int DBTraceAPI::DBUpdateDevice(DBDeviceData deviceData){
     }
 }
 //批量更新设备和人员关系
-int DBTraceAPI::DBUpdateSomeDevice(vector<DBDeviceData> deviceData){
+int DBTraceAPI::DBUpdateSomeDeviceRelat(vector<DBDeviceData> deviceData){
+    DB.useDB(database);
     bool flag_updata=true;
     int row=deviceData.size();
     if(row==0){
@@ -236,7 +283,7 @@ int DBTraceAPI::DBUpdateSomeDevice(vector<DBDeviceData> deviceData){
     table="Device_Person";
     for(int i=0;i<row;i++){
         value="PersonID="+to_string(deviceData[i].PersonID)+", PersonModule="+to_string(deviceData[i].PersonModule);
-        limits="DeviceID="+deviceData[i].DeviceID;
+        limits="DeviceID='"+deviceData[i].DeviceID+"'";
         if(DB.updateItem(table,value,limits)==false){
             flag_updata==false;
             break;
@@ -250,11 +297,12 @@ int DBTraceAPI::DBUpdateSomeDevice(vector<DBDeviceData> deviceData){
         return DB_RET_FALL;
     }
 }
-//添加单条围栏信息
+//添加单条围栏与BCON关联信息
 int DBTraceAPI::DBAddMap(Map map){
+    DB.useDB(database);
     bool flag_add=true;
     table="Map";
-    value=to_string(map.MapMark)+", "+to_string(map.BCONID);
+    value="null,"+to_string(map.MapMark)+", "+to_string(map.BCONID);
     flag_add=DB.insertItem(table,value);
     if(flag_add){
         return DB_RET_OK;
@@ -262,8 +310,9 @@ int DBTraceAPI::DBAddMap(Map map){
         return DB_RET_FALL;
     }
 }
-//添加多条围栏信息
+//添加多条围栏与BCON关联信息
 int DBTraceAPI::DBAddSomeMap(vector<Map> map){
+    DB.useDB(database);
     bool flag_add=true;
     //读取需要添加的围栏信息
     int row=map.size();
@@ -273,7 +322,7 @@ int DBTraceAPI::DBAddSomeMap(vector<Map> map){
     DB.autoCommitOff();
     table="Map";
     for(int i=0;i<row;i++){
-        value=to_string(map[i].MapMark)+", "+to_string(map[i].BCONID);
+        value="null,"+to_string(map[i].MapMark)+", "+to_string(map[i].BCONID);
         if(DB.insertItem(table,value)==false){
             flag_add=false;
             break;
@@ -289,9 +338,10 @@ int DBTraceAPI::DBAddSomeMap(vector<Map> map){
 }
 //添加一条BCON信息
 int DBTraceAPI::DBAddBCON(BCON bcon){
+    DB.useDB(database);
     bool flag_add=true;
     table="BCON";
-    value=to_string(bcon.BCONID)+", "+to_string(bcon.BCONX)+", "+to_string(bcon.BCONY)+", \""+bcon.Floor+"\"";
+    value=to_string(bcon.BCONID)+", "+to_string(bcon.BCONX)+", "+to_string(bcon.BCONY)+", '"+bcon.Floor+"'";
     flag_add=DB.insertItem(table,value);
     if(flag_add){
         return DB_RET_OK;
@@ -301,6 +351,7 @@ int DBTraceAPI::DBAddBCON(BCON bcon){
 }
 //添加多条BCON信息
 int DBTraceAPI::DBAddSomeBCON(vector<BCON> bcon){
+    DB.useDB(database);
     bool flag_add=true;
     //读取需要添加的BCON信息
     int row=bcon.size();
@@ -310,7 +361,7 @@ int DBTraceAPI::DBAddSomeBCON(vector<BCON> bcon){
     DB.autoCommitOff();
     table="BCON";
     for(int i=0;i<row;i++){
-        value=to_string(bcon[i].BCONID)+", "+to_string(bcon[i].BCONX)+", "+to_string(bcon[i].BCONY)+", \""+bcon[i].Floor+"\"";
+        value=to_string(bcon[i].BCONID)+", "+to_string(bcon[i].BCONX)+", "+to_string(bcon[i].BCONY)+", '"+bcon[i].Floor+"'";
         if(DB.insertItem(table,value)==false){
             flag_add=false;
             break;
@@ -324,14 +375,82 @@ int DBTraceAPI::DBAddSomeBCON(vector<BCON> bcon){
         return DB_RET_FALL;
     }
 }
+//添加单条围栏信息
+int DBTraceAPI::DBAddMapMark(int mapMark){
+    DB.useDB(database);
+    bool flag_add=true;
+    table="MapMark";
+    value="null,"+to_string(mapMark);
+    flag_add=DB.insertItem(table,value);
+    if(flag_add){
+        return DB_RET_OK;
+    }else{
+        return DB_RET_FALL;
+    }
+}
+//添加多条围栏信息
+int DBTraceAPI::DBAddSomeMapMark(vector<int> mapMark){
+    DB.useDB(database);
+    bool flag_add=true;
+    //读取需要添加的BCON信息
+    int row=mapMark.size();
+    if(row==0){
+        return DB_RET_NULL;
+    }
+    DB.autoCommitOff();
+    table="MapMark";
+    for(int i=0;i<row;i++){
+        value="null,"+to_string(mapMark[i]);
+        if(DB.insertItem(table,value)==false){
+            flag_add=false;
+            break;
+        }
+    }
+    if(flag_add){
+        DB.commit();
+        return DB_RET_OK;
+    }else{
+        DB.rollback();
+        return DB_RET_FALL;
+    }
+}
+//更新设备最新轨迹的位置到设备表
+int DBTraceAPI::DBUpdateDevice(string DeviceID,string TableName,int TraceID){
+    DB.useDB(database);
+    bool flag_updata=true;
+    table="Device";
+    value="TableName='"+TableName+"', TraceID="+to_string(TraceID);
+    limits="DeviceID='"+DeviceID+"'";
+    flag_updata=DB.updateItem(table,value,limits);
+    if(flag_updata){
+        return DB_RET_OK;
+    }else{
+        return DB_RET_FALL;
+    }
+}
+//更新设备最新轨迹的位置到人员表
+int DBTraceAPI::DBUpdatePerson(int PersonID,string TableName,int TraceID){
+    DB.useDB(database);
+    bool flag_updata=true;
+    table="Person";
+    value="TableName='"+TableName+"', TraceID="+to_string(TraceID);
+    limits="PersonID="+PersonID;
+    flag_updata=DB.updateItem(table,value,limits);
+    if(flag_updata){
+        return DB_RET_OK;
+    }else{
+        return DB_RET_FALL;
+    }
+}
 //添加单条轨迹信息
 int DBTraceAPI::DBAddTrace(DBTrace trace){
+    DB.useDB(database);
     int result;
     table="Trace";
     value="TableName";
     //保存轨迹的年月信息以搜索相关表
     limits="YearMonth="+trace.time.substr(0,4)+trace.time.substr(5,2);
-    vector<vector<string>> ret=DB.selectItem(table,value,limits);
+    string_table ret=DB.selectItem(table,value,limits);
     //判断是否有存储轨迹的相关表，如果没有这创建新表并且重新调用添加函数，有则直接进行存储
     if(ret.size()==0){
         result=DBCreateTable(trace);
@@ -342,18 +461,36 @@ int DBTraceAPI::DBAddTrace(DBTrace trace){
         }
     }else if(ret.size()==1){
         bool flag_insert=true;
+        int TraceID;
+        DB.autoCommitOff();
         table=ret[0][0];
-        value=to_string(trace.PersonID)+", "+to_string(trace.PersonModule)+", \""+trace.DeviceID+"\", "+to_string(trace.X)+", "+to_string(trace.Y)+", \""+trace.Floor+"\", "+to_string(trace.MapMark)+", \""+trace.time+"\"";
-        flag_insert=DB.insertItem(table,value);
+        value=to_string(trace.PersonID)+", "+to_string(trace.PersonModule)+", '"+trace.DeviceID+"', "+to_string(trace.X)+", "+to_string(trace.Y)+", '"+trace.Floor+"', "+to_string(trace.MapMark)+", '"+trace.time+"'";
+        if(DB.insertItem(table,value)==false){
+            flag_insert=false;
+        }else{
+            value="TraceID";
+            limits="PersonID="+to_string(trace.PersonID)+",PersonModule="+to_string(trace.PersonModule)+", DeviceID='"+trace.DeviceID+"', X="+to_string(trace.X)+", Y="+to_string(trace.Y)+", Floor='"+trace.Floor+"', MapMark="+to_string(trace.MapMark)+", Time='"+trace.time+"'";
+            string_table ret=DB.selectItem(table,value,limits);
+            TraceID=atoi(ret[0][0].c_str());
+            if(DBUpdateDevice(trace.DeviceID,ret[0][0],TraceID)!=DB_RET_OK){
+                flag_insert=false;
+            }
+            if(DBUpdatePerson(trace.PersonID,ret[0][0],TraceID)!=DB_RET_OK){
+                flag_insert=false;
+            }
+        }
         if(flag_insert){
+            DB.commit();
             return DB_RET_OK;
         }else{
+            DB.rollback();
             return DB_RET_FALL;
         }
     }
 }
 //添加多条轨迹信息
 int DBTraceAPI::DBAddSomeTrace(vector<DBTrace> trace){
+    DB.useDB(database);
     //查看所需存储的轨迹条数
     int row=trace.size();
     if(row==0){
@@ -377,11 +514,12 @@ int DBTraceAPI::DBAddSomeTrace(vector<DBTrace> trace){
 }
 //搜索某一设备最近一条的轨迹信息
 int DBTraceAPI::DBSearchDevice(string DeviceID,DBTrace&pTrace){
+    DB.useDB(database);
     table="Device";
     value="TableName,TraceID";
     limits="DeviceID="+DeviceID;
     //搜索对应设备在设备表中记录的最近一条记录
-    vector<vector<string>> ret=DB.selectItem(table,value,limits);
+    string_table ret=DB.selectItem(table,value,limits);
     if(ret.size()==0){
         return DB_RET_DEVICE_ERROR;
     }else if(ret.size()==1){
@@ -389,7 +527,7 @@ int DBTraceAPI::DBSearchDevice(string DeviceID,DBTrace&pTrace){
         table=ret[0][0];
         value="*";
         limits="TraceID="+ret[0][1];
-        vector<vector<string>> temp=DB.selectItem(table,value,limits);
+        string_table temp=DB.selectItem(table,value,limits);
         if(temp.size()==0){
             return DB_RET_NULL;
         }
@@ -399,6 +537,7 @@ int DBTraceAPI::DBSearchDevice(string DeviceID,DBTrace&pTrace){
 }
 //搜索某几个设备最近一条的轨迹信息
 int DBTraceAPI::DBSearchSomeDevice(vector<string> DeviceID,vector<DBTrace>&Trace){
+    DB.useDB(database);
     for(int i=0;i<DeviceID.size();i++){
         DBTrace tempTrace;
         if(DBSearchDevice(DeviceID[i],tempTrace)==DB_RET_OK){
@@ -413,7 +552,8 @@ int DBTraceAPI::DBSearchSomeDevice(vector<string> DeviceID,vector<DBTrace>&Trace
 }
 //搜索所有设备最近一条的轨迹信息
 int DBTraceAPI::DBSearchAllDevice(vector<DBTrace>&Traces){
-    vector<vector<string>> tablename;
+    DB.useDB(database);
+    string_table tablename;
     //读取所有设备
     table="Device";
     value="TableName,TraceID";
@@ -427,7 +567,7 @@ int DBTraceAPI::DBSearchAllDevice(vector<DBTrace>&Traces){
         table=tablename[i][0];
         value="*";
         limits="TraceID="+tablename[i][1];
-        vector<vector<string>> temp=DB.selectItem(table,value,limits);
+        string_table temp=DB.selectItem(table,value,limits);
         DBTrace trace;
         trace.readTrace(temp);
         Traces.push_back(trace);
@@ -440,18 +580,19 @@ int DBTraceAPI::DBSearchAllDevice(vector<DBTrace>&Traces){
 }
 //搜索某一人最近一条的轨迹信息
 int DBTraceAPI::DBSearchPerson(int PersonID,DBTrace&pTrace){
+    DB.useDB(database);
     table="Person";
     value="TableName,TraceID";
     limits="PersonID="+to_string(PersonID);
     //搜索对应人员在人员表中记录的最近一条记录
-    vector<vector<string>> ret=DB.selectItem(table,value,limits);
+    string_table ret=DB.selectItem(table,value,limits);
     if(ret.size()==0){
         return DB_RET_PERSON_ERROR;
     }else if(ret.size()==1){
         table=ret[0][0];
         value="*";
         limits="TraceID="+ret[0][1];
-        vector<vector<string>> temp=DB.selectItem(table,value,limits);
+        string_table temp=DB.selectItem(table,value,limits);
         if(temp.size()==0){
             return DB_RET_NULL;
         }
@@ -461,6 +602,7 @@ int DBTraceAPI::DBSearchPerson(int PersonID,DBTrace&pTrace){
 }
 //搜索某几个人员最近一条的轨迹信息
 int DBTraceAPI::DBSearchSomePerson(vector<int> PersonID,vector<DBTrace>&Trace){
+    DB.useDB(database);
     for(int i=0;i<PersonID.size();i++){
         DBTrace tempTrace;
         if(DBSearchPerson(PersonID[i],tempTrace)==DB_RET_OK){
@@ -475,7 +617,8 @@ int DBTraceAPI::DBSearchSomePerson(vector<int> PersonID,vector<DBTrace>&Trace){
 }
 //搜索所有人员最近一条的轨迹信息
 int DBTraceAPI::DBSearchAllPerson (vector<DBTrace>&Traces){
-    vector<vector<string>> tablename;
+    DB.useDB(database);
+    string_table tablename;
     table="Person";
     value="TableName,TraceID";
     limits="TraceID IS NOT NULL";
@@ -489,7 +632,7 @@ int DBTraceAPI::DBSearchAllPerson (vector<DBTrace>&Traces){
         table=tablename[i][0];
         value="*";
         limits="TraceID="+tablename[i][1];
-        vector<vector<string>> temp=DB.selectItem(table,value,limits);
+        string_table temp=DB.selectItem(table,value,limits);
         DBTrace trace;
         trace.readTrace(temp);
         Traces.push_back(trace);
@@ -502,6 +645,7 @@ int DBTraceAPI::DBSearchAllPerson (vector<DBTrace>&Traces){
 }
 //搜索时间区间内的人员轨迹信息
 int DBTraceAPI::DBSearchPersonTrace(int PersonID,ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces){
+    DB.useDB(database);
     string tracetable1,tracetable2;
     table="Trace";
     value="TableName";
@@ -511,13 +655,13 @@ int DBTraceAPI::DBSearchPersonTrace(int PersonID,ptime timeBegin,ptime timeEnd,v
     timeE=timeE.replace(timeE.find("T"),1," ");
     limits="YearMonth>="+timeB.substr(0,4)+timeB.substr(5,2)+" AND YearMonth<="+timeE.substr(0,4)+timeE.substr(5,2);
     //检索在时间区间内的所有轨迹表
-    vector<vector<string>> ret=DB.selectItem(table,value,limits);
+    string_table ret=DB.selectItem(table,value,limits);
     //轨迹表为0则返回没有数据，不为0则开始搜索
     int rows=ret.size();
     if(rows==0){
         return DB_RET_NULL;
     }
-    vector<vector<string>> temp;
+    string_table temp;
     if(rows==1){
         table=ret[0][0];
         value="*";
@@ -543,6 +687,7 @@ int DBTraceAPI::DBSearchPersonTrace(int PersonID,ptime timeBegin,ptime timeEnd,v
 }
 //搜索时间区间内的设备轨迹信息
 int DBTraceAPI::DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces){
+    DB.useDB(database);
     string tracetable1,tracetable2;
     table="Trace";
     value="TableName";
@@ -552,13 +697,13 @@ int DBTraceAPI::DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEn
     timeE=timeE.replace(timeE.find("T"),1," ");
     limits="YearMonth>="+timeB.substr(0,4)+timeB.substr(5,2)+" AND YearMonth<="+timeE.substr(0,4)+timeE.substr(5,2);
     //检索在时间区间内的所有轨迹表
-    vector<vector<string>> ret=DB.selectItem(table,value,limits);
+    string_table ret=DB.selectItem(table,value,limits);
     //轨迹表为0则返回没有数据，不为0则开始搜索
     int rows=ret.size();
     if(rows==0){
         return DB_RET_NULL;
     }
-    vector<vector<string>> temp;
+    string_table temp;
     if(rows==1){
         table=ret[0][0];
         value="*";
@@ -584,10 +729,11 @@ int DBTraceAPI::DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEn
 }
 //搜索所有已存设备
 int DBTraceAPI::DBSearchDeviceID(vector<string>&DeviceID){
+    DB.useDB(database);
     table="Device";
     value="DeviceID";
     //搜索设备表，获取设备ID
-    vector<vector<string>> ret=DB.selectItem(table,value);
+    string_table ret=DB.selectItem(table,value);
     if(ret.size()==0){
         return DB_RET_NULL;
     }
@@ -598,11 +744,12 @@ int DBTraceAPI::DBSearchDeviceID(vector<string>&DeviceID){
 }
 //删除单条轨迹信息
 int DBTraceAPI::DBDeleteTrace(DBTrace trace){
+    DB.useDB(database);
     table="Trace";
     value="TableName";
     limits="YearMonth="+trace.time.substr(0,4)+trace.time.substr(5,2);
     //搜索轨迹所在表格
-    vector<vector<string>> ret=DB.selectItem(table,value,limits);
+    string_table ret=DB.selectItem(table,value,limits);
     if(ret.size()==0){
         return DB_RET_NULL;
     }
@@ -617,6 +764,7 @@ int DBTraceAPI::DBDeleteTrace(DBTrace trace){
 }
 //删除设备以及其对应关系
 int DBTraceAPI::DBDeleteDevice(string DeviceID){
+    DB.useDB(database);
     table="Device";
     limits="DeviceID="+DeviceID;
     DB.autoCommitOff();
@@ -641,6 +789,7 @@ int DBTraceAPI::DBDeleteDevice(string DeviceID){
 }
 //删除围栏信息
 int DBTraceAPI::DBDeleteMap(int MapMark){
+    DB.useDB(database);
     table="Map";
     limits="MapMark="+to_string(MapMark);
     if(DB.deleteItem(table,limits)){
@@ -651,11 +800,12 @@ int DBTraceAPI::DBDeleteMap(int MapMark){
 }
 //更新轨迹信息
 int DBTraceAPI::DBUpdateTrace(DBTrace traceOld,DBTrace traceNew){
+    DB.useDB(database);
     table="Trace";
     value="TableName";
     limits="YearMonth="+traceOld.time.substr(0,4)+traceOld.time.substr(5,2);
     //搜索该条轨迹说在表格
-    vector<vector<string>> ret=DB.selectItem(table,value,limits);
+    string_table ret=DB.selectItem(table,value,limits);
     if(ret.size()==0){
         return DB_RET_NULL;
     }
@@ -670,10 +820,11 @@ int DBTraceAPI::DBUpdateTrace(DBTrace traceOld,DBTrace traceNew){
 }
 //清除所有轨迹表
 int DBTraceAPI::DBClearTable(){
+    DB.useDB(database);
     table="Trace";
     value="TableName";
     //获取所有轨迹表名
-    vector<vector<string>> ret=DB.selectItem(table,value);
+    string_table ret=DB.selectItem(table,value);
     if(ret.size()==0){
         return DB_RET_NULL;
     }
@@ -696,6 +847,7 @@ int DBTraceAPI::DBClearTable(){
 }
 //具体围栏数据统计
 int DBTraceAPI::DBMapCount(int PersonID,int MapMark,ptime timeBegin,ptime timeEnd,DBMapData&MapData){
+    DB.useDB(database);
     vector<DBTrace> Traces;
     int flagOld=0;
     int flagNew=0;
@@ -724,44 +876,16 @@ int DBTraceAPI::DBMapCount(int PersonID,int MapMark,ptime timeBegin,ptime timeEn
         return DB_RET_FALL;
     }
 }
-/*
-void CountStayTime(Time timeBegin,Time timeEnd,Time&result){
-    int flag=0;
-    result.Day=result.Day+timeEnd.Day-timeBegin.Day;
-    result.hour=result.hour+timeEnd.hour-timeBegin.hour;
-    result.minute=result.minute+timeEnd.minute-timeBegin.minute;
-    result.second=result.second+timeEnd.second-timeBegin.second;
-    if(result.second<0){
-        result.minute--;
-        result.second=result.second+60;
-    }else if (result.second>=60){
-        result.second=result.second-60;
-        result.minute++;
-    }
-    if(result.minute<0){
-        result.hour--;
-        result.minute=result.minute+60;
-    }else if (result.minute>=60){
-        result.minute=result.minute-60;
-        result.hour++;
-    }
-    if(result.hour<0){
-        result.Day--;
-        result.hour=result.hour+24;
-    }else if (result.hour>=24){
-        result.hour=result.hour-24;
-        result.Day++;
-    }
-}*/
 //具体人员在围栏位置的统计
 int DBTraceAPI::DBMapPersonCount(int PersonID, ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData){
+    DB.useDB(database);
     vector<DBTrace> Traces;
     int flag=0;
     int res=DBSearchPersonTrace(PersonID,timeBegin,timeEnd,Traces);
     if(res==DB_RET_OK){
         table="MapMark";
         value="MapMark";
-        vector<vector<string>> ret=DB.selectItem(table,value);
+        string_table ret=DB.selectItem(table,value);
         for(int i=0;i<ret.size();i++){
             int flagOld=0;
             int flagNew=0;
@@ -795,9 +919,10 @@ int DBTraceAPI::DBMapPersonCount(int PersonID, ptime timeBegin,ptime timeEnd,vec
 }
 //具体围栏的统计
 int DBTraceAPI::DBMapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData){
+    DB.useDB(database);
     table="Person";
     value="PersonID";
-    vector<vector<string>> ret=DB.selectItem(table,value);
+    string_table ret=DB.selectItem(table,value);
     if(ret.size()==0){
         return DB_RET_PERSON_ERROR;
     }

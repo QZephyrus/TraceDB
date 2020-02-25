@@ -29,14 +29,26 @@ class DBTraceAPI
         int DBCreateDB();
         int DBCreateRelatTB();
         int DBCreateTable(DBTrace trace);
+
         int DBAddDevice(DBDeviceData deviceData);
         int DBAddSomeDevice(vector<DBDeviceData> deviceData);
-        int DBUpdateDevice(DBDeviceData deviceData);
-        int DBUpdateSomeDevice(vector<DBDeviceData> deviceData);
+
+        int DBAddPerson(DBDeviceData deviceData);
+        int DBAddSomePerson(vector<DBDeviceData> deviceData);
+
+        int DBUpdateDevice(string DeviceID,string TableName,int TraceID);
+        int DBUpdatePerson(int PersonID,string TableName,int TraceID);
+
+        int DBUpdateDeviceRelat(DBDeviceData deviceData);
+        int DBUpdateSomeDeviceRelat(vector<DBDeviceData> deviceData);
+
         int DBAddMap(Map map);
         int DBAddSomeMap(vector<Map> map);
         int DBAddBCON(BCON bcon);
         int DBAddSomeBCON(vector<BCON> bcon);
+        int DBAddMapMark(int mapMark);
+        int DBAddSomeMapMark(vector<int> mapMark);
+
         int DBAddTrace(DBTrace trace);
         int DBAddSomeTrace(vector<DBTrace> trace);
         int DBSearchDevice(string DeviceID,DBTrace&pTrace);

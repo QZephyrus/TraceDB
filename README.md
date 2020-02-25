@@ -14,3 +14,4 @@ sudo apt-get install mysql-server
 apt-get isntall mysql-client
 sudo apt-get install libmysqlclient-dev
 还需对安装后的数据库进行账户密码的设置
+本代码采用的mysql数据库用户名为root，密码为zenos
