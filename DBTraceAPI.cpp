@@ -127,13 +127,13 @@ int DBTraceAPI::DBCreateTable(DBTrace trace){
     bool flag_create=true;
     bool flag_add=true;
     bool flag_temp=true;
+    DB.autoCommitOff();
     //根据轨迹合成表名如Trace202002
-    table="Trace"+trace.time.substr(0,3)+trace.time.substr(5,6);
+    table="Trace"+trace.time.substr(0,4)+trace.time.substr(5,2);
     flag_create=DB.createTB(table,"TraceID int UNSIGNED NOT NULL AUTO_INCREMENT,PersonID bigint NULL,PersonModule tinyint NULL,DeviceID varchar(255) NULL,X float NULL,Y float NULL,Floor char(4) NULL,MapMark bigint NULL,Time datetime NULL,PRIMARY KEY (TraceID)");
     if(flag_create==true){
-        DB.autoCommitOff();
-        int year=atoi(trace.time.substr(0,3).c_str());
-        int month=atoi(trace.time.substr(5,6).c_str());
+        int year=atoi(trace.time.substr(0,4).c_str());
+        int month=atoi(trace.time.substr(5,2).c_str());
         string yearmonth;
         //将新建的表存入相关月份（一张表对应几个月）
         for(int i=0;i<MemoryMonth;i++){
@@ -142,7 +142,7 @@ int DBTraceAPI::DBCreateTable(DBTrace trace){
             }else{
                 yearmonth=to_string((year)*100+(month+i));
             }
-            value=table+", "+yearmonth;
+            value="null,'"+table+"', "+yearmonth;
             flag_temp=DB.insertItem("Trace",value);
             if(flag_temp==false){
                 flag_add=false;
@@ -434,7 +434,7 @@ int DBTraceAPI::DBUpdatePerson(int PersonID,string TableName,int TraceID){
     bool flag_updata=true;
     table="Person";
     value="TableName='"+TableName+"', TraceID="+to_string(TraceID);
-    limits="PersonID="+PersonID;
+    limits="PersonID="+to_string(PersonID);
     flag_updata=DB.updateItem(table,value,limits);
     if(flag_updata){
         return DB_RET_OK;
@@ -464,18 +464,19 @@ int DBTraceAPI::DBAddTrace(DBTrace trace){
         int TraceID;
         DB.autoCommitOff();
         table=ret[0][0];
-        value=to_string(trace.PersonID)+", "+to_string(trace.PersonModule)+", '"+trace.DeviceID+"', "+to_string(trace.X)+", "+to_string(trace.Y)+", '"+trace.Floor+"', "+to_string(trace.MapMark)+", '"+trace.time+"'";
+        string tableName=table;
+        value="null,"+to_string(trace.PersonID)+", "+to_string(trace.PersonModule)+", '"+trace.DeviceID+"', "+to_string(trace.X)+", "+to_string(trace.Y)+", '"+trace.Floor+"', "+to_string(trace.MapMark)+", '"+trace.time+"'";
         if(DB.insertItem(table,value)==false){
             flag_insert=false;
         }else{
             value="TraceID";
-            limits="PersonID="+to_string(trace.PersonID)+",PersonModule="+to_string(trace.PersonModule)+", DeviceID='"+trace.DeviceID+"', X="+to_string(trace.X)+", Y="+to_string(trace.Y)+", Floor='"+trace.Floor+"', MapMark="+to_string(trace.MapMark)+", Time='"+trace.time+"'";
+            limits="PersonID="+to_string(trace.PersonID)+" AND PersonModule="+to_string(trace.PersonModule)+" AND DeviceID='"+trace.DeviceID+"' AND X="+to_string(trace.X)+" AND Y="+to_string(trace.Y)+" AND Floor='"+trace.Floor+"' AND MapMark="+to_string(trace.MapMark)+" AND Time='"+trace.time+"'";
             string_table ret=DB.selectItem(table,value,limits);
             TraceID=atoi(ret[0][0].c_str());
-            if(DBUpdateDevice(trace.DeviceID,ret[0][0],TraceID)!=DB_RET_OK){
+            if(DBUpdateDevice(trace.DeviceID,tableName,TraceID)!=DB_RET_OK){
                 flag_insert=false;
             }
-            if(DBUpdatePerson(trace.PersonID,ret[0][0],TraceID)!=DB_RET_OK){
+            if(DBUpdatePerson(trace.PersonID,tableName,TraceID)!=DB_RET_OK){
                 flag_insert=false;
             }
         }
@@ -517,7 +518,7 @@ int DBTraceAPI::DBSearchDevice(string DeviceID,DBTrace&pTrace){
     DB.useDB(database);
     table="Device";
     value="TableName,TraceID";
-    limits="DeviceID="+DeviceID;
+    limits="DeviceID='"+DeviceID+"' AND TraceID IS NOT NULL";
     //搜索对应设备在设备表中记录的最近一条记录
     string_table ret=DB.selectItem(table,value,limits);
     if(ret.size()==0){
@@ -583,7 +584,7 @@ int DBTraceAPI::DBSearchPerson(int PersonID,DBTrace&pTrace){
     DB.useDB(database);
     table="Person";
     value="TableName,TraceID";
-    limits="PersonID="+to_string(PersonID);
+    limits="PersonID="+to_string(PersonID)+" AND TraceID IS NOT NULL";
     //搜索对应人员在人员表中记录的最近一条记录
     string_table ret=DB.selectItem(table,value,limits);
     if(ret.size()==0){
@@ -643,6 +644,7 @@ int DBTraceAPI::DBSearchAllPerson (vector<DBTrace>&Traces){
         return DB_RET_OK;
     }
 }
+
 //搜索时间区间内的人员轨迹信息
 int DBTraceAPI::DBSearchPersonTrace(int PersonID,ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces){
     DB.useDB(database);
@@ -665,7 +667,7 @@ int DBTraceAPI::DBSearchPersonTrace(int PersonID,ptime timeBegin,ptime timeEnd,v
     if(rows==1){
         table=ret[0][0];
         value="*";
-        limits="PersonID="+to_string(PersonID)+" AND Time>="+timeB+" AND Time<="+timeE;
+        limits="PersonID="+to_string(PersonID)+" AND Time>='"+timeB+"' AND Time<='"+timeE+"'";
         temp=DB.selectItem(table,value,limits);
         DBTrace trace;
         Traces=trace.readTraces(temp);  
@@ -673,7 +675,7 @@ int DBTraceAPI::DBSearchPersonTrace(int PersonID,ptime timeBegin,ptime timeEnd,v
         for(int i=0;i<rows;i++){
             table=ret[i][0];
             value="*";
-            limits="PersonID="+to_string(PersonID)+" AND Time>="+timeB+" AND Time<="+timeE;
+            limits="PersonID="+to_string(PersonID)+" AND Time>='"+timeB+"' AND Time<='"+timeE+"'";
             temp=DB.selectItem(table,value,limits);
             DBTrace trace; 
             Traces.insert(Traces.end(),trace.readTraces(temp).begin(),trace.readTraces(temp).end());
@@ -707,7 +709,7 @@ int DBTraceAPI::DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEn
     if(rows==1){
         table=ret[0][0];
         value="*";
-        limits="DeviceID="+DeviceID+" AND Time>="+timeB+" AND Time<="+timeE;
+        limits="DeviceID='"+DeviceID+"' AND Time>='"+timeB+"' AND Time<='"+timeE+"'";
         temp=DB.selectItem(table,value,limits);
         DBTrace trace;
         Traces=trace.readTraces(temp);  
@@ -715,7 +717,7 @@ int DBTraceAPI::DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEn
         for(int i=0;i<rows;i++){
             table=ret[i][0];
             value="*";
-            limits="DeviceIDID="+DeviceID+" AND Time>="+timeB+" AND Time<="+timeE;
+            limits="DeviceIDID='"+DeviceID+"' AND Time>='"+timeB+"' AND Time<='"+timeE+"'";
             temp=DB.selectItem(table,value,limits);
             DBTrace trace; 
             Traces.insert(Traces.end(),trace.readTraces(temp).begin(),trace.readTraces(temp).end());
@@ -742,12 +744,13 @@ int DBTraceAPI::DBSearchDeviceID(vector<string>&DeviceID){
     }
     return DB_RET_OK;
 }
+
 //删除单条轨迹信息
 int DBTraceAPI::DBDeleteTrace(DBTrace trace){
     DB.useDB(database);
     table="Trace";
     value="TableName";
-    limits="YearMonth="+trace.time.substr(0,4)+trace.time.substr(5,2);
+    limits="YearMonth='"+trace.time.substr(0,4)+trace.time.substr(5,2)+"'";
     //搜索轨迹所在表格
     string_table ret=DB.selectItem(table,value,limits);
     if(ret.size()==0){
@@ -756,7 +759,7 @@ int DBTraceAPI::DBDeleteTrace(DBTrace trace){
     table=ret[0][0];
     limits="TraceID="+to_string(trace.TraceID);
     //删除轨迹
-    if(DB.deleteItem(table,value)){
+    if(DB.deleteItem(table,limits)){
         return DB_RET_OK;
     }else{
         return DB_RET_FALL;
@@ -766,7 +769,7 @@ int DBTraceAPI::DBDeleteTrace(DBTrace trace){
 int DBTraceAPI::DBDeleteDevice(string DeviceID){
     DB.useDB(database);
     table="Device";
-    limits="DeviceID="+DeviceID;
+    limits="DeviceID='"+DeviceID+"'";
     DB.autoCommitOff();
     bool flag_delete=true;
     //删除在设备表中的信息
@@ -822,7 +825,7 @@ int DBTraceAPI::DBUpdateTrace(DBTrace traceOld,DBTrace traceNew){
 int DBTraceAPI::DBClearTable(){
     DB.useDB(database);
     table="Trace";
-    value="TableName";
+    value="distinct TableName";
     //获取所有轨迹表名
     string_table ret=DB.selectItem(table,value);
     if(ret.size()==0){
@@ -836,6 +839,9 @@ int DBTraceAPI::DBClearTable(){
             flag_delete=false;
             break;
         }
+    }
+    if(DB.clearTB(table)==false){
+        flag_delete=false;
     }
     if(flag_delete){
         DB.commit();
@@ -852,6 +858,8 @@ int DBTraceAPI::DBMapCount(int PersonID,int MapMark,ptime timeBegin,ptime timeEn
     int flagOld=0;
     int flagNew=0;
     int res=DBSearchPersonTrace(PersonID,timeBegin,timeEnd,Traces);
+    MapData.PersonID=PersonID;
+    MapData.MapMark=MapMark;
     if(res==DB_RET_OK){
         for(int i=0;i<Traces.size();i++){
             if(Traces[i].MapMark==MapMark){
@@ -863,6 +871,8 @@ int DBTraceAPI::DBMapCount(int PersonID,int MapMark,ptime timeBegin,ptime timeEn
                 MapData.Enter++;
             }else if (flagNew==0 && flagOld==1)
             {
+                ptime temp = (time_from_string(Traces[i].time)+MapData.StayTime);
+                MapData.StayTime=temp-time_from_string(Traces[i-1].time);
                 MapData.Out++;
             }else if (flagNew==1 && flagOld==1)
             {
@@ -872,6 +882,10 @@ int DBTraceAPI::DBMapCount(int PersonID,int MapMark,ptime timeBegin,ptime timeEn
             flagOld=flagNew;
         }
         return DB_RET_OK;
+    }else if (res==DB_RET_NULL){
+        MapData.Enter=0;
+        MapData.Out=0;
+        MapData.StayTime=time_from_string("2020-02-01 00:00:00")-time_from_string("2020-02-01 00:00:00");
     }else{
         return DB_RET_FALL;
     }
@@ -898,14 +912,17 @@ int DBTraceAPI::DBMapPersonCount(int PersonID, ptime timeBegin,ptime timeEnd,vec
                     flagNew=0;
                 }
                 if(flagNew==1 && flagOld==0){
-                   tempMapData.Enter++;
+                    tempMapData.Enter++;
                 }else if (flagNew==0 && flagOld==1)
                 {
-                   tempMapData.Out++;
+                    ptime temp = (time_from_string(Traces[i].time)+tempMapData.StayTime);
+                    tempMapData.StayTime=temp-time_from_string(Traces[i-1].time);
+                    tempMapData.Out++;
                 }else if (flagNew==1 && flagOld==1)
                 {
-                    ptime temp = time_from_string(Traces[i].time)+tempMapData.StayTime;
+                    ptime temp = (time_from_string(Traces[i].time)+tempMapData.StayTime);
                     tempMapData.StayTime=temp-time_from_string(Traces[i-1].time);
+                    tempMapData.Out++;
                 }
                 flagOld=flagNew;
             }

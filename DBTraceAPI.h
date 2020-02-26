@@ -51,6 +51,7 @@ class DBTraceAPI
 
         int DBAddTrace(DBTrace trace);
         int DBAddSomeTrace(vector<DBTrace> trace);
+        
         int DBSearchDevice(string DeviceID,DBTrace&pTrace);
         int DBSearchSomeDevice(vector<string> DeviceID,vector<DBTrace>&Trace);
         int DBSearchAllDevice(vector<DBTrace>&Traces);
@@ -59,12 +60,14 @@ class DBTraceAPI
         int DBSearchAllPerson (vector<DBTrace>&Traces);
         int DBSearchPersonTrace(int PersonID,ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces);
         int DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces);
+
         int DBSearchDeviceID(vector<string>&DeviceID);
         int DBDeleteTrace(DBTrace trace);
         int DBDeleteDevice(string DeviceID);
         int DBDeleteMap(int MapMark);
         int DBUpdateTrace(DBTrace traceOld,DBTrace traceNew);
         int DBClearTable();
+        
         int DBMapCount(int PersonID,int MapMark,ptime timeBegin,ptime timeEnd,DBMapData&MapData);
         int DBMapPersonCount(int PersonID, ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData);
         int DBMapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData);

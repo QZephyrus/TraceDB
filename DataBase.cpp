@@ -150,6 +150,15 @@ bool DataBase::deleteTB(const string &table){
 	cout << table << " has been deleted!" << endl;
     return true;
 }
+bool DataBase::clearTB(const string &table){
+	string str ="truncate table "+table;
+	if (mysql_query(sql, str.c_str())) {
+		cout << "clear table "+table+" error!" << endl;
+		return false;
+	}
+	cout << table << " has been cleared!" << endl;
+    return true;
+}
 
 vector<vector<string>> DataBase::selectItem(const string &table,const string &value){
     string str = "select " + value + " from " + table;
