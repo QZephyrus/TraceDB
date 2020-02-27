@@ -38,6 +38,39 @@ typedef vector<vector<string>> string_table;
 class DBTrace
 {
     public:
+        DBTrace(){};
+        DBTrace(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t,string TBName,int TID){
+            PersonID=PerID;
+            PersonModule=PerModule;
+            DeviceID=DevID;
+            X=XF;
+            Y=YF;
+            Floor=FloorF;
+            MapMark=MMark;
+            time=t;
+            TableName=TBName;
+            TraceID=TID;
+        };
+        DBTrace(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t){
+            PersonID=PerID;
+            PersonModule=PerModule;
+            DeviceID=DevID;
+            X=XF;
+            Y=YF;
+            Floor=FloorF;
+            MapMark=MMark;
+            time=t;
+        };
+        void getvalue(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t){
+            PersonID=PerID;
+            PersonModule=PerModule;
+            DeviceID=DevID;
+            X=XF;
+            Y=YF;
+            Floor=FloorF;
+            MapMark=MMark;
+            time=t;
+        };
 	    int PersonID;
 	    short PersonModule;
         string DeviceID;

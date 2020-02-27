@@ -455,38 +455,40 @@ int DBTraceAPI::DBAddTrace(DBTrace trace){
     if(ret.size()==0){
         result=DBCreateTable(trace);
         if(result==DB_RET_OK){
-            DBAddTrace(trace);
+            table="Trace"+trace.time.substr(0,4)+trace.time.substr(5,2);
         }else{
             return result;
         }
     }else if(ret.size()==1){
-        bool flag_insert=true;
-        int TraceID;
-        DB.autoCommitOff();
-        table=ret[0][0];
-        string tableName=table;
-        value="null,"+to_string(trace.PersonID)+", "+to_string(trace.PersonModule)+", '"+trace.DeviceID+"', "+to_string(trace.X)+", "+to_string(trace.Y)+", '"+trace.Floor+"', "+to_string(trace.MapMark)+", '"+trace.time+"'";
-        if(DB.insertItem(table,value)==false){
+        table=ret[0][0];    
+    }else{
+        return DB_RET_ERORR;
+    }
+    bool flag_insert=true;
+    int TraceID;
+    DB.autoCommitOff();
+    string tableName=table;
+    value="null,"+to_string(trace.PersonID)+", "+to_string(trace.PersonModule)+", '"+trace.DeviceID+"', "+to_string(trace.X)+", "+to_string(trace.Y)+", '"+trace.Floor+"', "+to_string(trace.MapMark)+", '"+trace.time+"'";
+    if(DB.insertItem(table,value)==false){
+        flag_insert=false;
+    }else{
+        value="TraceID";
+        limits="PersonID="+to_string(trace.PersonID)+" AND PersonModule="+to_string(trace.PersonModule)+" AND DeviceID='"+trace.DeviceID+"' AND X="+to_string(trace.X)+" AND Y="+to_string(trace.Y)+" AND Floor='"+trace.Floor+"' AND MapMark="+to_string(trace.MapMark)+" AND Time='"+trace.time+"'";
+        string_table ret=DB.selectItem(table,value,limits);
+        TraceID=atoi(ret[0][0].c_str());
+        if(DBUpdateDevice(trace.DeviceID,tableName,TraceID)!=DB_RET_OK){
             flag_insert=false;
-        }else{
-            value="TraceID";
-            limits="PersonID="+to_string(trace.PersonID)+" AND PersonModule="+to_string(trace.PersonModule)+" AND DeviceID='"+trace.DeviceID+"' AND X="+to_string(trace.X)+" AND Y="+to_string(trace.Y)+" AND Floor='"+trace.Floor+"' AND MapMark="+to_string(trace.MapMark)+" AND Time='"+trace.time+"'";
-            string_table ret=DB.selectItem(table,value,limits);
-            TraceID=atoi(ret[0][0].c_str());
-            if(DBUpdateDevice(trace.DeviceID,tableName,TraceID)!=DB_RET_OK){
-                flag_insert=false;
-            }
-            if(DBUpdatePerson(trace.PersonID,tableName,TraceID)!=DB_RET_OK){
-                flag_insert=false;
-            }
         }
-        if(flag_insert){
-            DB.commit();
-            return DB_RET_OK;
-        }else{
-            DB.rollback();
-            return DB_RET_FALL;
+        if(DBUpdatePerson(trace.PersonID,tableName,TraceID)!=DB_RET_OK){
+            flag_insert=false;
         }
+    }
+    if(flag_insert){
+        DB.commit();
+        return DB_RET_OK;
+    }else{
+        DB.rollback();
+        return DB_RET_FALL;
     }
 }
 //添加多条轨迹信息
@@ -670,15 +672,17 @@ int DBTraceAPI::DBSearchPersonTrace(int PersonID,ptime timeBegin,ptime timeEnd,v
         limits="PersonID="+to_string(PersonID)+" AND Time>='"+timeB+"' AND Time<='"+timeE+"'";
         temp=DB.selectItem(table,value,limits);
         DBTrace trace;
-        Traces=trace.readTraces(temp);  
-    }else{
+        Traces=trace.readTraces(temp);
+    }else if(rows>1){
         for(int i=0;i<rows;i++){
             table=ret[i][0];
             value="*";
             limits="PersonID="+to_string(PersonID)+" AND Time>='"+timeB+"' AND Time<='"+timeE+"'";
             temp=DB.selectItem(table,value,limits);
-            DBTrace trace; 
-            Traces.insert(Traces.end(),trace.readTraces(temp).begin(),trace.readTraces(temp).end());
+            DBTrace trace;
+            vector<DBTrace> res;
+            res=trace.readTraces(temp);
+            Traces.insert(Traces.end(),res.begin(),res.end());
         }
     }
     if(Traces.size()==0){
@@ -717,10 +721,12 @@ int DBTraceAPI::DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEn
         for(int i=0;i<rows;i++){
             table=ret[i][0];
             value="*";
-            limits="DeviceIDID='"+DeviceID+"' AND Time>='"+timeB+"' AND Time<='"+timeE+"'";
+            limits="DeviceID='"+DeviceID+"' AND Time>='"+timeB+"' AND Time<='"+timeE+"'";
             temp=DB.selectItem(table,value,limits);
             DBTrace trace; 
-            Traces.insert(Traces.end(),trace.readTraces(temp).begin(),trace.readTraces(temp).end());
+            vector<DBTrace> res;
+            res=trace.readTraces(temp);
+            Traces.insert(Traces.end(),res.begin(),res.end());
         }
     }
     if(Traces.size()==0){

@@ -354,8 +354,8 @@ int selectAllPersontest(DBTraceAPI&DBAPI){
 int selectPersonTracetest(DBTraceAPI&DBAPI){
 	int info;
 	vector<DBTrace> rec;
-	ptime begin=time_from_string("2020-02-26 09:53:00");
-	ptime end=time_from_string("2020-02-26 09:57:00");
+	ptime begin=time_from_string("2020-04-26 09:53:00");
+	ptime end=time_from_string("2020-05-26 09:57:00");
 	int PersonID=101;
 	info=DBAPI.DBSearchPersonTrace(PersonID,begin,end,rec);
 	for(int i=0;i<rec.size();i++){
@@ -367,8 +367,8 @@ int selectPersonTracetest(DBTraceAPI&DBAPI){
 int selectDeviceTracetest(DBTraceAPI&DBAPI){
 	int info;
 	vector<DBTrace> rec;
-	ptime begin=time_from_string("2020-02-26 09:53:00");
-	ptime end=time_from_string("2020-02-26 09:57:00");
+	ptime begin=time_from_string("2020-04-26 09:53:00");
+	ptime end=time_from_string("2020-05-26 09:57:00");
 	string DeviceID="D101";
 	info=DBAPI.DBSearchDeviceTrace(DeviceID,begin,end,rec);
 	for(int i=0;i<rec.size();i++){
@@ -391,8 +391,8 @@ int mapCount(DBTraceAPI&DBAPI){
 	int info;
 	int PersonID=101;
 	int MapMark=1;
-	ptime timeBegin=time_from_string("2020-02-26 09:53:00");
-	ptime timeEnd=time_from_string("2020-02-26 10:53:00");
+	ptime timeBegin=time_from_string("2020-04-26 09:53:00");
+	ptime timeEnd=time_from_string("2020-05-26 10:53:00");
 	DBMapData MapData;
 	info=DBAPI.DBMapCount(PersonID,MapMark,timeBegin,timeEnd,MapData);
 	cout<<"PersinID="<<MapData.PersonID<<",MapMark="<<MapData.MapMark<<",EnterTimes="<<MapData.Enter<<",OutTimes="<<MapData.Out<<",StayTime="<<MapData.StayTime<<endl;
@@ -402,8 +402,8 @@ int mapCount(DBTraceAPI&DBAPI){
 int mapPersonCount(DBTraceAPI&DBAPI){
 	int info;
 	int PersonID=101;
-	ptime timeBegin=time_from_string("2020-02-26 09:53:00");
-	ptime timeEnd=time_from_string("2020-02-26 10:54:00");
+	ptime timeBegin=time_from_string("2020-04-26 09:53:00");
+	ptime timeEnd=time_from_string("2020-05-26 10:54:00");
 	vector<DBMapData> MapData;
 	info=DBAPI.DBMapPersonCount(PersonID,timeBegin,timeEnd,MapData);
 	for(int i=0;i<MapData.size();i++){
@@ -415,8 +415,8 @@ int mapPersonCount(DBTraceAPI&DBAPI){
 int mapMarkCount(DBTraceAPI&DBAPI){
 	int info;
 	int MapMark=2;
-	ptime timeBegin=time_from_string("2020-02-26 09:53:00");
-	ptime timeEnd=time_from_string("2020-02-26 10:54:00");
+	ptime timeBegin=time_from_string("2020-04-26 09:53:00");
+	ptime timeEnd=time_from_string("2020-05-26 10:54:00");
 	vector<DBMapData> MapData;
 	info=DBAPI.DBMapMarkCount(MapMark,timeBegin,timeEnd,MapData);
 	for(int i=0;i<MapData.size();i++){
@@ -481,6 +481,37 @@ int clearTable(DBTraceAPI&DBAPI){
 	info=DBAPI.DBClearTable();
 	return info;
 }
+//多条跨表查询数据添加轨迹测试方法
+int addcrossSomeTracetest(DBTraceAPI&DBAPI){
+	int info;
+	vector<DBTrace> trace;
+	DBTrace temp;
+	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-02-29 10:20:00");
+	trace.push_back(temp);
+	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-04-30 10:20:00");
+	trace.push_back(temp);
+	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-04-30 10:25:00");
+	trace.push_back(temp);
+	temp.getvalue(101,1,"D101",1,1,"1F",1,"2020-04-30 10:30:00");
+	trace.push_back(temp);
+	temp.getvalue(101,1,"D101",1,1,"1F",1,"2020-04-30 10:33:00");
+	trace.push_back(temp);
+	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-04-30 10:45:00");
+	trace.push_back(temp);
+	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-04-30 11:00:00");
+	trace.push_back(temp);
+	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-04-30 23:50:00");
+	trace.push_back(temp);
+	temp.getvalue(101,1,"D101",1,1,"1F",1,"2020-04-30 23:55:00");
+	trace.push_back(temp);
+	temp.getvalue(101,1,"D101",1,1,"1F",1,"2020-05-01 00:05:00");
+	trace.push_back(temp);
+	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-05-01 00:10:00");
+	trace.push_back(temp);
+	info=DBAPI.DBAddSomeTrace(trace);
+	return info;
+}
+
 
 int main(int argc,char const *argv[]){
     //接口类的调用
@@ -489,7 +520,7 @@ int main(int argc,char const *argv[]){
 	//数据库建立连接
 	info=connectDBtest(DBAPI);
 	cout<<info<<endl;
-
+/*
 	//数据库创建
 	info=creatDBtest(DBAPI);
 	cout<<info<<endl;
@@ -529,6 +560,8 @@ int main(int argc,char const *argv[]){
 	//多条添加围栏和BCON对应关系
 	info=addSomeMaptest(DBAPI);
 	cout<<info<<endl;
+*/
+/*	
 	//单条添加轨迹信息
 	info=addTracetest(DBAPI);
 	cout<<info<<endl;
@@ -587,8 +620,28 @@ int main(int argc,char const *argv[]){
 	//清除所有轨迹数据
 	info=clearTable(DBAPI);
 	cout<<info<<endl;
-	//删除数据库
-	info=deleteDBtest(DBAPI);
+*/
+	//info=addcrossSomeTracetest(DBAPI);
+	//cout<<info<<endl;
+
+	info=selectPersonTracetest(DBAPI);
 	cout<<info<<endl;
+	info=selectDeviceTracetest(DBAPI);
+	cout<<info<<endl;
+	info=mapCount(DBAPI);
+	cout<<info<<endl;
+	info=mapMarkCount(DBAPI);
+	cout<<info<<endl;
+	info=mapPersonCount(DBAPI);
+	cout<<info<<endl;
+
+
+
+	//删除数据库
+	//info=deleteDBtest(DBAPI);
+	//cout<<info<<endl;
+
+	
+	
 	return 0;
 }
