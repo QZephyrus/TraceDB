@@ -95,21 +95,47 @@ bool DataBase::useDB(const string &database){
 }
 
 bool DataBase::autoCommitOff(){
-	mysql_autocommit(sql,0);
+	if(mysql_autocommit(sql,0)){
+		cout << "autoCommit Off error!" << endl;
+		return false;
+	}
+	return true;
 }
 
 bool DataBase::autoCommitOn(){
-	mysql_autocommit(sql,1);
+	if(mysql_autocommit(sql,1)){
+		cout << "autoCommit On error!" << endl;
+		return false;
+	}
+	return true;
 }
 
 bool DataBase::commit(){
 	mysql_commit(sql);
-	mysql_autocommit(sql,1);
+	if(mysql_commit(sql)){
+		cout << "Commit error!" << endl;
+		return false;
+	}else{
+		if(mysql_autocommit(sql,1)){
+		cout << "autoCommit On error!" << endl;
+		return false;
+		}
+	}
+	return true;
 }
 
 bool DataBase::rollback(){
-	mysql_rollback(sql);
-	mysql_autocommit(sql,1);
+	mysql_commit(sql);
+	if(mysql_rollback(sql)){
+		cout << "Commit error!" << endl;
+		return false;
+	}else{
+		if(mysql_autocommit(sql,1)){
+		cout << "autoCommit On error!" << endl;
+		return false;
+		}
+	}
+	return true;
 }
 
 bool DataBase::deleteDB(const string &database){
@@ -171,7 +197,7 @@ vector<vector<string>> DataBase::selectItem(const string &table,const string &va
     vector<vector<string>> ret;
 	res = mysql_use_result(sql);
 	while ( (row = mysql_fetch_row(res)) != nullptr ) {
-		int i = 0;
+		unsigned int i = 0;
 		vector<string> temp;
 		while (i < mysql_num_fields(res))
 			temp.push_back(row[i++]);
@@ -193,7 +219,7 @@ vector<vector<string>> DataBase::selectItem(const string &table, const string &v
 	vector<vector<string>> ret;
 	res = mysql_use_result(sql);
 	while ( (row = mysql_fetch_row(res)) != nullptr ) {
-		int i = 0;
+		unsigned int i = 0;
 		vector<string> temp;
 		while (i < mysql_num_fields(res))
 			temp.push_back(row[i++]);
@@ -215,7 +241,7 @@ vector<vector<string>> DataBase::selectItem(const string &sentence){
 	vector<vector<string>> ret;
 	res = mysql_use_result(sql);
 	while ( (row = mysql_fetch_row(res)) != nullptr ) {
-		int i = 0;
+		unsigned int i = 0;
 		vector<string> temp;
 		while (i < mysql_num_fields(res))
 			temp.push_back(row[i++]);
@@ -230,7 +256,7 @@ void DataBase::showres(){
         res = mysql_use_result(sql);
 	cout << "****************The result is:****************" << endl;
 	while ( (row = mysql_fetch_row(res)) != nullptr ) {
-		int i = 0;
+		unsigned int i = 0;
 		while (i < mysql_num_fields(res))
 			cout << row[i++] << "\t";
 		cout << endl;

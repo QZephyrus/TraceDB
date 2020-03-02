@@ -40,6 +40,7 @@ int DBTraceAPI::DBInitialize(string host,string username,string password,string 
     user=username;
     passwd=password;
     database=databasename;
+    return DB_RET_OK;
 }
 //建立数据库连接
 int DBTraceAPI::DBConnect(){
@@ -285,7 +286,7 @@ int DBTraceAPI::DBUpdateSomeDeviceRelat(vector<DBDeviceData> deviceData){
         value="PersonID="+to_string(deviceData[i].PersonID)+", PersonModule="+to_string(deviceData[i].PersonModule);
         limits="DeviceID='"+deviceData[i].DeviceID+"'";
         if(DB.updateItem(table,value,limits)==false){
-            flag_updata==false;
+            flag_updata=false;
             break;
         }
     }
@@ -535,13 +536,13 @@ int DBTraceAPI::DBSearchDevice(string DeviceID,DBTrace&pTrace){
             return DB_RET_NULL;
         }
         pTrace.readTrace(temp);
-        return DB_RET_OK;
     }
+    return DB_RET_OK;
 }
 //搜索某几个设备最近一条的轨迹信息
 int DBTraceAPI::DBSearchSomeDevice(vector<string> DeviceID,vector<DBTrace>&Trace){
     DB.useDB(database);
-    for(int i=0;i<DeviceID.size();i++){
+    for(unsigned int i=0;i<DeviceID.size();i++){
         DBTrace tempTrace;
         if(DBSearchDevice(DeviceID[i],tempTrace)==DB_RET_OK){
             Trace.push_back(tempTrace);
@@ -566,7 +567,7 @@ int DBTraceAPI::DBSearchAllDevice(vector<DBTrace>&Traces){
     if(rows==0){
         return DB_RET_DEVICE_ERROR;
     }
-    for(int i=0;i<rows;i++){
+    for(unsigned int i=0;i<rows;i++){
         table=tablename[i][0];
         value="*";
         limits="TraceID="+tablename[i][1];
@@ -600,13 +601,13 @@ int DBTraceAPI::DBSearchPerson(int PersonID,DBTrace&pTrace){
             return DB_RET_NULL;
         }
         pTrace.readTrace(temp);
-        return DB_RET_OK;
     }
+    return DB_RET_OK;
 }
 //搜索某几个人员最近一条的轨迹信息
 int DBTraceAPI::DBSearchSomePerson(vector<int> PersonID,vector<DBTrace>&Trace){
     DB.useDB(database);
-    for(int i=0;i<PersonID.size();i++){
+    for(unsigned int i=0;i<PersonID.size();i++){
         DBTrace tempTrace;
         if(DBSearchPerson(PersonID[i],tempTrace)==DB_RET_OK){
             Trace.push_back(tempTrace);
@@ -631,7 +632,7 @@ int DBTraceAPI::DBSearchAllPerson (vector<DBTrace>&Traces){
     if(rows==0){
         return DB_RET_PERSON_ERROR;
     }
-    for(int i=0;i<rows;i++){
+    for(unsigned int i=0;i<rows;i++){
         table=tablename[i][0];
         value="*";
         limits="TraceID="+tablename[i][1];
@@ -646,7 +647,6 @@ int DBTraceAPI::DBSearchAllPerson (vector<DBTrace>&Traces){
         return DB_RET_OK;
     }
 }
-
 //搜索时间区间内的人员轨迹信息
 int DBTraceAPI::DBSearchPersonTrace(int PersonID,ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces){
     DB.useDB(database);
@@ -674,7 +674,7 @@ int DBTraceAPI::DBSearchPersonTrace(int PersonID,ptime timeBegin,ptime timeEnd,v
         DBTrace trace;
         Traces=trace.readTraces(temp);
     }else if(rows>1){
-        for(int i=0;i<rows;i++){
+        for(unsigned int i=0;i<rows;i++){
             table=ret[i][0];
             value="*";
             limits="PersonID="+to_string(PersonID)+" AND Time>='"+timeB+"' AND Time<='"+timeE+"'";
@@ -718,7 +718,7 @@ int DBTraceAPI::DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEn
         DBTrace trace;
         Traces=trace.readTraces(temp);  
     }else{
-        for(int i=0;i<rows;i++){
+        for(unsigned int i=0;i<rows;i++){
             table=ret[i][0];
             value="*";
             limits="DeviceID='"+DeviceID+"' AND Time>='"+timeB+"' AND Time<='"+timeE+"'";
@@ -745,12 +745,11 @@ int DBTraceAPI::DBSearchDeviceID(vector<string>&DeviceID){
     if(ret.size()==0){
         return DB_RET_NULL;
     }
-    for(int i=0;i<ret.size();i++){
+    for(unsigned int i=0;i<ret.size();i++){
         DeviceID.push_back(ret[i][0]);
     }
     return DB_RET_OK;
 }
-
 //删除单条轨迹信息
 int DBTraceAPI::DBDeleteTrace(DBTrace trace){
     DB.useDB(database);
@@ -840,7 +839,7 @@ int DBTraceAPI::DBClearTable(){
     //批量删除
     DB.autoCommitOff();
     bool flag_delete=true;
-    for(int i=0;i<ret.size();i++){
+    for(unsigned int i=0;i<ret.size();i++){
         if(DB.deleteTB(ret[i][0])==false){
             flag_delete=false;
             break;
@@ -867,7 +866,7 @@ int DBTraceAPI::DBMapCount(int PersonID,int MapMark,ptime timeBegin,ptime timeEn
     MapData.PersonID=PersonID;
     MapData.MapMark=MapMark;
     if(res==DB_RET_OK){
-        for(int i=0;i<Traces.size();i++){
+        for(unsigned int i=0;i<Traces.size();i++){
             if(Traces[i].MapMark==MapMark){
                 flagNew=1;
             }else{
@@ -887,7 +886,6 @@ int DBTraceAPI::DBMapCount(int PersonID,int MapMark,ptime timeBegin,ptime timeEn
             }
             flagOld=flagNew;
         }
-        return DB_RET_OK;
     }else if (res==DB_RET_NULL){
         MapData.Enter=0;
         MapData.Out=0;
@@ -895,12 +893,12 @@ int DBTraceAPI::DBMapCount(int PersonID,int MapMark,ptime timeBegin,ptime timeEn
     }else{
         return DB_RET_FALL;
     }
+    return DB_RET_OK;
 }
 //具体人员在围栏位置的统计
 int DBTraceAPI::DBMapPersonCount(int PersonID, ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData){
     DB.useDB(database);
     vector<DBTrace> Traces;
-    int flag=0;
     int res=DBSearchPersonTrace(PersonID,timeBegin,timeEnd,Traces);
     if(res==DB_RET_OK){
         table="MapMark";
@@ -911,7 +909,7 @@ int DBTraceAPI::DBMapPersonCount(int PersonID, ptime timeBegin,ptime timeEnd,vec
             int flagNew=0;
             int MapMark=atoi(ret[i][0].c_str());
             DBMapData tempMapData(PersonID,MapMark);
-            for(int i=0;i<Traces.size();i++){
+            for(unsigned int i=0;i<Traces.size();i++){
                 if(Traces[i].MapMark==MapMark){
                     flagNew=1;
                 }else{
@@ -951,7 +949,7 @@ int DBTraceAPI::DBMapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,vector<
     }
     DBMapData tempMapData;
     int resultcode[ret.size()];
-    for(int i=0;i<ret.size();i++){
+    for(unsigned int i=0;i<ret.size();i++){
         resultcode[i]=DBMapCount(atoi(ret[i][0].c_str()),MapMark,timeBegin,timeEnd,tempMapData);
         MapData.push_back(tempMapData);
     }

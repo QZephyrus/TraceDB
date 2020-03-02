@@ -614,10 +614,7 @@ int updateTrace(DBTraceAPI&DBAPI){
 	DBTrace traceOld;
 	DBTrace traceNew;
 	traceOld.getvalue(4,102,1,"D102",4,4,"2F",2,"2020-02-26 10:53:26");
-	
 	traceNew.getvalue(4,101,1,"D101",4,4,"2F",2,"2020-02-26 10:53:26");
-	
-
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
