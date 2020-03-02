@@ -5,6 +5,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 using std::string;
+using std::vector;
 using namespace boost::posix_time;
 using namespace boost::gregorian;
 
@@ -52,6 +53,17 @@ class DBTrace
             TraceID=TID;
         };
         DBTrace(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t){
+            PersonID=PerID;
+            PersonModule=PerModule;
+            DeviceID=DevID;
+            X=XF;
+            Y=YF;
+            Floor=FloorF;
+            MapMark=MMark;
+            time=t;
+        };
+        void getvalue(int TraID,int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t){
+            TraceID=TraID;
             PersonID=PerID;
             PersonModule=PerModule;
             DeviceID=DevID;

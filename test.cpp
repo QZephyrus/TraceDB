@@ -16,27 +16,41 @@ using namespace boost;
 //连接数据库测试方法
 int connectDBtest(DBTraceAPI&DBAPI){
 	int info;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBConnect();
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //创建数据库测试方法
-int creatDBtest(DBTraceAPI&DBAPI){
+int creatDBtest(DBTraceAPI&DBAPI){ 
 	int info;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time(); 
 	info=DBAPI.DBCreateDB();
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //单条设备输入验证
-int addDeviceDBtest(DBTraceAPI&DBAPI){
+int addDeviceDBtest(DBTraceAPI&DBAPI){ 
 	int info;
 	DBDeviceData temp;
 	temp.DeviceID="D101";
 	temp.PersonID=101;
 	temp.PersonModule=1;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time(); 
 	info=DBAPI.DBAddDevice(temp);
-	cout<<info<<endl;
-
-	temp.DeviceID="D102";
-	info=DBAPI.DBAddDevice(temp);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //多条设备输入验证
@@ -57,7 +71,13 @@ int addSomeDeviceDBtest(DBTraceAPI&DBAPI){
 		temp2.PersonModule=0;
 		deviceData.push_back(temp2);
 	}
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();
 	info=DBAPI.DBAddSomeDevice(deviceData);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //单条设备人员关系表更新测试
@@ -65,13 +85,23 @@ int updateRelatedtest(DBTraceAPI&DBAPI){
 	int info;
 	DBDeviceData temp1;
 	temp1.DeviceID="D101";
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBUpdateDeviceRelat(temp1);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	cout<<info<<endl;
 	DBDeviceData temp2;
 	temp2.DeviceID="D106";
 	temp2.PersonID=106;
 	temp2.PersonModule=1;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBUpdateDeviceRelat(temp2);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //多条设备人员关系表更新测试
@@ -97,7 +127,13 @@ int updateSomeRelatedtest(DBTraceAPI&DBAPI){
 		temp.PersonModule=1;
 		deviceData.push_back(temp);
 	}
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBUpdateSomeDeviceRelat(deviceData);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //单条增加人员测试方法
@@ -106,7 +142,13 @@ int addPersontest(DBTraceAPI&DBAPI){
 	DBDeviceData temp;
 	temp.PersonID=101;
 	temp.PersonModule=1;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBAddPerson(temp);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //多条增加人员测试方法
@@ -119,14 +161,26 @@ int addSomePersontest(DBTraceAPI&DBAPI){
 		temp1.PersonModule=1;
 		deviceData.push_back(temp1);
 	}
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBAddSomePerson(deviceData);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //单条添加围栏信息测试方法
 int addMapMarktest(DBTraceAPI&DBAPI){
 	int info;
 	int tempMapMark=1;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBAddMapMark(tempMapMark);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //多条添加围栏信息测试方法
@@ -135,7 +189,13 @@ int addSomeMapMarktest(DBTraceAPI&DBAPI){
 	vector<int> mapmark;
 	mapmark.push_back(2);
 	mapmark.push_back(3);
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBAddSomeMapMark(mapmark);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //单条BCON信息测试方法
@@ -146,7 +206,13 @@ int addBCONtest(DBTraceAPI&DBAPI){
 	bcon.BCONX=1;
 	bcon.BCONY=1;
 	bcon.Floor="1F";
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBAddBCON(bcon);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //多条添加BCON信息测试方法
@@ -177,8 +243,14 @@ int addSomeBCONtest(DBTraceAPI&DBAPI){
 		tempbcon.BCONY=i-7;
 		tempbcon.Floor="3F";
 		bcon.push_back(tempbcon);
-	}	
+	}
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBAddSomeBCON(bcon);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //单条添加BCON和MapMark关系表测试方法
@@ -187,7 +259,13 @@ int addMaptest(DBTraceAPI&DBAPI){
 	Map map;
 	map.MapMark=1;
 	map.BCONID=1;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBAddMap(map);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //多条添加BCON和MapMark关系表测试方法
@@ -212,22 +290,27 @@ int addSomeMaptest(DBTraceAPI&DBAPI){
 		tempmap.BCONID=i;
 		map.push_back(tempmap);
 	}
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBAddSomeMap(map);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //单条添加轨迹测试方法
 int addTracetest(DBTraceAPI&DBAPI){
 	DBTrace trace;
 	int info;
-	trace.PersonID=101;
-	trace.PersonModule=1;
-	trace.DeviceID="D101";
-	trace.X=1;
-	trace.Y=1;
-	trace.Floor="1F";
-	trace.time="2020-02-26 09:53:26";
-	trace.MapMark=1;
+	trace.getvalue(101,1,"D101",1,1,"1F",1,"2020-02-26 09:53:26");
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBAddTrace(trace);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //多条添加轨迹测试方法
@@ -235,46 +318,33 @@ int addSomeTracetest(DBTraceAPI&DBAPI){
 	vector<DBTrace> trace;
 	DBTrace temp;
 	int info;
-	temp.PersonID=101;
-	temp.PersonModule=1;
-	temp.DeviceID="D101";	
-	temp.X=2;
-	temp.Y=2;
-	temp.Floor="1F";
-	temp.time="2020-02-26 09:55:26";
-	temp.MapMark=1;
+	temp.getvalue(101,1,"D101",2,2,"1F",1,"2020-02-26 09:55:26");
 	trace.push_back(temp);
-	temp.X=3;
-	temp.Y=3;
-	temp.Floor="2F";
-	temp.time="2020-02-26 09:57:26";
-	temp.MapMark=2;
+	temp.getvalue(101,1,"D101",3,3,"2F",2,"2020-02-26 09:57:26");
 	trace.push_back(temp);
-	temp.PersonID=102;
-	temp.PersonModule=1;
-	temp.DeviceID="D102";	
-	temp.X=4;
-	temp.Y=4;
-	temp.Floor="2F";
-	temp.time="2020-02-26 10:53:26";
-	temp.MapMark=2;
+	temp.getvalue(102,1,"D102",4,4,"2F",2,"2020-02-26 10:53:26");
 	trace.push_back(temp);
-	temp.PersonID=102;
-	temp.PersonModule=1;
-	temp.DeviceID="D102";	
-	temp.X=4;
-	temp.Y=4;
-	temp.Floor="2F";
-	temp.time="2020-03-26 10:53:26";
-	temp.MapMark=2;
+	temp.getvalue(102,1,"D102",4,4,"2F",2,"2020-03-26 10:53:26");
 	trace.push_back(temp);
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBAddSomeTrace(trace);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //删除数据库测试方法
 int deleteDBtest(DBTraceAPI&DBAPI){
 	int info;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBDeleteDB();
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //单条查询最近轨迹（按设备ID）
@@ -282,7 +352,13 @@ int selectDevicetest(DBTraceAPI&DBAPI){
 	int info;
 	DBTrace rec;
 	string DeviceID="D101";
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBSearchDevice(DeviceID,rec);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	cout<<"TraceID="<<rec.TraceID<<",PersonID="<<rec.PersonID<<",PersonModule="<<rec.PersonModule<<",DeviceID="<<rec.DeviceID<<",X="<<rec.X<<",Y="<<rec.Y<<",Floor="<<rec.Floor<<",MapMark="<<rec.MapMark<<",Time="<<rec.time<<endl;
 	return info;
 }
@@ -298,7 +374,13 @@ int selectSomeDevicetest(DBTraceAPI&DBAPI){
 
 	DeviceIDtemp="D103";
 	DeviceID.push_back(DeviceIDtemp);
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBSearchSomeDevice(DeviceID,rec);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	for(int i=0;i<rec.size();i++){
 		cout<<"TraceID="<<rec[i].TraceID<<",PersonID="<<rec[i].PersonID<<",PersonModule="<<rec[i].PersonModule<<",DeviceID="<<rec[i].DeviceID<<",X="<<rec[i].X<<",Y="<<rec[i].Y<<",Floor="<<rec[i].Floor<<",MapMark="<<rec[i].MapMark<<",Time="<<rec[i].time<<endl;
 	}
@@ -308,7 +390,13 @@ int selectSomeDevicetest(DBTraceAPI&DBAPI){
 int selectAllDevicetest(DBTraceAPI&DBAPI){
 	int info;
 	vector<DBTrace> rec;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBSearchAllDevice(rec);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	for(int i=0;i<rec.size();i++){
 		cout<<"TraceID="<<rec[i].TraceID<<",PersonID="<<rec[i].PersonID<<",PersonModule="<<rec[i].PersonModule<<",DeviceID="<<rec[i].DeviceID<<",X="<<rec[i].X<<",Y="<<rec[i].Y<<",Floor="<<rec[i].Floor<<",MapMark="<<rec[i].MapMark<<",Time="<<rec[i].time<<endl;
 	}
@@ -319,7 +407,13 @@ int selectPersontest(DBTraceAPI&DBAPI){
 	int info;
 	DBTrace rec;
 	int PersonID=101;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBSearchPerson(PersonID,rec);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	cout<<"TraceID="<<rec.TraceID<<",PersonID="<<rec.PersonID<<",PersonModule="<<rec.PersonModule<<",DeviceID="<<rec.DeviceID<<",X="<<rec.X<<",Y="<<rec.Y<<",Floor="<<rec.Floor<<",MapMark="<<rec.MapMark<<",Time="<<rec.time<<endl;
 	return info;
 }
@@ -334,7 +428,13 @@ int selectSomePersontest(DBTraceAPI&DBAPI){
 	PersonID.push_back(PersonIDtemp);
 	PersonIDtemp=103;
 	PersonID.push_back(PersonIDtemp);
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBSearchSomePerson(PersonID,rec);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	for(int i=0;i<rec.size();i++){
 		cout<<"TraceID="<<rec[i].TraceID<<",PersonID="<<rec[i].PersonID<<",PersonModule="<<rec[i].PersonModule<<",DeviceID="<<rec[i].DeviceID<<",X="<<rec[i].X<<",Y="<<rec[i].Y<<",Floor="<<rec[i].Floor<<",MapMark="<<rec[i].MapMark<<",Time="<<rec[i].time<<endl;
 	}
@@ -344,7 +444,13 @@ int selectSomePersontest(DBTraceAPI&DBAPI){
 int selectAllPersontest(DBTraceAPI&DBAPI){
 	int info;
 	vector<DBTrace> rec;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBSearchAllPerson(rec);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	for(int i=0;i<rec.size();i++){
 		cout<<"TraceID="<<rec[i].TraceID<<",PersonID="<<rec[i].PersonID<<",PersonModule="<<rec[i].PersonModule<<",DeviceID="<<rec[i].DeviceID<<",X="<<rec[i].X<<",Y="<<rec[i].Y<<",Floor="<<rec[i].Floor<<",MapMark="<<rec[i].MapMark<<",Time="<<rec[i].time<<endl;
 	}
@@ -357,7 +463,13 @@ int selectPersonTracetest(DBTraceAPI&DBAPI){
 	ptime begin=time_from_string("2020-04-26 09:53:00");
 	ptime end=time_from_string("2020-05-26 09:57:00");
 	int PersonID=101;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBSearchPersonTrace(PersonID,begin,end,rec);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	for(int i=0;i<rec.size();i++){
 		cout<<"TraceID="<<rec[i].TraceID<<",PersonID="<<rec[i].PersonID<<",PersonModule="<<rec[i].PersonModule<<",DeviceID="<<rec[i].DeviceID<<",X="<<rec[i].X<<",Y="<<rec[i].Y<<",Floor="<<rec[i].Floor<<",MapMark="<<rec[i].MapMark<<",Time="<<rec[i].time<<endl;
 	}
@@ -370,7 +482,13 @@ int selectDeviceTracetest(DBTraceAPI&DBAPI){
 	ptime begin=time_from_string("2020-04-26 09:53:00");
 	ptime end=time_from_string("2020-05-26 09:57:00");
 	string DeviceID="D101";
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBSearchDeviceTrace(DeviceID,begin,end,rec);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	for(int i=0;i<rec.size();i++){
 		cout<<"TraceID="<<rec[i].TraceID<<",PersonID="<<rec[i].PersonID<<",PersonModule="<<rec[i].PersonModule<<",DeviceID="<<rec[i].DeviceID<<",X="<<rec[i].X<<",Y="<<rec[i].Y<<",Floor="<<rec[i].Floor<<",MapMark="<<rec[i].MapMark<<",Time="<<rec[i].time<<endl;
 	}
@@ -380,7 +498,13 @@ int selectDeviceTracetest(DBTraceAPI&DBAPI){
 int selectDevices(DBTraceAPI&DBAPI){
 	int info;
 	vector<string> rec;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBSearchDeviceID(rec);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	for(int i=0;i<rec.size();i++){
 		cout<<"DeviceID="<<rec[i]<<endl;
 	}
@@ -394,7 +518,13 @@ int mapCount(DBTraceAPI&DBAPI){
 	ptime timeBegin=time_from_string("2020-04-26 09:53:00");
 	ptime timeEnd=time_from_string("2020-05-26 10:53:00");
 	DBMapData MapData;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBMapCount(PersonID,MapMark,timeBegin,timeEnd,MapData);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	cout<<"PersinID="<<MapData.PersonID<<",MapMark="<<MapData.MapMark<<",EnterTimes="<<MapData.Enter<<",OutTimes="<<MapData.Out<<",StayTime="<<MapData.StayTime<<endl;
 	return info;
 }
@@ -405,7 +535,13 @@ int mapPersonCount(DBTraceAPI&DBAPI){
 	ptime timeBegin=time_from_string("2020-04-26 09:53:00");
 	ptime timeEnd=time_from_string("2020-05-26 10:54:00");
 	vector<DBMapData> MapData;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBMapPersonCount(PersonID,timeBegin,timeEnd,MapData);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	for(int i=0;i<MapData.size();i++){
 		cout<<"PersinID="<<MapData[i].PersonID<<",MapMark="<<MapData[i].MapMark<<",EnterTimes="<<MapData[i].Enter<<",OutTimes="<<MapData[i].Out<<",StayTime="<<MapData[i].StayTime<<endl;
 	}
@@ -418,7 +554,13 @@ int mapMarkCount(DBTraceAPI&DBAPI){
 	ptime timeBegin=time_from_string("2020-04-26 09:53:00");
 	ptime timeEnd=time_from_string("2020-05-26 10:54:00");
 	vector<DBMapData> MapData;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBMapMarkCount(MapMark,timeBegin,timeEnd,MapData);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	for(int i=0;i<MapData.size();i++){
 		cout<<"PersinID="<<MapData[i].PersonID<<",MapMark="<<MapData[i].MapMark<<",EnterTimes="<<MapData[i].Enter<<",OutTimes="<<MapData[i].Out<<",StayTime="<<MapData[i].StayTime<<endl;
 	}
@@ -431,21 +573,39 @@ int deleteTrace(DBTraceAPI&DBAPI){
 	DBTrace trace;
 	trace.TraceID=5;
 	trace.time="2020-03-26 10:53:26";
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBDeleteTrace(trace);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //删除单个设备
 int deleteDevice(DBTraceAPI&DBAPI){
 	int info;
 	string DeviceID="D110";
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBDeleteDevice(DeviceID);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //删除单个围栏
 int deleteMap(DBTraceAPI&DBAPI){
 	int info;
 	int MapMark=3;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBDeleteMap(MapMark);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //更新轨迹
@@ -453,32 +613,29 @@ int updateTrace(DBTraceAPI&DBAPI){
 	int info;
 	DBTrace traceOld;
 	DBTrace traceNew;
-	traceOld.TraceID=4;
-	traceOld.PersonID=102;
-	traceOld.PersonModule=1;
-	traceOld.DeviceID="D102";
-	traceOld.X=4;
-	traceOld.Y=4;
-	traceOld.Floor="2F";
-	traceOld.MapMark=2;
-	traceOld.time="2020-02-26 10:53:26";
+	traceOld.getvalue(4,102,1,"D102",4,4,"2F",2,"2020-02-26 10:53:26");
+	
+	traceNew.getvalue(4,101,1,"D101",4,4,"2F",2,"2020-02-26 10:53:26");
+	
 
-	traceNew.TraceID=4;
-	traceNew.PersonID=101;
-	traceNew.PersonModule=1;
-	traceNew.DeviceID="D101";
-	traceNew.X=4;
-	traceNew.Y=4;
-	traceNew.Floor="2F";
-	traceNew.MapMark=2;
-	traceNew.time="2020-02-26 10:53:26";
-
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBUpdateTrace(traceOld,traceNew);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 int clearTable(DBTraceAPI&DBAPI){
 	int info;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBClearTable();
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 //多条跨表查询数据添加轨迹测试方法
@@ -508,7 +665,13 @@ int addcrossSomeTracetest(DBTraceAPI&DBAPI){
 	trace.push_back(temp);
 	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-05-01 00:10:00");
 	trace.push_back(temp);
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
 	info=DBAPI.DBAddSomeTrace(trace);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	return info;
 }
 
@@ -635,13 +798,9 @@ int main(int argc,char const *argv[]){
 	info=mapPersonCount(DBAPI);
 	cout<<info<<endl;
 
-
-
 	//删除数据库
 	//info=deleteDBtest(DBAPI);
 	//cout<<info<<endl;
-
-	
 	
 	return 0;
 }
