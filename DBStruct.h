@@ -160,20 +160,36 @@ class DBMapData
 {
     public:
 	    int PersonID;
+        int PersonModule;
         int MapMark;
         int Enter;
         int Out;
+        int rate;
         time_duration StayTime;
         //构造函数用于初始化数据
-        DBMapData(int PerID,int MMark){
+        DBMapData(int PerID,int PerMod,int MMark){
             PersonID=PerID;
+            PersonModule=PerMod;
             MapMark=MMark;
             Enter=0;
             Out=0;
+            rate=0;
+            StayTime=time_from_string("2020-02-01 00:00:00")-time_from_string("2020-02-01 00:00:00");
         }
         DBMapData(){
             Enter=0;
             Out=0;
+            rate=0;
+            StayTime=time_from_string("2020-02-01 00:00:00")-time_from_string("2020-02-01 00:00:00");
+        }
+        void initData(int PerID,int PerMod,int MMark){
+            PersonID=PerID;
+            PersonModule=PerMod;
+            MapMark=MMark;
+            Enter=0;
+            Out=0;
+            rate=0;
+            StayTime=time_from_string("2020-02-01 00:00:00")-time_from_string("2020-02-01 00:00:00");
         }
 };
 

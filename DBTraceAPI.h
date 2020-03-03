@@ -37,8 +37,7 @@ class DBTraceAPI
         int DBAddSomePerson(vector<DBDeviceData> deviceData);
 
         int DBUpdateDevice(string DeviceID,string TableName,int TraceID);
-        int DBUpdatePerson(int PersonID,string TableName,int TraceID);
-
+        int DBUpdatePerson(int PersonID,int PersonModule,string TableName,int TraceID);
         int DBUpdateDeviceRelat(DBDeviceData deviceData);
         int DBUpdateSomeDeviceRelat(vector<DBDeviceData> deviceData);
 
@@ -55,11 +54,12 @@ class DBTraceAPI
         int DBSearchDevice(string DeviceID,DBTrace&pTrace);
         int DBSearchSomeDevice(vector<string> DeviceID,vector<DBTrace>&Trace);
         int DBSearchAllDevice(vector<DBTrace>&Traces);
-        int DBSearchPerson(int PersonID,DBTrace&pTrace);
-        int DBSearchSomePerson(vector<int> PersonID,vector<DBTrace>&Trace);
+        int DBSearchPerson(int PersonID,int PersonModule,DBTrace&pTrace);
+        int DBSearchSomePerson(vector<vector<int>> Person,vector<DBTrace>&Trace);
         int DBSearchAllPerson (vector<DBTrace>&Traces);
-        int DBSearchPersonTrace(int PersonID,ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces);
+        int DBSearchPersonTrace(int PersonID,int PersonModule,ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces);
         int DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces);
+        int DBSearchTimeTrace(ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces);
 
         int DBSearchDeviceID(vector<string>&DeviceID);
         int DBDeleteTrace(DBTrace trace);
@@ -68,8 +68,11 @@ class DBTraceAPI
         int DBUpdateTrace(DBTrace traceOld,DBTrace traceNew);
         int DBClearTable();
         
-        int DBMapCount(int PersonID,int MapMark,ptime timeBegin,ptime timeEnd,DBMapData&MapData);
-        int DBMapPersonCount(int PersonID, ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData);
+        int DBMapCount(int PersonID,int PersonModule,int MapMark,ptime timeBegin,ptime timeEnd,DBMapData&MapData);
+        int DBMapPersonCount(int PersonID,int PersonModule,ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData);
         int DBMapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData);
+
+        int MapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,DBMapData&MapData);
+
         int DBDeleteDB();
 };
