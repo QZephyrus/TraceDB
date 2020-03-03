@@ -858,7 +858,7 @@ int main(int argc,char const *argv[]){
 	cout<<info<<endl;
 	info=mapPersonCount(DBAPI);
 	cout<<info<<endl;
-	info=countMap(DBAPI);
+	info=countMapMark(DBAPI);
 	cout<<info<<endl;
 	//删除数据库
 	//info=deleteDBtest(DBAPI);
