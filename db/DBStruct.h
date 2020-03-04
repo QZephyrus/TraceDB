@@ -9,6 +9,7 @@ using std::vector;
 using namespace boost::posix_time;
 using namespace boost::gregorian;
 
+
 /*typedef struct Time
 {
     short year;

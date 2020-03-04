@@ -1,4 +1,4 @@
-#include "DataBase.h"
+#include "db/DataBase.h"
 
 using namespace std;
 
@@ -159,7 +159,7 @@ bool DataBase::showTB(){
 }
 
 bool DataBase::createTB(const string &table,const string &elements){
-    string str = "create table " + table + "(" + elements + ")";
+    string str = "create table if not exists " + table + "(" + elements + ")";
 	if (mysql_query(sql, str.c_str())) {
 		cerr << "create table " + table + " error!" << endl;
 		return false;

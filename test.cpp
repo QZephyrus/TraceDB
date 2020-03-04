@@ -1,9 +1,9 @@
 
 #include<iostream>
 #include<string>
-#include"DataBase.h"
-#include"DBStruct.h"
-#include"DBTraceAPI.h"
+#include"db/DataBase.h"
+#include"db/DBStruct.h"
+#include"db/DBTraceAPI.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #define BOOST_DATE_TIME_SOURCE
@@ -737,12 +737,33 @@ int countMapMark(DBTraceAPI&DBAPI){
 	return info;
 }
 
+int countMap(DBTraceAPI&DBAPI){
+	int info;
+	ptime timeBegin=time_from_string("2020-04-26 09:53:00");
+	ptime timeEnd=time_from_string("2020-05-26 10:54:00");
+	vector<DBMapData> MapData;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
+	info=DBAPI.MapCount(timeBegin,timeEnd,MapData);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
+	for(unsigned int i=0;i<MapData.size();i++){
+		cout<<"MapMark="<<MapData[i].MapMark<<",Frequency="<<MapData[i].rate<<",StayTime="<<MapData[i].StayTime<<endl;
+	}
+	return info;
+}
+
 int main(int argc,char const *argv[]){
     //接口类的调用
 	DBTraceAPI DBAPI;
 	int info;
 	//数据库建立连接
 	info=connectDBtest(DBAPI);
+	cout<<info<<endl;
+	//数据库创建
+	info=creatDBtest(DBAPI);
 	cout<<info<<endl;
 /*
 	//数据库创建
@@ -852,17 +873,19 @@ int main(int argc,char const *argv[]){
 	//cout<<info<<endl;
 	//info=selectDeviceTracetest(DBAPI);
 	//cout<<info<<endl;
-	info=mapCount(DBAPI);
-	cout<<info<<endl;
-	info=mapMarkCount(DBAPI);
-	cout<<info<<endl;
-	info=mapPersonCount(DBAPI);
-	cout<<info<<endl;
-	info=countMapMark(DBAPI);
-	cout<<info<<endl;
+	//info=mapCount(DBAPI);
+	//cout<<info<<endl;
+	//info=mapMarkCount(DBAPI);
+	//cout<<info<<endl;
+	//info=mapPersonCount(DBAPI);
+	//cout<<info<<endl;
+	//info=countMapMark(DBAPI);
+	//cout<<info<<endl;
+	//countMap(DBAPI);
 	//删除数据库
 	//info=deleteDBtest(DBAPI);
 	//cout<<info<<endl;
-	
+	//info=DBAPI.DBInitialize();
+	//cout<<info<<endl;
 	return 0;
 }

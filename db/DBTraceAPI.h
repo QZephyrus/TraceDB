@@ -2,7 +2,26 @@
 
 #include"DataBase.h"
 #include"DBStruct.h"
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <signal.h>
+#include <errno.h>
 
+#define DB_RET_OK 1
+#define DB_RET_FALL 2
+#define DB_RET_CREATE_DB_ERROR 3
+#define DB_RET_CREATE_TB_ERROR 4
+#define DB_RET_ADD_ERROR 5
+#define DB_RET_NULL 6
+#define DB_RET_DEVICE_ERROR 7
+#define DB_RET_PERSON_ERROR 8
+#define DB_RET_ERORR 9
+#define DB_RET_SEARCH_ERROR 10
+
+//定义每张具体轨迹表存储的月份
+#define MemoryMonth 3
 
 class DBTraceAPI
 {
@@ -24,7 +43,7 @@ class DBTraceAPI
         DBTraceAPI();
         DBTraceAPI(string host,string username,string password,string databasename);
         ~DBTraceAPI();
-        int DBInitialize(string host,string username,string password,string databasename);
+        int DBInitialize();
         int DBConnect();
         int DBCreateDB();
         int DBCreateRelatTB();
@@ -73,6 +92,7 @@ class DBTraceAPI
         int DBMapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData);
 
         int MapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,DBMapData&MapData);
+        int MapCount(ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData);
 
         int DBDeleteDB();
 };

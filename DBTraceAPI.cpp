@@ -1,21 +1,6 @@
-#include "DBTraceAPI.h"
+#include "db/DBTraceAPI.h"
 
 using namespace std;
-
-#define DB_RET_OK 1
-#define DB_RET_FALL 2
-#define DB_RET_CREATE_DB_ERROR 3
-#define DB_RET_CREATE_TB_ERROR 4
-#define DB_RET_ADD_ERROR 5
-#define DB_RET_NULL 6
-#define DB_RET_DEVICE_ERROR 7
-#define DB_RET_PERSON_ERROR 8
-#define DB_RET_ERORR 9
-#define DB_RET_SEARCH_ERROR 10
-
-//定义每张具体轨迹表存储的月份
-#define MemoryMonth 3
-
 
 
 //构造函数，保存默认的数据库连接信息
@@ -35,18 +20,62 @@ DBTraceAPI::DBTraceAPI(string host,string username,string password,string databa
 
 DBTraceAPI::~DBTraceAPI(){   
 }
-//初始化，初始化数据库信息
-int DBTraceAPI::DBInitialize(string host,string username,string password,string databasename){
-    localhost=host;
-    user=username;
-    passwd=password;
-    database=databasename;
-    return DB_RET_OK;
+
+
+//初始化，判断mysql服务是否启动
+/*
+    返回值：
+    DB_RET_OK mysql服务以启动成功
+    DB_RET_FALL mysql服务安装但未启动
+    DB_RET_NULL mysql未安装
+*/
+extern int checkeprogram(const char* shellstr, const char* str)
+{
+	int live = 0;
+	char line[120];
+	FILE* fp = popen(shellstr, "r");
+	if(fp == NULL)
+	{
+		cout << "popen error\n";
+		return -1;
+	}
+	while(!feof(fp)){
+		memset(line, 0, sizeof(line));
+		fgets(line, sizeof(line), fp);
+		if(strstr(line, str) != NULL){
+			live++;
+			break;
+		}
+	}
+	pclose(fp);
+	if(live == 1){
+		return 1;
+	}
+	return 0;
+}
+int DBTraceAPI::DBInitialize(){
+    //int ret = checkeprogram("ps -ef| grep mysql", "mysql");
+    int ret = checkeprogram("service mysql status", "Active: active (running)");
+	if(ret == 1)
+	{
+		cout << "mysql server already start"<<endl;
+		return DB_RET_OK;
+	}else{
+        int ret = checkeprogram("service mysql status", "Active: inactive (dead)");
+        if(ret==1){
+            cout<<"mysql server already showdown"<<endl;
+            return DB_RET_FALL;
+        }else{
+            cout<<"mysql server not install"<<endl;
+        }
+    }
+    return DB_RET_NULL;
 }
 //建立数据库连接
 /*
-    返回DB_RET_OK数据库连接成功
-    返回DB_RET_FALL数据库连接失败
+    返回值：
+    DB_RET_OK数据库连接成功
+    DB_RET_FALL数据库连接失败
 */
 int DBTraceAPI::DBConnect(){
     bool flag_connect=true;
@@ -60,9 +89,10 @@ int DBTraceAPI::DBConnect(){
 }
 //创建数据库以及基础关联表格
 /*
-    返回DB_RET_OK数据库创建成功
-    返回DB_RET_CREATE_DB_ERROR数据库创建失败
-    返回DB_RET_CREATE_TB_ERROR数据库关联表创建失败
+    返回值：
+    DB_RET_OK数据库创建成功
+    DB_RET_CREATE_DB_ERROR数据库创建失败
+    DB_RET_CREATE_TB_ERROR数据库关联表创建失败
 */
 int DBTraceAPI::DBCreateDB(){
     //判断数据库是否创建成功
@@ -81,8 +111,9 @@ int DBTraceAPI::DBCreateDB(){
 }
 //创建数据库基础关联表格
 /*
-    返回DB_RET_OK数据库基础关联表创建成功
-    返回DB_RET_FALL数据库基础关联表创建失败
+    返回值：
+    DB_RET_OK数据库基础关联表创建成功
+    DB_RET_FALL数据库基础关联表创建失败
 */
 int DBTraceAPI::DBCreateRelatTB(){
     //通过两个flag判断在创建表的过程中是否出现错误，若出现错误flag_success为false，并且事件回滚到创建表之前
@@ -138,9 +169,10 @@ int DBTraceAPI::DBCreateRelatTB(){
 }
 //创建具体轨迹表
 /*
-    返回DB_RET_OK具体轨迹表创建成功切将表格信息插入到Trace表中
-    返回DB_RET_CREATE_TB_ERROR具体轨迹表创建失败
-    返回DB_RET_ADD_ERROR具体轨迹表创建成功，但插入到Trace表失败（失败回滚，需重新创表）
+    返回值：
+    DB_RET_OK具体轨迹表创建成功切将表格信息插入到Trace表中
+    DB_RET_CREATE_TB_ERROR具体轨迹表创建失败
+    DB_RET_ADD_ERROR具体轨迹表创建成功，但插入到Trace表失败（失败回滚，需重新创表）
 */
 int DBTraceAPI::DBCreateTable(DBTrace trace){
     
@@ -183,8 +215,9 @@ int DBTraceAPI::DBCreateTable(DBTrace trace){
 }
 //添加设备以及其初始设备人员关系
 /*
-    返回DB_RET_OK成功将设备注册到设备表中，并将其插入人员设备关系表
-    返回DB_RET_FALL在插入两个表中出现错误（回滚）
+    返回值：
+    DB_RET_OK成功将设备注册到设备表中，并将其插入人员设备关系表
+    DB_RET_FALL在插入两个表中出现错误（回滚）
 */
 int DBTraceAPI::DBAddDevice(DBDeviceData deviceData){
     DB.useDB(database);
@@ -209,8 +242,9 @@ int DBTraceAPI::DBAddDevice(DBDeviceData deviceData){
 }
 //设备批量添加设备
 /*
-    返回DB_RET_OK成功将设备注册到设备表中，并将其插入人员设备关系表
-    返回DB_RET_FALL在插入两个表中出现错误（回滚）
+    返回值：
+    DB_RET_OK成功将设备注册到设备表中，并将其插入人员设备关系表
+    DB_RET_FALL在插入两个表中出现错误（回滚）
 */
 int DBTraceAPI::DBAddSomeDevice(vector<DBDeviceData> deviceData){
     DB.useDB(database);
@@ -247,8 +281,9 @@ int DBTraceAPI::DBAddSomeDevice(vector<DBDeviceData> deviceData){
 }
 //添加人员
 /*
-    返回DB_RET_OK成功将人员注册到人员表中
-    返回DB_RET_FALL在插入人员表中出现错误
+    返回值：
+    DB_RET_OK成功将人员注册到人员表中
+    DB_RET_FALL在插入人员表中出现错误
 */
 int DBTraceAPI::DBAddPerson(DBDeviceData deviceData){
     DB.useDB(database);
@@ -265,8 +300,9 @@ int DBTraceAPI::DBAddPerson(DBDeviceData deviceData){
 }
 //设备批量添加人员
 /*
-    返回DB_RET_OK成功将人员注册到人员表中
-    返回DB_RET_FALL在插入人员表中出现错误（回滚）
+    返回值：
+    DB_RET_OK成功将人员注册到人员表中
+    DB_RET_FALL在插入人员表中出现错误（回滚）
 */
 int DBTraceAPI::DBAddSomePerson(vector<DBDeviceData> deviceData){
     DB.useDB(database);
@@ -296,8 +332,9 @@ int DBTraceAPI::DBAddSomePerson(vector<DBDeviceData> deviceData){
 }
 //更新设备和人员关系
 /*
-    返回DB_RET_OK成功更新人员关系表
-    返回DB_RET_FALL更新人员关系表失败
+    返回值：
+    DB_RET_OK成功更新人员关系表
+    DB_RET_FALL更新人员关系表失败
 */
 int DBTraceAPI::DBUpdateDeviceRelat(DBDeviceData deviceData){
     DB.useDB(database);
@@ -314,8 +351,9 @@ int DBTraceAPI::DBUpdateDeviceRelat(DBDeviceData deviceData){
 }
 //批量更新设备和人员关系
 /*
-    返回DB_RET_OK成功更新人员关系表
-    返回DB_RET_FALL更新人员关系表失败（回滚）
+    返回值：
+    DB_RET_OK成功更新人员关系表
+    DB_RET_FALL更新人员关系表失败（回滚）
 */
 int DBTraceAPI::DBUpdateSomeDeviceRelat(vector<DBDeviceData> deviceData){
     DB.useDB(database);
@@ -344,8 +382,9 @@ int DBTraceAPI::DBUpdateSomeDeviceRelat(vector<DBDeviceData> deviceData){
 }
 //添加单条围栏与BCON关联信息
 /*
-    返回DB_RET_OK成功添加围栏和BCON关联
-    返回DB_RET_FALL添加围栏和BCON关联失败
+    返回值：
+    DB_RET_OK成功添加围栏和BCON关联
+    DB_RET_FALL添加围栏和BCON关联失败
 */
 int DBTraceAPI::DBAddMap(Map map){
     DB.useDB(database);
@@ -361,8 +400,9 @@ int DBTraceAPI::DBAddMap(Map map){
 }
 //添加多条围栏与BCON关联信息
 /*
-    返回DB_RET_OK成功添加围栏和BCON关联
-    返回DB_RET_FALL添加围栏和BCON关联失败（回滚）
+    返回值：
+    DB_RET_OK成功添加围栏和BCON关联
+    DB_RET_FALL添加围栏和BCON关联失败（回滚）
 */
 int DBTraceAPI::DBAddSomeMap(vector<Map> map){
     DB.useDB(database);
@@ -391,8 +431,9 @@ int DBTraceAPI::DBAddSomeMap(vector<Map> map){
 }
 //添加一条BCON信息
 /*
-    返回DB_RET_OK成功添加BCON
-    返回DB_RET_FALL添加BCON失败
+    返回值：
+    DB_RET_OK成功添加BCON
+    DB_RET_FALL添加BCON失败
 */
 int DBTraceAPI::DBAddBCON(BCON bcon){
     DB.useDB(database);
@@ -408,8 +449,9 @@ int DBTraceAPI::DBAddBCON(BCON bcon){
 }
 //添加多条BCON信息
 /*
-    返回DB_RET_OK成功添加BCON
-    返回DB_RET_FALL添加BCON失败（回滚）
+    返回值：
+    DB_RET_OK成功添加BCON
+    DB_RET_FALL添加BCON失败（回滚）
 */
 int DBTraceAPI::DBAddSomeBCON(vector<BCON> bcon){
     DB.useDB(database);
@@ -438,8 +480,9 @@ int DBTraceAPI::DBAddSomeBCON(vector<BCON> bcon){
 }
 //添加单条围栏信息
 /*
-    返回DB_RET_OK成功添加围栏
-    返回DB_RET_FALL添加围栏失败
+    返回值：
+    DB_RET_OK成功添加围栏
+    DB_RET_FALL添加围栏失败
 */
 int DBTraceAPI::DBAddMapMark(int mapMark){
     DB.useDB(database);
@@ -455,8 +498,9 @@ int DBTraceAPI::DBAddMapMark(int mapMark){
 }
 //添加多条围栏信息
 /*
-    返回DB_RET_OK成功添加围栏
-    返回DB_RET_FALL添加围栏失败（回滚）
+    返回值：
+    DB_RET_OK成功添加围栏
+    DB_RET_FALL添加围栏失败（回滚）
 */
 int DBTraceAPI::DBAddSomeMapMark(vector<int> mapMark){
     DB.useDB(database);
@@ -485,8 +529,9 @@ int DBTraceAPI::DBAddSomeMapMark(vector<int> mapMark){
 }
 //更新设备最新轨迹的位置到设备表
 /*
-    返回DB_RET_OK成功更新设备最新轨迹的位置到设备表
-    返回DB_RET_FALL更新设备最新轨迹的位置到设备表失败
+    返回值：
+    DB_RET_OK成功更新设备最新轨迹的位置到设备表
+    DB_RET_FALL更新设备最新轨迹的位置到设备表失败
 */
 int DBTraceAPI::DBUpdateDevice(string DeviceID,string TableName,int TraceID){
     DB.useDB(database);
@@ -503,8 +548,9 @@ int DBTraceAPI::DBUpdateDevice(string DeviceID,string TableName,int TraceID){
 }
 //更新设备最新轨迹的位置到人员表
 /*
-    返回DB_RET_OK成功更新人员最新轨迹的位置到设备表
-    返回DB_RET_FALL更新人员最新轨迹的位置到设备表失败
+    返回值：
+    DB_RET_OK成功更新人员最新轨迹的位置到设备表
+    DB_RET_FALL更新人员最新轨迹的位置到设备表失败
 */
 int DBTraceAPI::DBUpdatePerson(int PersonID,int PersonModule,string TableName,int TraceID){
     DB.useDB(database);
@@ -949,8 +995,9 @@ int DBTraceAPI::DBSearchDeviceID(vector<string>&DeviceID){
 /*
     trace至少提供轨迹保存时间time信息和TraceID信息
     返回值：
-    DB_RET_OK成功查询轨迹
-    DB_RET_NULL时间区间内无轨迹
+    DB_RET_OK删除轨迹成功
+    DB_RET_NULL未找到轨迹所在轨迹表
+    DB_RET_FALL删除失败
 */
 int DBTraceAPI::DBDeleteTrace(DBTrace trace){
     DB.useDB(database);
@@ -972,6 +1019,11 @@ int DBTraceAPI::DBDeleteTrace(DBTrace trace){
     }
 }
 //删除设备以及其对应关系
+/*
+    返回值：
+    DB_RET_OK删除成功
+    DB_RET_FALL删除失败
+*/
 int DBTraceAPI::DBDeleteDevice(string DeviceID){
     DB.useDB(database);
     table="Device";
@@ -997,6 +1049,11 @@ int DBTraceAPI::DBDeleteDevice(string DeviceID){
     }
 }
 //删除围栏信息
+/*
+    返回值：
+    DB_RET_OK删除成功
+    DB_RET_FALL删除失败
+*/
 int DBTraceAPI::DBDeleteMap(int MapMark){
     DB.useDB(database);
     table="Map";
@@ -1008,6 +1065,12 @@ int DBTraceAPI::DBDeleteMap(int MapMark){
     }
 }
 //更新轨迹信息
+/*
+    返回值：
+    DB_RET_OK更新成功
+    DB_RET_FALL更新失败
+    DB_RET_NULL检索不到原轨迹所在表
+*/
 int DBTraceAPI::DBUpdateTrace(DBTrace traceOld,DBTrace traceNew){
     DB.useDB(database);
     table="Trace";
@@ -1028,6 +1091,12 @@ int DBTraceAPI::DBUpdateTrace(DBTrace traceOld,DBTrace traceNew){
     }
 }
 //清除所有轨迹表
+/*
+    返回值：
+    DB_RET_OK清除成功
+    DB_RET_FALL清除失败
+    DB_RET_NULL Trace表为空
+*/
 int DBTraceAPI::DBClearTable(){
     DB.useDB(database);
     table="Trace";
@@ -1057,6 +1126,7 @@ int DBTraceAPI::DBClearTable(){
         return DB_RET_FALL;
     }
 }
+//统计进出次数和持续时间方法
 DBMapData CountFre(vector<DBTrace> trace,int PersonID,int PersonModule,int MapMark){
     int flagOld=0;
     int flagNew=0;
@@ -1085,6 +1155,13 @@ DBMapData CountFre(vector<DBTrace> trace,int PersonID,int PersonModule,int MapMa
     return tempMapData;
 }
 //具体围栏数据统计
+/*
+    MapData用来返回统计的数据包含（PersonID，PersonModule，MapMark，Enter，Out，StayTime）
+    返回值：
+    DB_RET_OK统计成功
+    DB_RET_FALL统计失败
+    DB_RET_NULL时间段内的轨迹数据为空
+*/
 int DBTraceAPI::DBMapCount(int PersonID,int PersonModule,int MapMark,ptime timeBegin,ptime timeEnd,DBMapData&MapData){
     DB.useDB(database);
     vector<DBTrace> Traces;
@@ -1100,6 +1177,12 @@ int DBTraceAPI::DBMapCount(int PersonID,int PersonModule,int MapMark,ptime timeB
     return DB_RET_OK;
 }
 //具体人员在围栏位置的统计（输出对每隔围栏的统计）
+/*
+    MapData用来返回统计的数据包含（PersonID，PersonModule，MapMark，Enter，Out，StayTime）
+    返回值：
+    DB_RET_OK统计成功
+    DB_RET_FALL统计失败
+*/
 int DBTraceAPI::DBMapPersonCount(int PersonID,int PersonModule,ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData){
     DB.useDB(database);
     vector<DBTrace> Traces;
@@ -1120,6 +1203,13 @@ int DBTraceAPI::DBMapPersonCount(int PersonID,int PersonModule,ptime timeBegin,p
     
 }
 //具体围栏的统计（输出对每个人的统计表）
+/*
+    MapData用来返回统计的数据包含（PersonID，PersonModule，MapMark，Enter，Out，StayTime）
+    返回值：
+    DB_RET_OK统计成功
+    DB_RET_SEARCH_ERROR轨迹数据为空
+    DB_RET_PERSON_ERROR人员数据为空
+*/
 int DBTraceAPI::DBMapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData){
     DB.useDB(database);
     table="Person";
@@ -1140,6 +1230,12 @@ int DBTraceAPI::DBMapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,vector<
     return DB_RET_OK;
 }
 //统计围栏的总进出数和持续时间
+/*
+    MapData用来返回统计的数据包含（MapMark，rate，StayTime）
+    返回值：
+    DB_RET_OK统计成功
+    DB_RET_FALL统计失败
+*/
 int DBTraceAPI::MapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,DBMapData&MapData){
     vector<DBMapData> tempData;
     int rec=DBMapMarkCount(MapMark,timeBegin,timeEnd,tempData);
@@ -1156,8 +1252,33 @@ int DBTraceAPI::MapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,DBMapData
     return DB_RET_OK;
 }
 //统计所有围栏在该时间段的数据
-
+/*
+    MapData用来返回统计的数据包含（MapMark，rate，StayTime）
+    返回值：
+    DB_RET_OK统计成功
+    DB_RET_FALL统计失败
+*/
+int DBTraceAPI::MapCount(ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData){
+    table="MapMark";
+    value="MapMark";
+    string_table ret=DB.selectItem(table,value);
+    if(ret.size()==0){
+        return DB_RET_NULL;
+    }
+    for(unsigned int i=0;i<ret.size();i++){
+        DBMapData tempData;
+        if(MapMarkCount(atoi(ret[i][0].c_str()),timeBegin,timeEnd,tempData)==DB_RET_OK){
+            MapData.push_back(tempData);
+        }
+    }
+    return DB_RET_OK;
+}
 //删除数据库
+/*
+    返回值：
+    DB_RET_OK删除成功
+    DB_RET_FALL删除失败
+*/
 int DBTraceAPI::DBDeleteDB(){
     if(DB.deleteDB(database)){
         return DB_RET_OK;
