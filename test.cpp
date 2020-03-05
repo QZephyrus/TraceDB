@@ -381,8 +381,8 @@ int selectSomeDevicetest(DBTraceAPI&DBAPI){
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
-	for(unsigned int i=0;i<rec.size();i++){
-		cout<<"TraceID="<<rec[i].TraceID<<",PersonID="<<rec[i].PersonID<<",PersonModule="<<rec[i].PersonModule<<",DeviceID="<<rec[i].DeviceID<<",X="<<rec[i].X<<",Y="<<rec[i].Y<<",Floor="<<rec[i].Floor<<",MapMark="<<rec[i].MapMark<<",Time="<<rec[i].time<<endl;
+	for(auto &v:rec){
+		cout<<"TraceID="<<v.TraceID<<",PersonID="<<v.PersonID<<",PersonModule="<<v.PersonModule<<",DeviceID="<<v.DeviceID<<",X="<<v.X<<",Y="<<v.Y<<",Floor="<<v.Floor<<",MapMark="<<v.MapMark<<",Time="<<v.time<<endl;
 	}
 	return info;
 }
@@ -397,8 +397,8 @@ int selectAllDevicetest(DBTraceAPI&DBAPI){
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
-	for(unsigned int i=0;i<rec.size();i++){
-		cout<<"TraceID="<<rec[i].TraceID<<",PersonID="<<rec[i].PersonID<<",PersonModule="<<rec[i].PersonModule<<",DeviceID="<<rec[i].DeviceID<<",X="<<rec[i].X<<",Y="<<rec[i].Y<<",Floor="<<rec[i].Floor<<",MapMark="<<rec[i].MapMark<<",Time="<<rec[i].time<<endl;
+	for(auto &v:rec){
+		cout<<"TraceID="<<v.TraceID<<",PersonID="<<v.PersonID<<",PersonModule="<<v.PersonModule<<",DeviceID="<<v.DeviceID<<",X="<<v.X<<",Y="<<v.Y<<",Floor="<<v.Floor<<",MapMark="<<v.MapMark<<",Time="<<v.time<<endl;
 	}
 	return info;
 }
@@ -423,22 +423,14 @@ int selectSomePersontest(DBTraceAPI&DBAPI){
 	int info;
 	vector<DBTrace> rec;
 	vector<vector<int>> Person;
-	vector<int> temp;
-	int PersonID=101;
-	int PersonModule=1;
-	temp.push_back(PersonID);
-	temp.push_back(PersonModule);
-	Person.push_back(temp);
-	PersonID=102;
-	PersonModule=1;
-	temp.push_back(PersonID);
-	temp.push_back(PersonModule);
-	Person.push_back(temp);
-	PersonID=103;
-	PersonModule=1;
-	temp.push_back(PersonID);
-	temp.push_back(PersonModule);
-	Person.push_back(temp);
+	for(int i=1;i<=3;i++){
+		vector<int> temp;
+		int PersonID=100+i;
+		int PersonModule=1;
+		temp.push_back(PersonID);
+		temp.push_back(PersonModule);
+		Person.push_back(temp);
+	}
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
@@ -446,8 +438,8 @@ int selectSomePersontest(DBTraceAPI&DBAPI){
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
-	for(unsigned int i=0;i<rec.size();i++){
-		cout<<"TraceID="<<rec[i].TraceID<<",PersonID="<<rec[i].PersonID<<",PersonModule="<<rec[i].PersonModule<<",DeviceID="<<rec[i].DeviceID<<",X="<<rec[i].X<<",Y="<<rec[i].Y<<",Floor="<<rec[i].Floor<<",MapMark="<<rec[i].MapMark<<",Time="<<rec[i].time<<endl;
+	for(auto &v:rec){
+		cout<<"TraceID="<<v.TraceID<<",PersonID="<<v.PersonID<<",PersonModule="<<v.PersonModule<<",DeviceID="<<v.DeviceID<<",X="<<v.X<<",Y="<<v.Y<<",Floor="<<v.Floor<<",MapMark="<<v.MapMark<<",Time="<<v.time<<endl;
 	}
 	return info;
 }
@@ -462,8 +454,8 @@ int selectAllPersontest(DBTraceAPI&DBAPI){
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
-	for(unsigned int i=0;i<rec.size();i++){
-		cout<<"TraceID="<<rec[i].TraceID<<",PersonID="<<rec[i].PersonID<<",PersonModule="<<rec[i].PersonModule<<",DeviceID="<<rec[i].DeviceID<<",X="<<rec[i].X<<",Y="<<rec[i].Y<<",Floor="<<rec[i].Floor<<",MapMark="<<rec[i].MapMark<<",Time="<<rec[i].time<<endl;
+	for(auto &v:rec){
+		cout<<"TraceID="<<v.TraceID<<",PersonID="<<v.PersonID<<",PersonModule="<<v.PersonModule<<",DeviceID="<<v.DeviceID<<",X="<<v.X<<",Y="<<v.Y<<",Floor="<<v.Floor<<",MapMark="<<v.MapMark<<",Time="<<v.time<<endl;
 	}
 	return info;
 }
@@ -482,8 +474,8 @@ int selectPersonTracetest(DBTraceAPI&DBAPI){
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
-	for(unsigned int i=0;i<rec.size();i++){
-		cout<<"TraceID="<<rec[i].TraceID<<",PersonID="<<rec[i].PersonID<<",PersonModule="<<rec[i].PersonModule<<",DeviceID="<<rec[i].DeviceID<<",X="<<rec[i].X<<",Y="<<rec[i].Y<<",Floor="<<rec[i].Floor<<",MapMark="<<rec[i].MapMark<<",Time="<<rec[i].time<<endl;
+	for(auto &v:rec){
+		cout<<"TraceID="<<v.TraceID<<",PersonID="<<v.PersonID<<",PersonModule="<<v.PersonModule<<",DeviceID="<<v.DeviceID<<",X="<<v.X<<",Y="<<v.Y<<",Floor="<<v.Floor<<",MapMark="<<v.MapMark<<",Time="<<v.time<<endl;
 	}
 	return info;
 }
@@ -501,8 +493,8 @@ int selectDeviceTracetest(DBTraceAPI&DBAPI){
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
-	for(unsigned int i=0;i<rec.size();i++){
-		cout<<"TraceID="<<rec[i].TraceID<<",PersonID="<<rec[i].PersonID<<",PersonModule="<<rec[i].PersonModule<<",DeviceID="<<rec[i].DeviceID<<",X="<<rec[i].X<<",Y="<<rec[i].Y<<",Floor="<<rec[i].Floor<<",MapMark="<<rec[i].MapMark<<",Time="<<rec[i].time<<endl;
+	for(auto &v:rec){
+		cout<<"TraceID="<<v.TraceID<<",PersonID="<<v.PersonID<<",PersonModule="<<v.PersonModule<<",DeviceID="<<v.DeviceID<<",X="<<v.X<<",Y="<<v.Y<<",Floor="<<v.Floor<<",MapMark="<<v.MapMark<<",Time="<<v.time<<endl;
 	}
 	return info;
 }
@@ -517,8 +509,8 @@ int selectDevices(DBTraceAPI&DBAPI){
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
-	for(unsigned int i=0;i<rec.size();i++){
-		cout<<"DeviceID="<<rec[i]<<endl;
+	for(auto &v:rec){
+		cout<<"DeviceID="<<v<<endl;
 	}
 	return info;
 }
@@ -556,8 +548,8 @@ int mapPersonCount(DBTraceAPI&DBAPI){
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
-	for(unsigned int i=0;i<MapData.size();i++){
-		cout<<"PersinID="<<MapData[i].PersonID<<",PersonModule="<<MapData[i].PersonModule<<",MapMark="<<MapData[i].MapMark<<",EnterTimes="<<MapData[i].Enter<<",OutTimes="<<MapData[i].Out<<",StayTime="<<MapData[i].StayTime<<endl;
+	for(auto &v:MapData){
+		cout<<"PersinID="<<v.PersonID<<",PersonModule="<<v.PersonModule<<",MapMark="<<v.MapMark<<",EnterTimes="<<v.Enter<<",OutTimes="<<v.Out<<",StayTime="<<v.StayTime<<endl;
 	}
 	return info;
 }
@@ -575,8 +567,8 @@ int mapMarkCount(DBTraceAPI&DBAPI){
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
-	for(unsigned int i=0;i<MapData.size();i++){
-		cout<<"PersinID="<<MapData[i].PersonID<<",PersonModule="<<MapData[i].PersonModule<<",MapMark="<<MapData[i].MapMark<<",EnterTimes="<<MapData[i].Enter<<",OutTimes="<<MapData[i].Out<<",StayTime="<<MapData[i].StayTime<<endl;
+	for(auto &v:MapData){
+		cout<<"PersinID="<<v.PersonID<<",PersonModule="<<v.PersonModule<<",MapMark="<<v.MapMark<<",EnterTimes="<<v.Enter<<",OutTimes="<<v.Out<<",StayTime="<<v.StayTime<<endl;
 	}
 	return info;
 }
@@ -749,8 +741,8 @@ int countMap(DBTraceAPI&DBAPI){
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
-	for(unsigned int i=0;i<MapData.size();i++){
-		cout<<"MapMark="<<MapData[i].MapMark<<",Frequency="<<MapData[i].rate<<",StayTime="<<MapData[i].StayTime<<endl;
+	for(auto &v:MapData){
+		cout<<"MapMark="<<v.MapMark<<",Frequency="<<v.rate<<",StayTime="<<v.StayTime<<endl;
 	}
 	return info;
 }
@@ -758,134 +750,131 @@ int countMap(DBTraceAPI&DBAPI){
 int main(int argc,char const *argv[]){
     //接口类的调用
 	DBTraceAPI DBAPI;
-	int info;
+
+	//判断数据库服务状态
+	assert(DB_RET_OK==DBAPI.DBInitialize());
+
 	//数据库建立连接
-	info=connectDBtest(DBAPI);
-	cout<<info<<endl;
+	assert(DB_RET_OK==connectDBtest(DBAPI));
+	
 	//数据库创建
-	info=creatDBtest(DBAPI);
-	cout<<info<<endl;
-/*
-	//数据库创建
-	info=creatDBtest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==creatDBtest(DBAPI));
+
 	//单条添加设备
-	info=addDeviceDBtest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==addDeviceDBtest(DBAPI));
+
 	//多条添加设备
-	info=addSomeDeviceDBtest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==addSomeDeviceDBtest(DBAPI));
+
 	//单条更新设备人员关系
-	info=updateRelatedtest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==updateRelatedtest(DBAPI));
+
 	//多条更新设备人员关系
-	info=updateSomeRelatedtest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==updateSomeRelatedtest(DBAPI));
+
 	//单条添加人员
-	info=addPersontest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==addPersontest(DBAPI));
+
 	//多条添加人员
-	info=addSomePersontest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==addSomePersontest(DBAPI));
+
 	//单条添加围栏
-	info=addMapMarktest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==addMapMarktest(DBAPI));
+
 	//多条添加围栏
-	info=addSomeMapMarktest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==addSomeMapMarktest(DBAPI));
+
 	//单条添加BCON
-	info=addBCONtest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==addBCONtest(DBAPI));
+
 	//多条添加BCON
-	info=addSomeBCONtest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==addSomeBCONtest(DBAPI));
+
 	//单条添加围栏和BCON对应关系
-	info=addMaptest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==addMaptest(DBAPI));
+
 	//多条添加围栏和BCON对应关系
-	info=addSomeMaptest(DBAPI);
-	cout<<info<<endl;
-*/
-/*	
+	//assert(DB_RET_OK==addSomeMaptest(DBAPI));
+
+	
 	//单条添加轨迹信息
-	info=addTracetest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==addTracetest(DBAPI));
+
 	//多条添加轨迹信息
-	info=addSomeTracetest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==addSomeTracetest(DBAPI));
+
 	//单条查询最近轨迹（按设备ID）
-	info=selectDevicetest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==selectDevicetest(DBAPI));
+
 	//多条查询最近轨迹（按设备ID）
-	info=selectSomeDevicetest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==selectSomeDevicetest(DBAPI));
+
 	//单条查询最近轨迹（按人员ID）
-	info=selectPersontest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==selectPersontest(DBAPI));
+
 	//多条查询最近轨迹（按人员ID）
-	info=selectSomePersontest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==selectSomePersontest(DBAPI));
+
 	//查询所有最近轨迹（按设备ID）
-	info=selectAllDevicetest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==selectAllDevicetest(DBAPI));
+
 	//查询所有最近轨迹（按人员ID）
-	info=selectAllPersontest(DBAPI);
-	cout<<info<<endl;	
+	//assert(DB_RET_OK==selectAllPersontest(DBAPI));
+
 	//查询时间区间内的轨迹（人员ID+时间）
-	info=selectPersonTracetest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==selectPersonTracetest(DBAPI));
+
 	//查询时间区间内的轨迹（设备ID+时间）
-	info=selectDeviceTracetest(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==selectDeviceTracetest(DBAPI));
+
 	//查询所有已有设备ID
-	info=selectDevices(DBAPI);
-	cout<<info<<endl;	
+	//assert(DB_RET_OK==selectDevices(DBAPI));
+
 	//统计标识（PersonID+Time+MapMark）
-	info=mapCount(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==mapCount(DBAPI));
+
 	//统计标识（PersonID+Time）
-	info=mapPersonCount(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==mapPersonCount(DBAPI));
+
 	//统计标识（Time+MapMark）
-	info=mapMarkCount(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==mapMarkCount(DBAPI));
+
 	//删除单条轨迹
-	info=deleteTrace(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==deleteTrace(DBAPI));
+
 	//删除单个设备
-	info=deleteDevice(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==deleteDevice(DBAPI));
+
 	//删除单个围栏
-	info=deleteMap(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==deleteMap(DBAPI));
+
 	//更新单条轨迹
-	info=updateTrace(DBAPI);
-	cout<<info<<endl;
+	//assert(DB_RET_OK==updateTrace(DBAPI));
 
 	//清除所有轨迹数据
-	info=clearTable(DBAPI);
-	cout<<info<<endl;
-*/
-	//info=addcrossSomeTracetest2(DBAPI);
-	//cout<<info<<endl;
+	//assert(DB_RET_OK==clearTable(DBAPI));
 
-	//info=selectPersonTracetest(DBAPI);
-	//cout<<info<<endl;
-	//info=selectDeviceTracetest(DBAPI);
-	//cout<<info<<endl;
-	//info=mapCount(DBAPI);
-	//cout<<info<<endl;
-	//info=mapMarkCount(DBAPI);
-	//cout<<info<<endl;
-	//info=mapPersonCount(DBAPI);
-	//cout<<info<<endl;
-	//info=countMapMark(DBAPI);
-	//cout<<info<<endl;
-	//countMap(DBAPI);
+	//添加轨迹数据（跨表添加)
+	//assert(DB_RET_OK==addcrossSomeTracetest2(DBAPI));
+
+	//验证跨表查询
+	//assert(DB_RET_OK==selectPersonTracetest(DBAPI));
+	//assert(DB_RET_OK==selectDeviceTracetest(DBAPI));
+	
+	//跨表统计（有具体Person、MapMark和时间）
+	//assert(DB_RET_OK==mapCount(DBAPI));
+	//跨表统计（有具体MapMark和时间）统计分人返回
+	//assert(DB_RET_OK==mapMarkCount(DBAPI));
+	//跨表统计（有具体Person和时间）
+	//assert(DB_RET_OK==mapPersonCount(DBAPI));
+	//跨表统计（有具体MapMark和时间），统计不在分人返回只看区域
+	//assert(DB_RET_OK==countMapMark(DBAPI));
+	//跨表统计，返回所有区域的统计数据
+	assert(DB_RET_OK==countMap(DBAPI));
+	
 	//删除数据库
-	//info=deleteDBtest(DBAPI);
-	//cout<<info<<endl;
-	//info=DBAPI.DBInitialize();
-	//cout<<info<<endl;
+	//assert(DB_RET_OK==deleteDBtest(DBAPI));
+	
+
 	return 0;
 }

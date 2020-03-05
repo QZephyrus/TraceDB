@@ -37,7 +37,10 @@ bool DataBase::connect(const string host,const string user,const string passwd){
 		cout << "connect error!" << endl;
 		return false;
 	}
-	cout << "connect success!" << endl;
+	if(DEBUG){
+		cout << "connect success!" << endl;
+	}
+	
     return true;
 }
 
@@ -50,7 +53,9 @@ bool DataBase::connect(const string host,const string user,const string passwd,c
 		cout << "connect error!" << endl;
 		return false;
 	}
-	cout << "connect success!" << endl;
+	if(DEBUG){
+		cout << "connect success!" << endl;
+	}
     return true;
 }
 
@@ -61,7 +66,9 @@ void DataBase::disconnect(){
     sql = nullptr;
     res = nullptr;
     connect_flag = false;
-    cout << "disconnect success!" <<endl;
+	if(DEBUG){
+		cout << "disconnect success!" <<endl;
+	}  
 }
 
 bool DataBase::showDB(){
@@ -80,7 +87,9 @@ bool DataBase::createDB(const string &database){
 		cout << "create database "+database+" error!" << endl;
 		return false;
 	}
-	cout << "create database "+database+" success!" << endl;
+	if(DEBUG){
+		cout << "create database "+database+" success!" << endl;
+	}
     return true;
 }
 
@@ -90,7 +99,9 @@ bool DataBase::useDB(const string &database){
 		cout << "use database error!" << endl;
 		return false;
 	}
-	cout << "use " << database << " now!" << endl;
+	if(DEBUG){
+		cout << "use " << database << " now!" << endl;
+	}
     return true;
 }
 
@@ -144,7 +155,9 @@ bool DataBase::deleteDB(const string &database){
 		cout << "delete database " + database + " error!" << endl;
 		return false;
 	}
-	cout << database << " has been deleted!" << endl;
+	if(DEBUG){
+		cout << database << " has been deleted!" << endl;
+	}
     return true;
 }
 
@@ -164,7 +177,9 @@ bool DataBase::createTB(const string &table,const string &elements){
 		cerr << "create table " + table + " error!" << endl;
 		return false;
 	}
-	cout << "create table " + table + " success!" << endl;
+	if(DEBUG){
+		cout << "create table " + table + " success!" << endl;
+	}
     return true;
 }
 bool DataBase::deleteTB(const string &table){
@@ -173,7 +188,9 @@ bool DataBase::deleteTB(const string &table){
 		cout << "delete table "+table+" error!" << endl;
 		return false;
 	}
-	cout << table << " has been deleted!" << endl;
+	if(DEBUG){
+		cout << table << " has been deleted!" << endl;
+	}
     return true;
 }
 bool DataBase::clearTB(const string &table){
@@ -182,15 +199,17 @@ bool DataBase::clearTB(const string &table){
 		cout << "clear table "+table+" error!" << endl;
 		return false;
 	}
-	cout << table << " has been cleared!" << endl;
+	if(DEBUG){
+		cout << table << " has been cleared!" << endl;
+	}
     return true;
 }
 
 vector<vector<string>> DataBase::selectItem(const string &table,const string &value){
     string str = "select " + value + " from " + table;
-	cout << str << endl;
+
 	if (mysql_query(sql, str.c_str())) {
-		cout << "select from " + table+" error!" << endl;
+		cout<< str + " error!"<<endl;
 		return {};
 	}
 
@@ -205,14 +224,17 @@ vector<vector<string>> DataBase::selectItem(const string &table,const string &va
 	}
 	mysql_free_result(res);
 	res = nullptr;
+	if(DEBUG){
+		cout<< str + " success!"<<endl;
+	}
 	return ret;
 }
 
 vector<vector<string>> DataBase::selectItem(const string &table, const string &value, const string &limits){
     string str = "select " + value + " from " + table + " where " + limits;
-	cout << str << endl;
+	
 	if (mysql_query(sql, str.c_str())) {
-		cout << "select from " + table+" error!" << endl;
+		cout<< str + " error!"<<endl;
 		return {};
 	}
 
@@ -227,14 +249,18 @@ vector<vector<string>> DataBase::selectItem(const string &table, const string &v
 	}
 	mysql_free_result(res);
 	res = nullptr;
+	if(DEBUG){
+		cout<< str + " success!"<<endl;
+	}
 	return ret;
 }
 
 vector<vector<string>> DataBase::selectItem(const string &sentence){
     string str = sentence;
-	cout << str << endl;
+	
 	if (mysql_query(sql, str.c_str())) {
-		cout << "select error!" << endl;
+		//cout << "select error!" << endl;
+		cout<< str + " error!"<<endl;
 		return {};
 	}
 
@@ -249,6 +275,9 @@ vector<vector<string>> DataBase::selectItem(const string &sentence){
 	}
 	mysql_free_result(res);
 	res = nullptr;
+	if(DEBUG){
+		cout << str + " success!"<< endl;
+	}
 	return ret;
 }
 
@@ -269,45 +298,59 @@ void DataBase::showres(){
 
 bool DataBase::insertItem(const string &table,const string &value){
     string str = "insert into " + table + " values (" + value + ")";
-	cout << str << endl;
 	if (mysql_query(sql, str.c_str())) {
-		cout << "insert into " + table + " error!" << endl;
+		cout << str + " error!" << endl;
+		
 		return false;
 	}
-	cout << "insert into " + table + " success!" << endl;
+	if(DEBUG){
+		cout << str + " success!" << endl;
+	}
     return true;
 }
 
 bool DataBase::insertItem(const string &table,const string &value,const string &col){
     string str = "insert into " + table + " (" + col + ") values (" + value + ")";
-	cout << str << endl;
+	
 	if (mysql_query(sql, str.c_str())) {
-		cout << "insert into " + table + " error!" << endl;
+		//cout << "insert into " + table + " error!" << endl;
+		cout<< str + " error!"<<endl;
 		return false;
 	}
-	cout << "insert into " + table + " success!" << endl;
+	if(DEBUG){
+		//cout << "insert into " + table + " success!" << endl;
+		cout<< str + " success!"<<endl;
+	}
     return true;
 }
 
 bool DataBase::deleteItem(const string &table, const string &value){
     string str = "delete from " + table + " where " + value;
-	cout << str << endl;
+	
 	if (mysql_query(sql, str.c_str())) {
-		cout << "delete from " + table + " error!" << endl;
+		//cout << "delete from " + table + " error!" << endl;
+		cout<< str + " error!"<<endl;
 		return false;
 	}
-	cout << "delete from " + table + " success!" << endl;
+	if(DEBUG){
+		//cout << "delete from " + table + " success!" << endl;
+		cout<< str + " success!"<<endl;
+	}
     return true;
 }
 
 bool DataBase::updateItem(const string &table, const string &value, const string &limits){
     string str = "update " + table + " set " + value + " where " + limits;
-	cout << str << endl;
+	
 	if (mysql_query(sql, str.c_str())) {
-		cout << "update " + table + " error!" << endl;
+		//cout << "update " + table + " error!" << endl;
+		cout<< str + " error!"<<endl;
 		return false;
 	}
-	cout << "update " + table + " success!" << endl;
+	if(DEBUG){
+		//cout << "update " + table + " success!" << endl;
+		cout<< str + " success!"<<endl;
+	}
     return true;
 }
 
@@ -316,6 +359,8 @@ bool DataBase::query(const string &command){
 		cout << "query error!" << endl;
 		return false;
 	}
-	cout << "query success!" << endl;
+	if(DEBUG){
+		cout << "query success!" << endl;
+	}
     return true;
 }

@@ -10,29 +10,6 @@ using namespace boost::posix_time;
 using namespace boost::gregorian;
 
 
-/*typedef struct Time
-{
-    short year;
-    short month;
-    short Day;
-    short hour;
-    short minute;
-    short second;
-    string datatime;
-    void getdatatime(){
-        year=atoi(datatime.substr(0,3).c_str());
-        month=atoi(datatime.substr(5,6).c_str());
-        Day=atoi(datatime.substr(8,9).c_str());
-        hour=atoi(datatime.substr(11,12).c_str());
-        minute=atoi(datatime.substr(14,15).c_str());
-        second=atoi(datatime.substr(17,18).c_str());
-    }
-    string todatatime(){
-        datatime=to_string(year)+"-"+to_string(month)+"-"+to_string(Day)+" "+to_string(hour)+":"+to_string(minute)+":"+to_string(second);
-        return datatime;
-    }
-}Time;*/
-
 //定义双重vector构成的存储string类型的表，定义为string_table
 typedef vector<vector<string>> string_table;
 
@@ -41,28 +18,8 @@ class DBTrace
 {
     public:
         DBTrace(){};
-        DBTrace(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t,string TBName,int TID){
-            PersonID=PerID;
-            PersonModule=PerModule;
-            DeviceID=DevID;
-            X=XF;
-            Y=YF;
-            Floor=FloorF;
-            MapMark=MMark;
-            time=t;
-            TableName=TBName;
-            TraceID=TID;
-        };
-        DBTrace(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t){
-            PersonID=PerID;
-            PersonModule=PerModule;
-            DeviceID=DevID;
-            X=XF;
-            Y=YF;
-            Floor=FloorF;
-            MapMark=MMark;
-            time=t;
-        };
+        DBTrace(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t,string TBName,int TID):PersonID(PerID),PersonModule(PerModule),DeviceID(DevID),X(XF),Y(YF),Floor(FloorF),MapMark(MMark),time(t),TableName(TBName),TraceID(TID){};
+        DBTrace(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t):PersonID(PerID),PersonModule(PerModule),DeviceID(DevID),X(XF),Y(YF),Floor(FloorF),MapMark(MMark),time(t){};
         void getvalue(int TraID,int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t){
             TraceID=TraID;
             PersonID=PerID;
@@ -109,19 +66,18 @@ class DBTrace
         }
         //用于从双重vector构成的string表（string_table）获取多条的轨迹信息并且返回一个用vector<DBTrace>存储的轨迹链
         vector<DBTrace> readTraces(string_table ret){
-            int rows=ret.size();
             vector<DBTrace> Trace;
             DBTrace trace;
-            for(int i=0;i<rows;i++){
-                trace.TraceID=atoi(ret[i][0].c_str());
-                trace.PersonID=atoi(ret[i][1].c_str());
-                trace.PersonModule=atoi(ret[i][2].c_str());
-                trace.DeviceID=ret[i][3];
-                trace.X=atof(ret[i][4].c_str());
-                trace.Y=atof(ret[i][5].c_str());
-                trace.Floor=ret[i][6];
-                trace.MapMark=atof(ret[i][7].c_str());
-                trace.time=ret[i][8];
+            for(auto &v:ret){
+                trace.TraceID=atoi(v[0].c_str());
+                trace.PersonID=atoi(v[1].c_str());
+                trace.PersonModule=atoi(v[2].c_str());
+                trace.DeviceID=v[3];
+                trace.X=atof(v[4].c_str());
+                trace.Y=atof(v[5].c_str());
+                trace.Floor=v[6];
+                trace.MapMark=atof(v[7].c_str());
+                trace.time=v[8];
                 Trace.push_back(trace);
             }
             return Trace;
@@ -168,21 +124,8 @@ class DBMapData
         int rate;
         time_duration StayTime;
         //构造函数用于初始化数据
-        DBMapData(int PerID,int PerMod,int MMark){
-            PersonID=PerID;
-            PersonModule=PerMod;
-            MapMark=MMark;
-            Enter=0;
-            Out=0;
-            rate=0;
-            StayTime=time_from_string("2020-02-01 00:00:00")-time_from_string("2020-02-01 00:00:00");
-        }
-        DBMapData(){
-            Enter=0;
-            Out=0;
-            rate=0;
-            StayTime=time_from_string("2020-02-01 00:00:00")-time_from_string("2020-02-01 00:00:00");
-        }
+        DBMapData(int PerID,int PerMod,int MMark):PersonID(PerID),PersonModule(PerMod),MapMark(MMark),Enter(0),Out(0),rate(0),StayTime(time_from_string("2020-02-01 00:00:00")-time_from_string("2020-02-01 00:00:00")){}
+        DBMapData():Enter(0),Out(0),rate(0),StayTime(time_from_string("2020-02-01 00:00:00")-time_from_string("2020-02-01 00:00:00")){}
         void initData(int PerID,int PerMod,int MMark){
             PersonID=PerID;
             PersonModule=PerMod;

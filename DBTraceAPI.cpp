@@ -11,12 +11,7 @@ DBTraceAPI::DBTraceAPI(){
     database="TraceDB";
 }
 //构造函数，构造时不使用默认参数
-DBTraceAPI::DBTraceAPI(string host,string username,string password,string databasename){
-    localhost=host;
-    user=username;
-    passwd=password;
-    database=databasename;
-}
+DBTraceAPI::DBTraceAPI(string host,string username,string password,string databasename):localhost(host),user(username),passwd(password),database(databasename){}
 
 DBTraceAPI::~DBTraceAPI(){   
 }
@@ -255,17 +250,18 @@ int DBTraceAPI::DBAddSomeDevice(vector<DBDeviceData> deviceData){
         return DB_RET_NULL;
     }
     DB.autoCommitOff();
-    for(int i=0;i<row;i++){
+    //for(int i=0;i<row;i++){
+    for(auto &v:deviceData){
         //将设备添加到设备表中
         table="Device";
-        value="'"+deviceData[i].DeviceID+"',null,null";
+        value="'"+v.DeviceID+"',null,null";
         if(DB.insertItem(table,value)==false){
             flag_insert=false;
             break;
         }
         //将设备与人员关系添加到关系表中
         table="Device_Person";
-        value="'"+deviceData[i].DeviceID+"', "+to_string(deviceData[i].PersonID)+", "+to_string(deviceData[i].PersonModule);
+        value="'"+v.DeviceID+"', "+to_string(v.PersonID)+", "+to_string(v.PersonModule);
         if(DB.insertItem(table,value)==false){
             flag_insert=false;
             break;
@@ -313,10 +309,11 @@ int DBTraceAPI::DBAddSomePerson(vector<DBDeviceData> deviceData){
         return DB_RET_NULL;
     }
     DB.autoCommitOff();
-    for(int i=0;i<row;i++){
+    //for(int i=0;i<row;i++){
+    for(auto &v:deviceData){
         //将设备添加到设备表中
         table="Person";
-        value=to_string(deviceData[i].PersonID)+", "+to_string(deviceData[i].PersonModule)+",null,null";
+        value=to_string(v.PersonID)+", "+to_string(v.PersonModule)+",null,null";
         if(DB.insertItem(table,value)==false){
             flag_insert=false;
             break;
@@ -364,9 +361,10 @@ int DBTraceAPI::DBUpdateSomeDeviceRelat(vector<DBDeviceData> deviceData){
     }
     DB.autoCommitOff();
     table="Device_Person";
-    for(int i=0;i<row;i++){
-        value="PersonID="+to_string(deviceData[i].PersonID)+", PersonModule="+to_string(deviceData[i].PersonModule);
-        limits="DeviceID='"+deviceData[i].DeviceID+"'";
+    //for(int i=0;i<row;i++){
+    for(auto &v:deviceData){
+        value="PersonID="+to_string(v.PersonID)+", PersonModule="+to_string(v.PersonModule);
+        limits="DeviceID='"+v.DeviceID+"'";
         if(DB.updateItem(table,value,limits)==false){
             flag_updata=false;
             break;
@@ -414,8 +412,9 @@ int DBTraceAPI::DBAddSomeMap(vector<Map> map){
     }
     DB.autoCommitOff();
     table="Map";
-    for(int i=0;i<row;i++){
-        value="null,"+to_string(map[i].MapMark)+", "+to_string(map[i].BCONID);
+    //for(int i=0;i<row;i++){
+    for(auto &v:map){
+        value="null,"+to_string(v.MapMark)+", "+to_string(v.BCONID);
         if(DB.insertItem(table,value)==false){
             flag_add=false;
             break;
@@ -463,8 +462,9 @@ int DBTraceAPI::DBAddSomeBCON(vector<BCON> bcon){
     }
     DB.autoCommitOff();
     table="BCON";
-    for(int i=0;i<row;i++){
-        value=to_string(bcon[i].BCONID)+", "+to_string(bcon[i].BCONX)+", "+to_string(bcon[i].BCONY)+", '"+bcon[i].Floor+"'";
+    //for(int i=0;i<row;i++){
+    for(auto &v:bcon){
+        value=to_string(v.BCONID)+", "+to_string(v.BCONX)+", "+to_string(v.BCONY)+", '"+v.Floor+"'";
         if(DB.insertItem(table,value)==false){
             flag_add=false;
             break;
@@ -512,8 +512,9 @@ int DBTraceAPI::DBAddSomeMapMark(vector<int> mapMark){
     }
     DB.autoCommitOff();
     table="MapMark";
-    for(int i=0;i<row;i++){
-        value="null,"+to_string(mapMark[i]);
+    //for(int i=0;i<row;i++){
+    for(auto &v:mapMark){
+        value="null,"+to_string(v);
         if(DB.insertItem(table,value)==false){
             flag_add=false;
             break;
@@ -637,8 +638,9 @@ int DBTraceAPI::DBAddSomeTrace(vector<DBTrace> trace){
     }
     bool flag_add=true;
     DB.autoCommitOff();
-    for(int i=0;i<row;i++){
-        if(DBAddTrace(trace[i])!=DB_RET_OK){
+    //for(int i=0;i<row;i++){
+    for(auto &v:trace){
+        if(DBAddTrace(v)!=DB_RET_OK){
             flag_add=false;
             break;
         }
@@ -690,12 +692,13 @@ int DBTraceAPI::DBSearchDevice(string DeviceID,DBTrace&pTrace){
 */
 int DBTraceAPI::DBSearchSomeDevice(vector<string> DeviceID,vector<DBTrace>&Trace){
     DB.useDB(database);
-    for(unsigned int i=0;i<DeviceID.size();i++){
+    for(auto &v:DeviceID){
         DBTrace tempTrace;
-        if(DBSearchDevice(DeviceID[i],tempTrace)==DB_RET_OK){
+        if(DBSearchDevice(v,tempTrace)==DB_RET_OK){
             Trace.push_back(tempTrace);
         }
     }
+
     if(Trace.size()==0){
         return DB_RET_NULL;
     }else{
@@ -721,15 +724,16 @@ int DBTraceAPI::DBSearchAllDevice(vector<DBTrace>&Traces){
     if(rows==0){
         return DB_RET_DEVICE_ERROR;
     }
-    for(int i=0;i<rows;i++){
-        table=tablename[i][0];
-        value="*";
-        limits="TraceID="+tablename[i][1];
+    value="*";
+    for(auto &v:tablename){
+        table=v[0];
+        limits="TraceID="+v[1];
         string_table temp=DB.selectItem(table,value,limits);
         DBTrace trace;
         trace.readTrace(temp);
         Traces.push_back(trace);
     }
+
     if(Traces.size()==0){
         return DB_RET_NULL;
     }else{
@@ -774,9 +778,9 @@ int DBTraceAPI::DBSearchPerson(int PersonID,int PersonModule,DBTrace&pTrace){
 */
 int DBTraceAPI::DBSearchSomePerson(vector<vector<int>> Person,vector<DBTrace>&Trace){
     DB.useDB(database);
-    for(unsigned int i=0;i<Person.size();i++){
+    for(auto &v:Person){
         DBTrace tempTrace;
-        if(DBSearchPerson(Person[i][0],Person[i][1],tempTrace)==DB_RET_OK){
+        if(DBSearchPerson(v[0],v[1],tempTrace)==DB_RET_OK){
             Trace.push_back(tempTrace);
         }
     }
@@ -806,9 +810,9 @@ int DBTraceAPI::DBSearchAllPerson (vector<DBTrace>&Traces){
         return DB_RET_PERSON_ERROR;
     }
     value="*";
-    for(int i=0;i<rows;i++){
-        table=tablename[i][0];
-        limits="TraceID="+tablename[i][1];
+    for(auto &v:tablename){
+        table=v[0];
+        limits="TraceID="+v[1];
         string_table temp=DB.selectItem(table,value,limits);
         DBTrace trace;
         trace.readTrace(temp);
@@ -855,8 +859,8 @@ int DBTraceAPI::DBSearchPersonTrace(int PersonID,int PersonModule,ptime timeBegi
     }else if(rows>1){
         value="*";
         limits="PersonID="+to_string(PersonID)+" AND PersonModule="+to_string(PersonModule)+" AND Time>='"+timeB+"' AND Time<='"+timeE+"'";
-        for(int i=0;i<rows;i++){
-            table=ret[i][0];
+        for(auto &v:ret){
+            table=v[0];
             temp=DB.selectItem(table,value,limits);
             DBTrace trace;
             vector<DBTrace> res;
@@ -905,8 +909,8 @@ int DBTraceAPI::DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEn
     }else{
         value="*";
         limits="DeviceID='"+DeviceID+"' AND Time>='"+timeB+"' AND Time<='"+timeE+"'";
-        for(int i=0;i<rows;i++){
-            table=ret[i][0];
+        for(auto &v:ret){
+            table=v[0];
             temp=DB.selectItem(table,value,limits);
             DBTrace trace; 
             vector<DBTrace> res;
@@ -955,14 +959,15 @@ int DBTraceAPI::DBSearchTimeTrace(ptime timeBegin,ptime timeEnd,vector<DBTrace>&
     }else{
         value="*";
         limits="Time>='"+timeB+"' AND Time<='"+timeE+"'";
-        for(int i=0;i<rows;i++){
-            table=ret[i][0];
+        for(auto &v:ret){
+            table=v[0];
             temp=DB.selectItem(table,value,limits);
             DBTrace trace; 
             vector<DBTrace> res;
             res=trace.readTraces(temp);
             Traces.insert(Traces.end(),res.begin(),res.end());
         }
+
     }
     if(Traces.size()==0){
         return DB_RET_NULL;
@@ -986,9 +991,10 @@ int DBTraceAPI::DBSearchDeviceID(vector<string>&DeviceID){
     if(ret.size()==0){
         return DB_RET_NULL;
     }
-    for(unsigned int i=0;i<ret.size();i++){
-        DeviceID.push_back(ret[i][0]);
+    for(auto &v:ret){
+        DeviceID.push_back(v[0]);
     }
+
     return DB_RET_OK;
 }
 //删除单条轨迹信息
@@ -1109,8 +1115,9 @@ int DBTraceAPI::DBClearTable(){
     //批量删除
     DB.autoCommitOff();
     bool flag_delete=true;
-    for(unsigned int i=0;i<ret.size();i++){
-        if(DB.deleteTB(ret[i][0])==false){
+    //for(unsigned int i=0;i<ret.size();i++){
+    for(auto &v:ret){
+        if(DB.deleteTB(v[0])==false){
             flag_delete=false;
             break;
         }
@@ -1191,11 +1198,12 @@ int DBTraceAPI::DBMapPersonCount(int PersonID,int PersonModule,ptime timeBegin,p
         table="MapMark";
         value="MapMark";
         string_table ret=DB.selectItem(table,value);
-        for(unsigned int i=0;i<ret.size();i++){
-            int MapMark=atoi(ret[i][0].c_str());
+        for(auto &v:ret){
+            int MapMark=atoi(v[0].c_str());
             DBMapData tempMapData=CountFre(Traces,PersonID,PersonModule,MapMark);
             MapData.push_back(tempMapData);
         }
+
         return DB_RET_OK;
     }else{
         return DB_RET_FALL;
@@ -1223,10 +1231,11 @@ int DBTraceAPI::DBMapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,vector<
         return DB_RET_SEARCH_ERROR;
     }
     DBMapData tempMapData;
-    for(unsigned int i=0;i<ret.size();i++){
-        tempMapData=CountFre(trace,atoi(ret[i][0].c_str()),atoi(ret[i][1].c_str()),MapMark);
+    for(auto &v:ret){
+        tempMapData=CountFre(trace,atoi(v[0].c_str()),atoi(v[1].c_str()),MapMark);
         MapData.push_back(tempMapData);
     }
+
     return DB_RET_OK;
 }
 //统计围栏的总进出数和持续时间
@@ -1242,13 +1251,13 @@ int DBTraceAPI::MapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,DBMapData
     if(rec!=DB_RET_OK){
         return DB_RET_FALL;
     }
-    int row=tempData.size();
     MapData.MapMark=MapMark;
     MapData.rate=0;
-    for(int i=0;i<row;i++){
-        MapData.rate=MapData.rate+tempData[i].Enter+tempData[i].Out;
-        MapData.StayTime=(MapData.StayTime+tempData[i].StayTime);
+    for(auto &v:tempData){
+        MapData.rate=MapData.rate+v.Enter+v.Out;
+        MapData.StayTime=(MapData.StayTime+v.StayTime);
     }
+
     return DB_RET_OK;
 }
 //统计所有围栏在该时间段的数据
@@ -1259,18 +1268,20 @@ int DBTraceAPI::MapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,DBMapData
     DB_RET_FALL统计失败
 */
 int DBTraceAPI::MapCount(ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData){
+    DB.useDB(database);
     table="MapMark";
     value="MapMark";
     string_table ret=DB.selectItem(table,value);
     if(ret.size()==0){
         return DB_RET_NULL;
     }
-    for(unsigned int i=0;i<ret.size();i++){
+    for(auto &v:ret){
         DBMapData tempData;
-        if(MapMarkCount(atoi(ret[i][0].c_str()),timeBegin,timeEnd,tempData)==DB_RET_OK){
+        if(MapMarkCount(atoi(v[0].c_str()),timeBegin,timeEnd,tempData)==DB_RET_OK){
             MapData.push_back(tempData);
         }
     }
+
     return DB_RET_OK;
 }
 //删除数据库
