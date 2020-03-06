@@ -1,4 +1,3 @@
-
 #include<iostream>
 #include<string>
 #include"db/DataBase.h"
@@ -74,7 +73,7 @@ int addSomeDeviceDBtest(DBTraceAPI&DBAPI){
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();
-	info=DBAPI.DBAddSomeDevice(deviceData);
+	info=DBAPI.DBAddDevice(deviceData);
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
@@ -130,7 +129,7 @@ int updateSomeRelatedtest(DBTraceAPI&DBAPI){
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
-	info=DBAPI.DBUpdateSomeDeviceRelat(deviceData);
+	info=DBAPI.DBUpdateDeviceRelat(deviceData);
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
@@ -164,7 +163,7 @@ int addSomePersontest(DBTraceAPI&DBAPI){
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
-	info=DBAPI.DBAddSomePerson(deviceData);
+	info=DBAPI.DBAddPerson(deviceData);
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
@@ -192,7 +191,7 @@ int addSomeMapMarktest(DBTraceAPI&DBAPI){
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
-	info=DBAPI.DBAddSomeMapMark(mapmark);
+	info=DBAPI.DBAddMapMark(mapmark);
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
@@ -247,7 +246,7 @@ int addSomeBCONtest(DBTraceAPI&DBAPI){
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
-	info=DBAPI.DBAddSomeBCON(bcon);
+	info=DBAPI.DBAddBCON(bcon);
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
@@ -293,7 +292,7 @@ int addSomeMaptest(DBTraceAPI&DBAPI){
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
-	info=DBAPI.DBAddSomeMap(map);
+	info=DBAPI.DBAddMap(map);
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
@@ -329,7 +328,7 @@ int addSomeTracetest(DBTraceAPI&DBAPI){
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
-	info=DBAPI.DBAddSomeTrace(trace);
+	info=DBAPI.DBAddTrace(trace);
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
@@ -377,7 +376,7 @@ int selectSomeDevicetest(DBTraceAPI&DBAPI){
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
-	info=DBAPI.DBSearchSomeDevice(DeviceID,rec);
+	info=DBAPI.DBSearchDevice(DeviceID,rec);
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
@@ -393,7 +392,7 @@ int selectAllDevicetest(DBTraceAPI&DBAPI){
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
-	info=DBAPI.DBSearchAllDevice(rec);
+	info=DBAPI.DBSearchDevice(rec);
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
@@ -434,7 +433,7 @@ int selectSomePersontest(DBTraceAPI&DBAPI){
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
-	info=DBAPI.DBSearchSomePerson(Person,rec);
+	info=DBAPI.DBSearchPerson(Person,rec);
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
@@ -450,7 +449,7 @@ int selectAllPersontest(DBTraceAPI&DBAPI){
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
-	info=DBAPI.DBSearchAllPerson(rec);
+	info=DBAPI.DBSearchPerson(rec);
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
@@ -670,7 +669,7 @@ int addcrossSomeTracetest(DBTraceAPI&DBAPI){
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
-	info=DBAPI.DBAddSomeTrace(trace);
+	info=DBAPI.DBAddTrace(trace);
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
@@ -705,7 +704,7 @@ int addcrossSomeTracetest2(DBTraceAPI&DBAPI){
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
-	info=DBAPI.DBAddSomeTrace(trace);
+	info=DBAPI.DBAddTrace(trace);
 	now=microsec_clock::local_time();
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
@@ -746,6 +745,7 @@ int countMap(DBTraceAPI&DBAPI){
 	}
 	return info;
 }
+
 
 int main(int argc,char const *argv[]){
     //接口类的调用
@@ -871,10 +871,13 @@ int main(int argc,char const *argv[]){
 	//assert(DB_RET_OK==countMapMark(DBAPI));
 	//跨表统计，返回所有区域的统计数据
 	assert(DB_RET_OK==countMap(DBAPI));
-	
+
+
 	//删除数据库
 	//assert(DB_RET_OK==deleteDBtest(DBAPI));
 	
 
 	return 0;
 }
+
+

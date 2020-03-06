@@ -53,31 +53,31 @@ class DBTrace
         int TraceID;
 
         //用于从双重vector构成的string表（string_table）获取单条的轨迹信息并且保存自身
-        void readTrace(string_table ret){
-            TraceID=atoi(ret[0][0].c_str());
-            PersonID=atoi(ret[0][1].c_str());
-            PersonModule=atoi(ret[0][2].c_str());
-            DeviceID=ret[0][3];
-            X=atof(ret[0][4].c_str());
-            Y=atof(ret[0][5].c_str());
-            Floor=ret[0][6];
-            MapMark=atof(ret[0][7].c_str());
-            time=ret[0][8];
+        DBTrace read(vector<string> ret){
+            DBTrace temp;
+            temp.TraceID=atoi(ret[0].c_str());
+            temp.PersonID=atoi(ret[1].c_str());
+            temp.PersonModule=atoi(ret[2].c_str());
+            temp.DeviceID=ret[3];
+            temp.X=atof(ret[4].c_str());
+            temp.Y=atof(ret[5].c_str());
+            temp.Floor=ret[6];
+            temp.MapMark=atof(ret[7].c_str());
+            temp.time=ret[8];
+            return temp;
         }
+
+        DBTrace readTrace(string_table ret){
+            DBTrace temp=read(ret[0]);
+            return temp;
+        }
+
         //用于从双重vector构成的string表（string_table）获取多条的轨迹信息并且返回一个用vector<DBTrace>存储的轨迹链
         vector<DBTrace> readTraces(string_table ret){
             vector<DBTrace> Trace;
             DBTrace trace;
             for(auto &v:ret){
-                trace.TraceID=atoi(v[0].c_str());
-                trace.PersonID=atoi(v[1].c_str());
-                trace.PersonModule=atoi(v[2].c_str());
-                trace.DeviceID=v[3];
-                trace.X=atof(v[4].c_str());
-                trace.Y=atof(v[5].c_str());
-                trace.Floor=v[6];
-                trace.MapMark=atof(v[7].c_str());
-                trace.time=v[8];
+                trace=read(v);
                 Trace.push_back(trace);
             }
             return Trace;
@@ -136,6 +136,5 @@ class DBMapData
             StayTime=time_from_string("2020-02-01 00:00:00")-time_from_string("2020-02-01 00:00:00");
         }
 };
-
 
 
