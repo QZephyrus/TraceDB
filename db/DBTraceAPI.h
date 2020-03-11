@@ -24,7 +24,7 @@ enum{
 
 //定义每张具体轨迹表存储的月份
 #define MemoryMonth 3
-
+string ptime_to_string(ptime t);
 class DBTraceAPI
 {
     private:
@@ -36,7 +36,17 @@ class DBTraceAPI
         string database;//在操作时调用数据库名默认TraceDB
 
         string table;//在SQL操作时调用的表
-        static string basetable[7];//基础的静态表名
+
+        //static const string basetable[7];
+        //基础的静态表名
+        static const string BASE_TABLE_DEVICE;
+        static const string BASE_TABLE_PERSON;
+        static const string BASE_TABLE_DEVICE_PERSON_RELATE;
+        static const string BASE_TABLE_MAP;
+        static const string BASE_TABLE_BCON;
+        static const string BASE_TABLE_MAPMARK;
+        static const string BASE_TABLE_TRACE;
+
         string value;//在SQL操作时需要获取的值或插入的值
         string limits;//在SQL操作时的限制条件
 
