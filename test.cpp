@@ -1015,7 +1015,7 @@ int main(int argc,char const *argv[]){
 	//assert(DB_RET_OK==countMap(DBAPI));
 	//assert(DB_RET_OK==addTracestest(DBAPI));
 	//assert(DB_RET_OK==addTracestest2(DBAPI));
-	//for(int i=0;i<400;i++){
+	//for(int i=0;i<1000;i++){
 	//	assert(DB_RET_OK==addTracestest(DBAPI));
 	//	assert(DB_RET_OK==addTracestest2(DBAPI));
 	//}

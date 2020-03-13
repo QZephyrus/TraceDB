@@ -15,6 +15,7 @@
         "bitset": "cpp",
         "typeindex": "cpp",
         "typeinfo": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "chrono": "cpp"
     }
 }

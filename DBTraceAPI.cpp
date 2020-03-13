@@ -1270,7 +1270,6 @@ DBMapData CountFre(vector<DBTrace>&trace,int PersonID,int PersonModule,int MapMa
         }else if (flagNew==1 && flagOld==1){
             ptime temp = (time_from_string(trace[i].time)+tempMapData.StayTime);
             tempMapData.StayTime=temp-time_from_string(trace[i-1].time);
-            tempMapData.Out++;
         }
         flagOld=flagNew;
         } 
@@ -1384,17 +1383,33 @@ int DBTraceAPI::MapMarkCount(int MapMark,ptime timeBegin,ptime timeEnd,DBMapData
     DB_RET_FALL统计失败
 */
 int DBTraceAPI::MapCount(ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData){
+    ptime tick,now;
+    time_duration diff;
+
+	
     DB.useDB(database);
     table=BASE_TABLE_MAPMARK;
     value="MapMark";
+
+	tick=microsec_clock::local_time();
     string_table ret_mark=DB.selectItem(table,value);
     if(ret_mark.size()==0){
         return DB_RET_NULL;
     }
+    now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
+
+    tick=microsec_clock::local_time();
     vector<DBTrace> trace;
     if(DBSearchTimeTrace(timeBegin,timeEnd,trace)!=DB_RET_OK){
         return DB_RET_SEARCH_ERROR;
     }
+    now=microsec_clock::local_time();
+    diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
+
+    tick=microsec_clock::local_time();
     vector<vector<int>> PerData;
     for(auto &v:trace){
         vector<int> tempPer;
@@ -1417,7 +1432,11 @@ int DBTraceAPI::MapCount(ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData
             }
         }
     }
+    now=microsec_clock::local_time();
+    diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 
+    tick=microsec_clock::local_time();
     for(auto &v:ret_mark){
         DBMapData tempData;
         tempData.MapMark=atoi(v[0].c_str());
@@ -1430,6 +1449,9 @@ int DBTraceAPI::MapCount(ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData
         }
         MapData.push_back(tempData);
     }
+    now=microsec_clock::local_time();
+    diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 
     return DB_RET_OK;
 }
