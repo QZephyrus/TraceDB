@@ -1387,15 +1387,48 @@ int DBTraceAPI::MapCount(ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData
     DB.useDB(database);
     table=BASE_TABLE_MAPMARK;
     value="MapMark";
-    string_table ret=DB.selectItem(table,value);
-    if(ret.size()==0){
+    string_table ret_mark=DB.selectItem(table,value);
+    if(ret_mark.size()==0){
         return DB_RET_NULL;
     }
-    for(auto &v:ret){
-        DBMapData tempData;
-        if(MapMarkCount(atoi(v[0].c_str()),timeBegin,timeEnd,tempData)==DB_RET_OK){
-            MapData.push_back(tempData);
+    vector<DBTrace> trace;
+    if(DBSearchTimeTrace(timeBegin,timeEnd,trace)!=DB_RET_OK){
+        return DB_RET_SEARCH_ERROR;
+    }
+    vector<vector<int>> PerData;
+    for(auto &v:trace){
+        vector<int> tempPer;
+        if(PerData.empty()){
+            tempPer.push_back(v.PersonID);
+            tempPer.push_back(v.PersonModule);
+            PerData.push_back(tempPer);
+        }else{
+            bool flag=false;
+            for(auto &p:PerData){
+                if(v.PersonID==p[0]&&v.PersonModule==p[1]){
+                    flag=true;
+                    break;
+                }
+            }
+            if(flag==false){
+                tempPer.push_back(v.PersonID);
+                tempPer.push_back(v.PersonModule);
+                PerData.push_back(tempPer);
+            }
         }
+    }
+
+    for(auto &v:ret_mark){
+        DBMapData tempData;
+        tempData.MapMark=atoi(v[0].c_str());
+        tempData.rate=0;
+        for(auto &p:PerData){
+            DBMapData retData;
+            retData=CountFre(trace,p[0],p[1],atoi(v[0].c_str()));
+            tempData.rate=tempData.rate+retData.Out+retData.Enter;
+            tempData.StayTime=tempData.StayTime+retData.StayTime;
+        }
+        MapData.push_back(tempData);
     }
 
     return DB_RET_OK;
