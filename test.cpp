@@ -27,7 +27,7 @@ void creatTrace(float&X,float&Y,float XStep,float YStep,int num,vector<DBTrace>&
 		//X=X+XStep;
 		//Y=Y+YStep;
 		time=time+twosecond;
-		tempTrace.getvalue(PersonID,PersonModule,DeviceID,X,Y,floor,MapMark,ptime_to_string(time));
+		tempTrace.setValue(PersonID,PersonModule,DeviceID,X,Y,floor,MapMark,ptime_to_string(time));
 		trace.push_back(tempTrace);
     }
 }
@@ -322,7 +322,7 @@ int addSomeMaptest(DBTraceAPI&DBAPI){
 int addTracetest(DBTraceAPI&DBAPI){
 	DBTrace trace;
 	int info;
-	trace.getvalue(101,1,"D101",1,1,"1F",1,"2020-02-26 09:53:26");
+	trace.setValue(101,1,"D101",1,1,"1F",1,"2020-02-26 09:53:26");
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
@@ -342,19 +342,19 @@ int addSomeTracetest(DBTraceAPI&DBAPI){
 	time_duration onesecond=time_from_string("2020-05-26 10:54:01")-time_from_string("2020-05-26 10:54:00");
 	time=second_clock::local_time();
 	ti=ptime_to_string(time);
-	temp.getvalue(101,1,"D101",2,2,"1F",1,ti);
+	temp.setValue(101,1,"D101",2,2,"1F",1,ti);
 	trace.push_back(temp);
 	time=time+onesecond;
 	ti=ptime_to_string(time);
-	temp.getvalue(101,1,"D101",3,3,"2F",2,ti);
+	temp.setValue(101,1,"D101",3,3,"2F",2,ti);
 	trace.push_back(temp);
 	time=time+onesecond;
 	ti=ptime_to_string(time);
-	temp.getvalue(102,1,"D102",4,4,"2F",2,ti);
+	temp.setValue(102,1,"D102",4,4,"2F",2,ti);
 	trace.push_back(temp);
 	time=time+onesecond;
 	ti=ptime_to_string(time);
-	temp.getvalue(102,1,"D102",4,4,"2F",2,ti);
+	temp.setValue(102,1,"D102",4,4,"2F",2,ti);
 	trace.push_back(temp);
 	time=time+onesecond;
 	ti=ptime_to_string(time);
@@ -650,8 +650,8 @@ int updateTrace(DBTraceAPI&DBAPI){
 	int info;
 	DBTrace traceOld;
 	DBTrace traceNew;
-	traceOld.getvalue(4,102,1,"D102",4,4,"2F",2,"2020-02-26 10:53:26");
-	traceNew.getvalue(4,101,1,"D101",4,4,"2F",2,"2020-02-26 10:53:26");
+	traceOld.setValue(4,102,1,"D102",4,4,"2F",2,"2020-02-26 10:53:26");
+	traceNew.setValue(4,101,1,"D101",4,4,"2F",2,"2020-02-26 10:53:26");
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
@@ -677,27 +677,27 @@ int addcrossSomeTracetest(DBTraceAPI&DBAPI){
 	int info;
 	vector<DBTrace> trace;
 	DBTrace temp;
-	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-02-29 10:20:00");
+	temp.setValue(101,1,"D101",2,2,"2F",2,"2020-05-31 10:20:00");
 	trace.push_back(temp);
-	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-04-30 10:20:00");
+	temp.setValue(101,1,"D101",2,2,"2F",2,"2020-05-31 10:23:00");
 	trace.push_back(temp);
-	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-04-30 10:25:00");
+	temp.setValue(101,1,"D101",2,2,"2F",2,"2020-05-31 10:25:00");
 	trace.push_back(temp);
-	temp.getvalue(101,1,"D101",1,1,"1F",1,"2020-04-30 10:30:00");
+	temp.setValue(101,1,"D101",1,1,"1F",1,"2020-05-31 10:30:00");
 	trace.push_back(temp);
-	temp.getvalue(101,1,"D101",1,1,"1F",1,"2020-04-30 10:33:00");
+	temp.setValue(101,1,"D101",1,1,"1F",1,"2020-05-31 10:33:00");
 	trace.push_back(temp);
-	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-04-30 10:45:00");
+	temp.setValue(101,1,"D101",2,2,"2F",2,"2020-05-31 10:45:00");
 	trace.push_back(temp);
-	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-04-30 11:00:00");
+	temp.setValue(101,1,"D101",2,2,"2F",2,"2020-05-31 11:00:00");
 	trace.push_back(temp);
-	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-04-30 23:50:00");
+	temp.setValue(101,1,"D101",2,2,"2F",2,"2020-05-31 23:50:00");
 	trace.push_back(temp);
-	temp.getvalue(101,1,"D101",1,1,"1F",1,"2020-04-30 23:55:00");
+	temp.setValue(101,1,"D101",1,1,"1F",1,"2020-05-31 23:55:00");
 	trace.push_back(temp);
-	temp.getvalue(101,1,"D101",1,1,"1F",1,"2020-05-01 00:05:00");
+	temp.setValue(101,1,"D101",1,1,"1F",1,"2020-06-01 00:05:00");
 	trace.push_back(temp);
-	temp.getvalue(101,1,"D101",2,2,"2F",2,"2020-05-01 00:10:00");
+	temp.setValue(101,1,"D101",2,2,"2F",2,"2020-06-01 00:10:00");
 	trace.push_back(temp);
 	ptime tick,now;
 	time_duration diff;
@@ -712,27 +712,27 @@ int addcrossSomeTracetest2(DBTraceAPI&DBAPI){
 	int info;
 	vector<DBTrace> trace;
 	DBTrace temp;
-	temp.getvalue(102,1,"D102",2,2,"2F",2,"2020-02-29 10:20:00");
+	temp.setValue(102,1,"D102",2,2,"2F",2,"2020-02-29 10:20:00");
 	trace.push_back(temp);
-	temp.getvalue(102,1,"D102",2,2,"2F",2,"2020-04-30 10:20:00");
+	temp.setValue(102,1,"D102",2,2,"2F",2,"2020-04-30 10:20:00");
 	trace.push_back(temp);
-	temp.getvalue(102,1,"D102",2,2,"2F",2,"2020-04-30 10:25:00");
+	temp.setValue(102,1,"D102",2,2,"2F",2,"2020-04-30 10:25:00");
 	trace.push_back(temp);
-	temp.getvalue(102,1,"D102",1,1,"1F",1,"2020-04-30 10:30:00");
+	temp.setValue(102,1,"D102",1,1,"1F",1,"2020-04-30 10:30:00");
 	trace.push_back(temp);
-	temp.getvalue(102,1,"D102",1,1,"1F",1,"2020-04-30 10:33:00");
+	temp.setValue(102,1,"D102",1,1,"1F",1,"2020-04-30 10:33:00");
 	trace.push_back(temp);
-	temp.getvalue(102,1,"D102",2,2,"2F",2,"2020-04-30 10:45:00");
+	temp.setValue(102,1,"D102",2,2,"2F",2,"2020-04-30 10:45:00");
 	trace.push_back(temp);
-	temp.getvalue(102,1,"D102",2,2,"2F",2,"2020-04-30 11:00:00");
+	temp.setValue(102,1,"D102",2,2,"2F",2,"2020-04-30 11:00:00");
 	trace.push_back(temp);
-	temp.getvalue(102,1,"D102",2,2,"2F",2,"2020-04-30 23:50:00");
+	temp.setValue(102,1,"D102",2,2,"2F",2,"2020-04-30 23:50:00");
 	trace.push_back(temp);
-	temp.getvalue(102,1,"D102",1,1,"1F",1,"2020-04-30 23:55:00");
+	temp.setValue(102,1,"D102",1,1,"1F",1,"2020-04-30 23:55:00");
 	trace.push_back(temp);
-	temp.getvalue(102,1,"D102",1,1,"1F",1,"2020-05-01 00:05:00");
+	temp.setValue(102,1,"D102",1,1,"1F",1,"2020-05-01 00:05:00");
 	trace.push_back(temp);
-	temp.getvalue(102,1,"D102",2,2,"2F",2,"2020-05-01 00:10:00");
+	temp.setValue(102,1,"D102",2,2,"2F",2,"2020-05-01 00:10:00");
 	trace.push_back(temp);
 	ptime tick,now;
 	time_duration diff;
@@ -854,8 +854,8 @@ int selectDeviceTracetest2(DBTraceAPI&DBAPI){
 }
 int countMap2(DBTraceAPI&DBAPI){
 	int info;
-	ptime timeBegin=time_from_string("2020-03-04 9:00:00");
-	ptime timeEnd=time_from_string("2020-03-20 24:00:00");
+	ptime timeBegin=time_from_string("2020-05-31 9:00:00");
+	ptime timeEnd=time_from_string("2020-06-04 24:00:00");
 	vector<DBMapData> MapData;
 	ptime tick,now;
 	time_duration diff;
@@ -1020,7 +1020,7 @@ int main(int argc,char const *argv[]){
 	//	assert(DB_RET_OK==addTracestest2(DBAPI));
 	//}
 
-
+	//assert(DB_RET_OK==addcrossSomeTracetest(DBAPI));
 	//assert(DB_RET_OK==selectPersonTracetest2(DBAPI));
 	//assert(DB_RET_OK==selectDeviceTracetest2(DBAPI));
 	assert(DB_RET_OK==countMap2(DBAPI));

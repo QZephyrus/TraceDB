@@ -4,6 +4,8 @@
 #include<vector>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
+#include<iostream>
+using namespace std;
 using std::string;
 using std::vector;
 using namespace boost::posix_time;
@@ -20,7 +22,7 @@ class DBTrace
         DBTrace(){};
         DBTrace(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t,string TBName,int TID):PersonID(PerID),PersonModule(PerModule),DeviceID(DevID),X(XF),Y(YF),Floor(FloorF),MapMark(MMark),time(t),TableName(TBName),TraceID(TID){};
         DBTrace(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t):PersonID(PerID),PersonModule(PerModule),DeviceID(DevID),X(XF),Y(YF),Floor(FloorF),MapMark(MMark),time(t){};
-        void getvalue(int TraID,int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t){
+        void setValue(int TraID,int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t){
             TraceID=TraID;
             PersonID=PerID;
             PersonModule=PerModule;
@@ -31,7 +33,7 @@ class DBTrace
             MapMark=MMark;
             time=t;
         };
-        void getvalue(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t){
+        void setValue(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t){
             PersonID=PerID;
             PersonModule=PerModule;
             DeviceID=DevID;
@@ -71,15 +73,21 @@ class DBTrace
             DBTrace temp=read(ret[0]);
             return temp;
         }
-
+        
         //用于从双重vector构成的string表（string_table）获取多条的轨迹信息并且返回一个用vector<DBTrace>存储的轨迹链
         vector<DBTrace> readTraces(string_table ret){
             vector<DBTrace> Trace;
             DBTrace trace;
+            ptime tick,now;
+            time_duration diff;
+            tick=microsec_clock::local_time();
             for(auto &v:ret){
                 trace=read(v);
                 Trace.push_back(trace);
             }
+            now=microsec_clock::local_time();
+            diff=now-tick;	
+	        cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
             return Trace;
         }
 };

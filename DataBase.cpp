@@ -281,6 +281,44 @@ vector<vector<string>> DataBase::selectItem(const string &sentence){
 	return ret;
 }
 
+vector<DBTrace> DataBase::selectTrace(const string &table,const string &limits){
+	string str= "select TraceID,PersonID,PersonModule,DeviceID,X,Y,Floor,MapMark,Time from " + table + " where " + limits;
+	ptime tick,now;
+    time_duration diff;
+    
+	if (mysql_query(sql, str.c_str())) {
+		cout<< str + " error!"<<endl;
+		return {};
+	}
+	
+	tick=microsec_clock::local_time();
+	vector<DBTrace> ret;
+	res = mysql_use_result(sql);
+	while ( (row = mysql_fetch_row(res)) != nullptr ) {
+		DBTrace temp;
+		temp.TraceID=atoi(row[0]);
+		temp.PersonID=atoi(row[1]);
+		temp.PersonModule=atoi(row[2]);
+		temp.DeviceID=row[3];
+		temp.X=atof(row[4]);
+		temp.Y=atof(row[5]);
+		temp.Floor=row[6];
+		temp.MapMark=atoi(row[7]);
+		temp.time=row[8];
+		ret.push_back(temp);
+	}
+	now=microsec_clock::local_time();
+    diff=now-tick;	
+	cout<<"1 use "<<diff.total_milliseconds()<<" ms"<<endl;
+	
+	mysql_free_result(res);
+	res = nullptr;
+	if(DEBUG){
+		cout << str + " success!"<< endl;
+	}
+	return ret;
+}
+
 void DataBase::showres(){
         res = mysql_use_result(sql);
 	cout << "****************The result is:****************" << endl;

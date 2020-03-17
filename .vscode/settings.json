@@ -16,6 +16,15 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "functional": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "hash_map": "cpp",
+        "optional": "cpp",
+        "istream": "cpp",
+        "ratio": "cpp",
+        "system_error": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp",
+        "variant": "cpp"
     }
 }

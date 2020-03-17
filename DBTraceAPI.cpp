@@ -1062,10 +1062,6 @@ int DBTraceAPI::DBSearchTimeTrace(ptime timeBegin,ptime timeEnd,vector<DBTrace>&
     value="TableName";
     string timeB=ptime_to_string(timeBegin);
     string timeE=ptime_to_string(timeEnd);
-    //string timeB=to_iso_extended_string(timeBegin);
-    //timeB=timeB.replace(timeB.find("T"),1," ");
-    //string timeE=to_iso_extended_string(timeEnd);
-    //timeE=timeE.replace(timeE.find("T"),1," ");
     limits="YearMonth>="+timeB.substr(0,4)+timeB.substr(5,2)+" AND YearMonth<="+timeE.substr(0,4)+timeE.substr(5,2);
     //检索在时间区间内的所有轨迹表
     string_table ret=DB.selectItem(table,value,limits);
@@ -1074,16 +1070,13 @@ int DBTraceAPI::DBSearchTimeTrace(ptime timeBegin,ptime timeEnd,vector<DBTrace>&
     if(ret.empty()){
         return DB_RET_NULL;
     }
-    string_table temp;
+    vector<DBTrace> temp;
     value="*";
     limits="Time>='"+timeB+"' AND Time<='"+timeE+"'";
     for(auto &v:ret){
         table=v[0];
-        temp=DB.selectItem(table,value,limits);
-        DBTrace trace; 
-        vector<DBTrace> res;
-        res=trace.readTraces(temp);
-        Traces.insert(Traces.end(),res.begin(),res.end());
+        temp=DB.selectTrace(table,limits);
+        Traces.insert(Traces.end(),temp.begin(),temp.end());
     }
     if(Traces.size()==0){
         return DB_RET_NULL;
@@ -1386,19 +1379,25 @@ int DBTraceAPI::MapCount(ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData
     ptime tick,now;
     time_duration diff;
 
-	
     DB.useDB(database);
+    /*
     table=BASE_TABLE_MAPMARK;
     value="MapMark";
 
-	tick=microsec_clock::local_time();
     string_table ret_mark=DB.selectItem(table,value);
     if(ret_mark.size()==0){
         return DB_RET_NULL;
     }
-    now=microsec_clock::local_time();
-	diff=now-tick;	
-	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
+    */
+    unordered_map<int,DBMapData> mapHash;
+    unordered_map<int,DBMapData>::iterator mapget;
+    /*
+    for(auto m:ret_mark){
+        DBMapData temp;
+        temp.MapMark=atoi(m[0].c_str());
+        mapHash.insert(pair<int,DBMapData>(atoi(m[0].c_str()),temp));
+    }
+    */
 
     tick=microsec_clock::local_time();
     vector<DBTrace> trace;
@@ -1409,52 +1408,56 @@ int DBTraceAPI::MapCount(ptime timeBegin,ptime timeEnd,vector<DBMapData>&MapData
     diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 
+    unordered_map<int,DBTrace> traceHash;
+    unordered_map<int,DBTrace>::iterator traceget;
     tick=microsec_clock::local_time();
     vector<vector<int>> PerData;
     for(auto &v:trace){
-        vector<int> tempPer;
-        if(PerData.empty()){
-            tempPer.push_back(v.PersonID);
-            tempPer.push_back(v.PersonModule);
-            PerData.push_back(tempPer);
+        traceget=traceHash.find(v.PersonID*10+v.PersonModule);
+        if(traceget==traceHash.end()){
+            traceHash.insert(pair<int,DBTrace>((v.PersonID*10+v.PersonModule),v));
+            mapget=mapHash.find(v.MapMark);
+            if(mapget==mapHash.end()){
+                DBMapData temp;
+                temp.MapMark=v.MapMark;
+                temp.rate=1;
+                temp.Enter=1;
+                mapHash.insert(pair<int,DBMapData>(v.MapMark,temp));
+            }else{
+                mapget->second.rate++;
+                mapget->second.Enter++;
+            }
         }else{
-            bool flag=false;
-            for(auto &p:PerData){
-                if(v.PersonID==p[0]&&v.PersonModule==p[1]){
-                    flag=true;
-                    break;
+            if(v.MapMark!=traceget->second.MapMark){
+                mapget=mapHash.find(traceget->second.MapMark);
+                mapget->second.rate++;
+                mapget->second.Out++;
+                mapget->second.StayTime+=(time_from_string(v.time)-time_from_string(traceget->second.time));
+                mapget=mapHash.find(v.MapMark);
+                if(mapget==mapHash.end()){
+                    DBMapData temp;
+                    temp.MapMark=v.MapMark;
+                    temp.rate=1;
+                    temp.Enter=1;
+                    mapHash.insert(pair<int,DBMapData>(v.MapMark,temp));
+                }else{
+                    mapget->second.rate++;
+                    mapget->second.Enter++;
                 }
-            }
-            if(flag==false){
-                tempPer.push_back(v.PersonID);
-                tempPer.push_back(v.PersonModule);
-                PerData.push_back(tempPer);
+                traceget->second=v;
             }
         }
     }
     now=microsec_clock::local_time();
     diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
-
-    tick=microsec_clock::local_time();
-    for(auto &v:ret_mark){
-        DBMapData tempData;
-        tempData.MapMark=atoi(v[0].c_str());
-        tempData.rate=0;
-        for(auto &p:PerData){
-            DBMapData retData;
-            retData=CountFre(trace,p[0],p[1],atoi(v[0].c_str()));
-            tempData.rate=tempData.rate+retData.Out+retData.Enter;
-            tempData.StayTime=tempData.StayTime+retData.StayTime;
-        }
-        MapData.push_back(tempData);
+    for(auto m:mapHash){
+        MapData.push_back(m.second);
     }
-    now=microsec_clock::local_time();
-    diff=now-tick;	
-	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 
     return DB_RET_OK;
 }
+
 //删除数据库
 /*
     返回值：

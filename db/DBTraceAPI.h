@@ -1,13 +1,14 @@
 #pragma once
 
 #include"DataBase.h"
-#include"DBStruct.h"
+//#include"DBStruct.h"
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <errno.h>
+#include <unordered_map>
 
 enum{
     DB_RET_OK=1,

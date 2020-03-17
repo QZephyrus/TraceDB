@@ -1,6 +1,7 @@
 #pragma once
 
 #include"mysql/mysql.h"
+#include"DBStruct.h"
 #include<string>
 #include<vector>
 #include<iostream>
@@ -40,6 +41,7 @@ class DataBase
         vector<vector<string>> selectItem(const string &table,const string &value);
         vector<vector<string>> selectItem(const string &table, const string &value, const string &limits);
         vector<vector<string>> selectItem(const string &sentence);
+        vector<DBTrace> selectTrace(const string &table,const string &limits);
         bool insertItem(const string &table,const string &value);
         bool insertItem(const string &table,const string &value,const string &col);
         bool deleteItem(const string &table, const string &value);
