@@ -6,7 +6,7 @@
 #include<vector>
 #include<iostream>
 
-#define DEBUG true
+#define DEBUG false
 
 using std::string;
 using std::vector;

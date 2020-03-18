@@ -940,7 +940,7 @@ int main(int argc,char const *argv[]){
 	//assert(DB_RET_OK==addSomeMaptest(DBAPI));
 
 	//单条添加轨迹信息
-	assert(DB_RET_OK==addTracetest(DBAPI));
+	//assert(DB_RET_OK==addTracetest(DBAPI));
 
 	//多条添加轨迹信息
 	//assert(DB_RET_OK==addSomeTracetest(DBAPI));
@@ -1016,8 +1016,8 @@ int main(int argc,char const *argv[]){
 	//assert(DB_RET_OK==addTracestest(DBAPI));
 	//assert(DB_RET_OK==addTracestest2(DBAPI));
 	//for(int i=0;i<1000;i++){
-	//	assert(DB_RET_OK==addTracestest(DBAPI));
-	//	assert(DB_RET_OK==addTracestest2(DBAPI));
+		assert(DB_RET_OK==addTracestest(DBAPI));
+		assert(DB_RET_OK==addTracestest2(DBAPI));
 	//}
 
 	//assert(DB_RET_OK==addcrossSomeTracetest(DBAPI));

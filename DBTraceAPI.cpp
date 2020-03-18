@@ -655,58 +655,32 @@ int DBTraceAPI::DBAddTrace(const vector<DBTrace>&trace){
         return DB_RET_NULL;
     }
     //bool flag_add=true;
-    vector<DBTrace> temptrace_p;
-    vector<DBTrace> temptrace_d;
+    unordered_map<int,DBTrace> perMap;
+    unordered_map<int,DBTrace>::iterator per;
+    unordered_map<string,DBTrace> devMap;
+    unordered_map<string,DBTrace>::iterator dev;
     for(auto v:trace){
-        if(temptrace_p.empty()){
-            temptrace_p.push_back(v);
+        per=perMap.find(v.PersonID*10+v.PersonModule);
+        dev=devMap.find(v.DeviceID);
+        if(per==perMap.end()){
+            perMap.insert(pair<int,DBTrace>(v.PersonID*10+v.PersonModule,v));
         }else{
-            bool flag_t=true;
-            for(unsigned int i=0;i<temptrace_p.size();i++){
-                if(temptrace_p[i].PersonID==v.PersonID&&temptrace_p[i].PersonModule==v.PersonModule){
-                    ptime tm1=time_from_string(v.time);
-                    ptime tm2=time_from_string(temptrace_p[i].time);
-                    if(tm1>=tm2){
-                        temptrace_p[i].DeviceID=v.DeviceID;
-                        temptrace_p[i].X=v.X;
-                        temptrace_p[i].Y=v.Y;
-                        temptrace_p[i].Floor=v.Floor;
-                        temptrace_p[i].MapMark=v.MapMark;
-                        temptrace_p[i].time=v.time;
-                    }
-                    flag_t=false;
-                }
-            }
-            if(flag_t==true){
-                temptrace_p.push_back(v);
+            ptime tm1=time_from_string(v.time);
+            ptime tm2=time_from_string(per->second.time);
+            if(tm1>tm2){
+                per->second=v;
             }
         }
-        if(temptrace_d.empty()){
-            temptrace_d.push_back(v);
+        if(dev==devMap.end()){
+            devMap.insert(pair<string,DBTrace>(v.DeviceID,v));
         }else{
-            bool flag_t=true;
-            for(unsigned int i=0;i<temptrace_d.size();i++){
-                if(temptrace_d[i].DeviceID==v.DeviceID){
-                    ptime tm1=time_from_string(v.time);
-                    ptime tm2=time_from_string(temptrace_d[i].time);
-                    if(tm1>=tm2){
-                        temptrace_d[i].PersonID=v.PersonID;
-                        temptrace_d[i].PersonModule=v.PersonModule;
-                        temptrace_d[i].X=v.X;
-                        temptrace_d[i].Y=v.Y;
-                        temptrace_d[i].Floor=v.Floor;
-                        temptrace_d[i].MapMark=v.MapMark;
-                        temptrace_d[i].time=v.time;
-                    }
-                    flag_t=false;
-                }
-            }
-            if(flag_t==true){
-                temptrace_d.push_back(v);
+            ptime tm1=time_from_string(v.time);
+            ptime tm2=time_from_string(dev->second.time);
+            if(tm1>tm2){
+                dev->second=v;
             }
         }
     }
-    
 
     bool flag_frist=true;
     DB.autoCommitOff();
@@ -754,39 +728,54 @@ int DBTraceAPI::DBAddTrace(const vector<DBTrace>&trace){
         DB.rollback();
         return DB_RET_ADD_ERROR;
     }else{
-
-        for(auto p:temptrace_p){
+        for(auto p:perMap){
             table=BASE_TABLE_TRACE;
             value="TableName";
-            limits="YearMonth="+p.time.substr(0,4)+p.time.substr(5,2);
+            limits="YearMonth="+p.second.time.substr(0,4)+p.second.time.substr(5,2);
             string_table ret1=DB.selectItem(table,value,limits);
+            if(ret1.empty()){
+                DB.rollback();
+                return DB_RET_SEARCH_ERROR;
+            }
             string tableName=ret1[0][0];
 
             table=tableName;
             value="TraceID";
-            limits="PersonID="+to_string(p.PersonID)+" AND PersonModule="+to_string(p.PersonModule)+" AND DeviceID='"+p.DeviceID+"' AND X="+to_string(p.X)+" AND Y="+to_string(p.Y)+" AND Floor='"+p.Floor+"' AND MapMark="+to_string(p.MapMark)+" AND Time='"+p.time+"'";
+            limits="PersonID="+to_string(p.second.PersonID)+" AND PersonModule="+to_string(p.second.PersonModule)+" AND DeviceID='"+p.second.DeviceID+"' AND X="+to_string(p.second.X)+" AND Y="+to_string(p.second.Y)+" AND Floor='"+p.second.Floor+"' AND MapMark="+to_string(p.second.MapMark)+" AND Time='"+p.second.time+"'";
             string_table ret2=DB.selectItem(table,value,limits);
+            if(ret2.empty()){
+                DB.rollback();
+                return DB_RET_SEARCH_ERROR;
+            }
             int TraceID;
             TraceID=atoi(ret2[0][0].c_str());
-            if(DBUpdatePerson(p.PersonID,p.PersonModule,tableName,TraceID)!=DB_RET_OK){
+            if(DBUpdatePerson(p.second.PersonID,p.second.PersonModule,tableName,TraceID)!=DB_RET_OK){
                 DB.rollback();
                 return DB_RET_ADD_ERROR;
             }
         }
-        for(auto d:temptrace_d){
+        for(auto d:devMap){
             table=BASE_TABLE_TRACE;
             value="TableName";
-            limits="YearMonth="+d.time.substr(0,4)+d.time.substr(5,2);
+            limits="YearMonth="+d.second.time.substr(0,4)+d.second.time.substr(5,2);
             string_table ret1=DB.selectItem(table,value,limits);
+            if(ret1.empty()){
+                DB.rollback();
+                return DB_RET_SEARCH_ERROR;
+            }
             string tableName=ret1[0][0];
 
             table=tableName;
             value="TraceID";
-            limits="PersonID="+to_string(d.PersonID)+" AND PersonModule="+to_string(d.PersonModule)+" AND DeviceID='"+d.DeviceID+"' AND X="+to_string(d.X)+" AND Y="+to_string(d.Y)+" AND Floor='"+d.Floor+"' AND MapMark="+to_string(d.MapMark)+" AND Time='"+d.time+"'";
+            limits="PersonID="+to_string(d.second.PersonID)+" AND PersonModule="+to_string(d.second.PersonModule)+" AND DeviceID='"+d.second.DeviceID+"' AND X="+to_string(d.second.X)+" AND Y="+to_string(d.second.Y)+" AND Floor='"+d.second.Floor+"' AND MapMark="+to_string(d.second.MapMark)+" AND Time='"+d.second.time+"'";
             string_table ret2=DB.selectItem(table,value,limits);
+            if(ret2.empty()){
+                DB.rollback();
+                return DB_RET_SEARCH_ERROR;
+            }
             int TraceID;
             TraceID=atoi(ret2[0][0].c_str());
-            if(DBUpdateDevice(d.DeviceID,tableName,TraceID)!=DB_RET_OK){
+            if(DBUpdateDevice(d.second.DeviceID,tableName,TraceID)!=DB_RET_OK){
                 DB.rollback();
                 return DB_RET_ADD_ERROR;
             }
