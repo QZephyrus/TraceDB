@@ -20,9 +20,9 @@ class DBTrace
 {
     public:
         DBTrace(){};
-        DBTrace(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t,string TBName,int TID):PersonID(PerID),PersonModule(PerModule),DeviceID(DevID),X(XF),Y(YF),Floor(FloorF),MapMark(MMark),time(t),TableName(TBName),TraceID(TID){};
-        DBTrace(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t):PersonID(PerID),PersonModule(PerModule),DeviceID(DevID),X(XF),Y(YF),Floor(FloorF),MapMark(MMark),time(t){};
-        void setValue(int TraID,int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t){
+        DBTrace(int PerID,short PerModule,string DevID,double XF,double YF,string FloorF,int MMark,string t,string TBName,int TID):PersonID(PerID),PersonModule(PerModule),DeviceID(DevID),X(XF),Y(YF),Floor(FloorF),MapMark(MMark),time(t),TableName(TBName),TraceID(TID){};
+        DBTrace(int PerID,short PerModule,string DevID,double XF,double YF,string FloorF,int MMark,string t):PersonID(PerID),PersonModule(PerModule),DeviceID(DevID),X(XF),Y(YF),Floor(FloorF),MapMark(MMark),time(t){};
+        void setValue(int TraID,int PerID,short PerModule,string DevID,double XF,double YF,string FloorF,int MMark,string t){
             TraceID=TraID;
             PersonID=PerID;
             PersonModule=PerModule;
@@ -33,7 +33,7 @@ class DBTrace
             MapMark=MMark;
             time=t;
         };
-        void setValue(int PerID,short PerModule,string DevID,float XF,float YF,string FloorF,int MMark,string t){
+        void setValue(int PerID,short PerModule,string DevID,double XF,double YF,string FloorF,int MMark,string t){
             PersonID=PerID;
             PersonModule=PerModule;
             DeviceID=DevID;
@@ -46,8 +46,8 @@ class DBTrace
 	    int PersonID;
 	    short PersonModule;
         string DeviceID;
-        float X;
-        float Y;
+        double X;
+        double Y;
         string Floor;
         int MapMark;
         string time;
@@ -115,8 +115,8 @@ class BCON
 {
     public:
         int BCONID;
-        float BCONX;
-        float BCONY;
+        double BCONX;
+        double BCONY;
         string Floor;
 };
 

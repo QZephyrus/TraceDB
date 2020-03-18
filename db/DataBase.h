@@ -6,7 +6,7 @@
 #include<vector>
 #include<iostream>
 
-#define DEBUG false
+#define DEBUG true
 
 using std::string;
 using std::vector;
@@ -42,6 +42,7 @@ class DataBase
         vector<vector<string>> selectItem(const string &table, const string &value, const string &limits);
         vector<vector<string>> selectItem(const string &sentence);
         vector<DBTrace> selectTrace(const string &table,const string &limits);
+        //vector<vector<string>> selectTrace(const string &table,const string &limits);
         bool insertItem(const string &table,const string &value);
         bool insertItem(const string &table,const string &value,const string &col);
         bool deleteItem(const string &table, const string &value);

@@ -151,7 +151,7 @@ int DBTraceAPI::DBCreateRelatTB(){
         flag_success=false;
     }
     //创建BCON表
-    flag_state=DB.createTB(BASE_TABLE_BCON,"BCONID bigint NOT NULL,BCONX float NULL,BCONY float NULL,BCONFloor char(4) NULL,PRIMARY KEY (BCONID)");
+    flag_state=DB.createTB(BASE_TABLE_BCON,"BCONID bigint NOT NULL,BCONX double NULL,BCONY double NULL,BCONFloor char(4) NULL,PRIMARY KEY (BCONID)");
     if(flag_state==false){
         flag_success=false;
     }
@@ -192,7 +192,7 @@ int DBTraceAPI::DBCreateTable(const DBTrace&trace){
     DB.autoCommitOff();
     //根据轨迹合成表名如Trace202002
     table=BASE_TABLE_TRACE+trace.time.substr(0,4)+trace.time.substr(5,2);
-    flag_create=DB.createTB(table,"TraceID int UNSIGNED NOT NULL AUTO_INCREMENT,PersonID bigint NULL,PersonModule tinyint NULL,DeviceID varchar(255) NULL,X float NULL,Y float NULL,Floor char(4) NULL,MapMark bigint NULL,Time datetime NULL,PRIMARY KEY (TraceID)");
+    flag_create=DB.createTB(table,"TraceID int UNSIGNED NOT NULL AUTO_INCREMENT,PersonID bigint NULL,PersonModule tinyint NULL,DeviceID varchar(255) NULL,X double NULL,Y double NULL,Floor char(4) NULL,MapMark bigint NULL,Time datetime NULL,PRIMARY KEY (TraceID)");
     if(flag_create==true){
         int year=atoi(trace.time.substr(0,4).c_str());
         int month=atoi(trace.time.substr(5,2).c_str());
@@ -620,12 +620,16 @@ int DBTraceAPI::DBAddTrace(const DBTrace&trace){
         value="TraceID";
         limits="PersonID="+to_string(trace.PersonID)+" AND PersonModule="+to_string(trace.PersonModule)+" AND DeviceID='"+trace.DeviceID+"' AND X="+to_string(trace.X)+" AND Y="+to_string(trace.Y)+" AND Floor='"+trace.Floor+"' AND MapMark="+to_string(trace.MapMark)+" AND Time='"+trace.time+"'";
         string_table ret=DB.selectItem(table,value,limits);
-        TraceID=atoi(ret[0][0].c_str());
-        if(DBUpdateDevice(trace.DeviceID,tableName,TraceID)!=DB_RET_OK){
+        if(ret.empty()){
             flag_insert=false;
-        }
-        if(DBUpdatePerson(trace.PersonID,trace.PersonModule,tableName,TraceID)!=DB_RET_OK){
-            flag_insert=false;
+        }else{
+            TraceID=atoi(ret[0][0].c_str());
+            if(DBUpdateDevice(trace.DeviceID,tableName,TraceID)!=DB_RET_OK){
+                flag_insert=false;
+            }
+            if(DBUpdatePerson(trace.PersonID,trace.PersonModule,tableName,TraceID)!=DB_RET_OK){
+                flag_insert=false;
+            }
         }
     }
     if(flag_insert){
@@ -973,7 +977,7 @@ int DBTraceAPI::DBSearchPersonTrace(int PersonID,int PersonModule,ptime timeBegi
     DB.useDB(database);
     string tracetable1,tracetable2;
     table=BASE_TABLE_TRACE;
-    value="TableName";
+    value="distinct TableName";
     string timeB=ptime_to_string(timeBegin);
     string timeE=ptime_to_string(timeEnd);
     //string timeB=to_iso_extended_string(timeBegin);
@@ -1016,7 +1020,7 @@ int DBTraceAPI::DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEn
     DB.useDB(database);
     string tracetable1,tracetable2;
     table=BASE_TABLE_TRACE;
-    value="TableName";
+    value="distinct TableName";
     string timeB=ptime_to_string(timeBegin);
     string timeE=ptime_to_string(timeEnd);
     //string timeB=to_iso_extended_string(timeBegin);
@@ -1059,7 +1063,7 @@ int DBTraceAPI::DBSearchTimeTrace(ptime timeBegin,ptime timeEnd,vector<DBTrace>&
     DB.useDB(database);
     string tracetable1,tracetable2;
     table=BASE_TABLE_TRACE;
-    value="TableName";
+    value="distinct TableName";
     string timeB=ptime_to_string(timeBegin);
     string timeE=ptime_to_string(timeEnd);
     limits="YearMonth>="+timeB.substr(0,4)+timeB.substr(5,2)+" AND YearMonth<="+timeE.substr(0,4)+timeE.substr(5,2);

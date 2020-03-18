@@ -13,10 +13,10 @@ using namespace std;
 using namespace boost;
 using namespace boost::random;
 
-void creatTrace(float&X,float&Y,float XStep,float YStep,int num,vector<DBTrace>&trace,int PersonID,int PersonModule,string DeviceID,string floor,int MapMark){
+void creatTrace(double&X,double&Y,double XStep,double YStep,int num,vector<DBTrace>&trace,int PersonID,int PersonModule,string DeviceID,string floor,int MapMark){
     mt19937 gen;
     uniform_int<> dist(-5,5);
-	//uniform_real_distribution<float> dist(-5.0, 5.0);
+	//uniform_real_distribution<double> dist(-5.0, 5.0);
     variate_generator<mt19937&,uniform_int<>> die(gen,dist);
 	DBTrace tempTrace;
 	ptime time=second_clock::local_time();
@@ -322,7 +322,7 @@ int addSomeMaptest(DBTraceAPI&DBAPI){
 int addTracetest(DBTraceAPI&DBAPI){
 	DBTrace trace;
 	int info;
-	trace.setValue(101,1,"D101",1,1,"1F",1,"2020-02-26 09:53:26");
+	trace.setValue(101,1,"D101",1,1.2F,"1F",1,"2020-02-26 09:53:26");
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
@@ -764,8 +764,8 @@ int countMapMark(DBTraceAPI&DBAPI){
 int addTracestest(DBTraceAPI&DBAPI){
 	int info;
 	vector<DBTrace> trace;
-	float X=-420;
-	float Y=-700;
+	double X=-420;
+	double Y=-700;
 	creatTrace(X,Y,0,-50,2,trace,101,1,"D101","3F",2);
 	creatTrace(X,Y,0,-50,6,trace,101,1,"D101","3F",1);
 	creatTrace(X,Y,-50,0,24,trace,101,1,"D101","3F",1);
@@ -790,8 +790,8 @@ int addTracestest(DBTraceAPI&DBAPI){
 int addTracestest2(DBTraceAPI&DBAPI){
 	int info;
 	vector<DBTrace> trace;
-	float X=-415;
-	float Y=-740;
+	double X=-415;
+	double Y=-740;
 	creatTrace(X,Y,0,-20,3,trace,101,1,"D101","3F",2);
 	creatTrace(X,Y,0,-20,5,trace,101,1,"D101","3F",1);
 	creatTrace(X,Y,-100,0,17,trace,101,1,"D101","3F",1);
@@ -940,7 +940,7 @@ int main(int argc,char const *argv[]){
 	//assert(DB_RET_OK==addSomeMaptest(DBAPI));
 
 	//单条添加轨迹信息
-	//assert(DB_RET_OK==addTracetest(DBAPI));
+	assert(DB_RET_OK==addTracetest(DBAPI));
 
 	//多条添加轨迹信息
 	//assert(DB_RET_OK==addSomeTracetest(DBAPI));
@@ -1023,7 +1023,7 @@ int main(int argc,char const *argv[]){
 	//assert(DB_RET_OK==addcrossSomeTracetest(DBAPI));
 	//assert(DB_RET_OK==selectPersonTracetest2(DBAPI));
 	//assert(DB_RET_OK==selectDeviceTracetest2(DBAPI));
-	assert(DB_RET_OK==countMap2(DBAPI));
+	//assert(DB_RET_OK==countMap(DBAPI));
 	//assert(DB_RET_OK==deleteDBtest(DBAPI));
 	
 	return 0;
