@@ -20,7 +20,7 @@ void creatTrace(double&X,double&Y,double XStep,double YStep,int num,vector<DBTra
     variate_generator<mt19937&,uniform_int<>> die(gen,dist);
 	DBTrace tempTrace;
 	ptime time=second_clock::local_time();
-	time_duration twosecond=time_from_string("2020-05-26 10:54:02")-time_from_string("2020-05-26 10:54:00");
+	time_duration twosecond=seconds(2);
     for(int i=0;i<num;i++){
         X=X+XStep+die();
         Y=Y+YStep+die();
@@ -511,6 +511,42 @@ int selectPersonTracetest(DBTraceAPI&DBAPI){
 	}
 	return info;
 }
+int selectPersonModule(DBTraceAPI&DBAPI){
+	int info;
+	vector<DBTrace> rec;
+	int module=1;
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
+	info=DBAPI.DBSearchPersonM(module,rec);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
+	for(auto &v:rec){
+		cout<<"TraceID="<<v.TraceID<<",PersonID="<<v.PersonID<<",PersonModule="<<v.PersonModule<<",DeviceID="<<v.DeviceID<<",X="<<v.X<<",Y="<<v.Y<<",Floor="<<v.Floor<<",MapMark="<<v.MapMark<<",Time="<<v.time<<endl;
+	}
+	return info;
+}
+int selectPersonID(DBTraceAPI&DBAPI){
+	int info;
+	vector<DBTrace> rec;
+	vector<int> PersonID;
+	int ID=101;
+	PersonID.push_back(ID);
+	ID=102;
+	PersonID.push_back(ID);
+	ptime tick,now;
+	time_duration diff;
+	tick=microsec_clock::local_time();  
+	info=DBAPI.DBSearchPersonP(PersonID,rec);
+	now=microsec_clock::local_time();
+	diff=now-tick;	
+	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
+	for(auto &v:rec){
+		cout<<"TraceID="<<v.TraceID<<",PersonID="<<v.PersonID<<",PersonModule="<<v.PersonModule<<",DeviceID="<<v.DeviceID<<",X="<<v.X<<",Y="<<v.Y<<",Floor="<<v.Floor<<",MapMark="<<v.MapMark<<",Time="<<v.time<<endl;
+	}
+	return info;
+}
 //查询时间区间内的轨迹（设备ID+时间区间）
 int selectDeviceTracetest(DBTraceAPI&DBAPI){
 	int info;
@@ -943,7 +979,7 @@ int main(int argc,char const *argv[]){
 	//assert(DB_RET_OK==addTracetest(DBAPI));
 
 	//多条添加轨迹信息
-	//assert(DB_RET_OK==addSomeTracetest(DBAPI));
+	assert(DB_RET_OK==addSomeTracetest(DBAPI));
 
 	//单条查询最近轨迹（按设备ID）
 	//assert(DB_RET_OK==selectDevicetest(DBAPI));
@@ -1016,10 +1052,11 @@ int main(int argc,char const *argv[]){
 	//assert(DB_RET_OK==addTracestest(DBAPI));
 	//assert(DB_RET_OK==addTracestest2(DBAPI));
 	//for(int i=0;i<1000;i++){
-		assert(DB_RET_OK==addTracestest(DBAPI));
-		assert(DB_RET_OK==addTracestest2(DBAPI));
+	//	assert(DB_RET_OK==addTracestest(DBAPI));
+	//	assert(DB_RET_OK==addTracestest2(DBAPI));
 	//}
-
+	assert(DB_RET_OK==selectPersonModule(DBAPI));
+	assert(DB_RET_OK==selectPersonID(DBAPI));
 	//assert(DB_RET_OK==addcrossSomeTracetest(DBAPI));
 	//assert(DB_RET_OK==selectPersonTracetest2(DBAPI));
 	//assert(DB_RET_OK==selectDeviceTracetest2(DBAPI));

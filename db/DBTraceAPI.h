@@ -89,6 +89,10 @@ class DBTraceAPI
         int DBSearchPerson(int PersonID,int PersonModule,DBTrace&pTrace);
         int DBSearchPerson(const vector<vector<int>>&Person,vector<DBTrace>&Trace);
         int DBSearchPerson (vector<DBTrace>&Traces);
+        int DBSearchPersonP(int PersonID,vector<DBTrace>&Trace);
+        int DBSearchPersonP(vector<int> PersonID,vector<DBTrace>&Trace);
+        int DBSearchPersonM(int PersonModule,vector<DBTrace>&Trace);
+        int DBSearchPersonM(vector<int> PersonModule,vector<DBTrace>&Trace);
 
         int DBSearchPersonTrace(int PersonID,int PersonModule,ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces);
         int DBSearchDeviceTrace(string DeviceID,ptime timeBegin,ptime timeEnd,vector<DBTrace>&Traces);

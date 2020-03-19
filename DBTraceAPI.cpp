@@ -955,6 +955,152 @@ int DBTraceAPI::DBSearchPerson (vector<DBTrace>&Traces){
         return DB_RET_OK;
     }
 }
+//搜索相关ID的所有人最近的轨迹信息
+/*
+    Traces用来回传轨迹信息将会包含（TraceID，PersonID,PersonModule,DeviceID,X,Y,Floor,MapMark,Time)
+    返回值：
+    DB_RET_OK成功查询轨迹
+    DB_RET_PERSON_ERROR设备无最近轨迹记录
+    DB_RET_NULL需查询设备无最近轨迹记录
+*/
+int DBTraceAPI::DBSearchPersonP(int PersonID,vector<DBTrace>&Trace){
+    DB.useDB(database);
+    table=BASE_TABLE_PERSON;
+    value="TableName,TraceID";
+    limits="PersonID="+to_string(PersonID)+" AND TraceID IS NOT NULL";
+    //搜索对应人员在人员表中记录的最近一条记录
+    string_table ret=DB.selectItem(table,value,limits);
+    if(ret.size()==0){
+        return DB_RET_PERSON_ERROR;
+    }else{
+        for(auto &v:ret){
+           table=v[0];
+           value="*";
+           limits="TraceID="+v[1];
+           string_table temp=DB.selectItem(table,value,limits);
+           if(temp.empty()){
+               return DB_RET_NULL;
+           }else{
+               DBTrace t;
+               t=t.readTrace(temp);
+               Trace.push_back(t);
+           }
+        }
+    }
+    return DB_RET_OK;
+}
+//搜索相关几个ID的所有人最近的轨迹信息
+/*
+    Traces用来回传轨迹信息将会包含（TraceID，PersonID,PersonModule,DeviceID,X,Y,Floor,MapMark,Time)
+    返回值：
+    DB_RET_OK成功查询轨迹
+    DB_RET_PERSON_ERROR设备无最近轨迹记录
+    DB_RET_NULL需查询设备无最近轨迹记录
+*/
+int DBTraceAPI::DBSearchPersonP(vector<int> PersonID,vector<DBTrace>&Trace){
+    DB.useDB(database);
+    table=BASE_TABLE_PERSON;
+    value="TableName,TraceID";
+    string_table ret;
+    //搜索对应人员在人员表中记录的最近一条记录
+    for(auto &v:PersonID){
+        limits="PersonID="+to_string(v)+" AND TraceID IS NOT NULL";
+        string_table temp=DB.selectItem(table,value,limits);
+        ret.insert(ret.end(),temp.begin(),temp.end());
+    }
+
+    if(ret.empty()){
+        return DB_RET_PERSON_ERROR;
+    }else{
+        for(auto &v:ret){
+           table=v[0];
+           value="*";
+           limits="TraceID="+v[1];
+           string_table temp=DB.selectItem(table,value,limits);
+           if(temp.empty()){
+               return DB_RET_NULL;
+           }else{
+               DBTrace t;
+               t=t.readTrace(temp);
+               Trace.push_back(t);
+           }
+        }
+    }
+    return DB_RET_OK;
+}
+//搜索相关Module的所有人最近的轨迹信息
+/*
+    Traces用来回传轨迹信息将会包含（TraceID，PersonID,PersonModule,DeviceID,X,Y,Floor,MapMark,Time)
+    返回值：
+    DB_RET_OK成功查询轨迹
+    DB_RET_PERSON_ERROR设备无最近轨迹记录
+    DB_RET_NULL需查询设备无最近轨迹记录
+*/
+int DBTraceAPI::DBSearchPersonM(int PersonModule,vector<DBTrace>&Trace){
+    DB.useDB(database);
+    table=BASE_TABLE_PERSON;
+    value="TableName,TraceID";
+    limits="PersonModule="+to_string(PersonModule)+" AND TraceID IS NOT NULL";
+    //搜索对应人员在人员表中记录的最近一条记录
+    string_table ret=DB.selectItem(table,value,limits);
+    if(ret.empty()){
+        return DB_RET_PERSON_ERROR;
+    }else{
+        for(auto &v:ret){
+           table=v[0];
+           value="*";
+           limits="TraceID="+v[1];
+           string_table temp=DB.selectItem(table,value,limits);
+           if(temp.empty()){
+               return DB_RET_NULL;
+           }else{
+               DBTrace t;
+               t=t.readTrace(temp);
+               Trace.push_back(t);
+           }
+        }
+    }
+    return DB_RET_OK;
+}
+//搜索相关几个Module的所有人最近的轨迹信息
+/*
+    Traces用来回传轨迹信息将会包含（TraceID，PersonID,PersonModule,DeviceID,X,Y,Floor,MapMark,Time)
+    返回值：
+    DB_RET_OK成功查询轨迹
+    DB_RET_PERSON_ERROR设备无最近轨迹记录
+    DB_RET_NULL需查询设备无最近轨迹记录
+*/
+int DBTraceAPI::DBSearchPersonM(vector<int> PersonModule,vector<DBTrace>&Trace){
+    DB.useDB(database);
+    table=BASE_TABLE_PERSON;
+    value="TableName,TraceID";
+    string_table ret;
+    //搜索对应人员在人员表中记录的最近一条记录
+    for(auto &v:PersonModule){
+        limits="PersonModule="+to_string(v)+" AND TraceID IS NOT NULL";
+        string_table temp=DB.selectItem(table,value,limits);
+        ret.insert(ret.end(),temp.begin(),temp.end());
+    }
+
+    if(ret.empty()){
+        return DB_RET_PERSON_ERROR;
+    }else{
+        for(auto &v:ret){
+           table=v[0];
+           value="*";
+           limits="TraceID="+v[1];
+           string_table temp=DB.selectItem(table,value,limits);
+           if(temp.empty()){
+               return DB_RET_NULL;
+           }else{
+               DBTrace t;
+               t=t.readTrace(temp);
+               Trace.push_back(t);
+           }
+        }
+    }
+    return DB_RET_OK;
+}
 //搜索时间区间内的人员轨迹信息
 /*
     Traces用来回传轨迹信息将会包含（TraceID，PersonID,PersonModule,DeviceID,X,Y,Floor,MapMark,Time)
