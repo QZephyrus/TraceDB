@@ -1131,15 +1131,11 @@ int DBTraceAPI::DBSearchPersonTrace(int PersonID,int PersonModule,ptime timeBegi
     value="distinct TableName";
     string timeB=ptime_to_string(timeBegin);
     string timeE=ptime_to_string(timeEnd);
-    //string timeB=to_iso_extended_string(timeBegin);
-    //timeB=timeB.replace(timeB.find("T"),1," ");
-    //string timeE=to_iso_extended_string(timeEnd);
-    //timeE=timeE.replace(timeE.find("T"),1," ");
+
     limits="YearMonth>="+timeB.substr(0,4)+timeB.substr(5,2)+" AND YearMonth<="+timeE.substr(0,4)+timeE.substr(5,2);
     //检索在时间区间内的所有轨迹表
     string_table ret=DB.selectItem(table,value,limits);
     //轨迹表为0则返回没有数据，不为0则开始搜索
-    //int rows=ret.size();
     if(ret.empty()){
         return DB_RET_NULL;
     }
