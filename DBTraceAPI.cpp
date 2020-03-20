@@ -556,7 +556,12 @@ int DBTraceAPI::DBUpdateDevice(string DeviceID,string TableName,int TraceID){
     table=BASE_TABLE_DEVICE;
     value="TableName='"+TableName+"', TraceID="+to_string(TraceID);
     limits="DeviceID='"+DeviceID+"'";
-    flag_updata=DB.updateItem(table,value,limits);
+    string_table ret=DB.selectItem(table,"DeviceID",limits);
+    if(ret.empty()){
+        flag_updata=false;
+    }else{
+        flag_updata=DB.updateItem(table,value,limits);
+    }
     if(flag_updata){
         return DB_RET_OK;
     }else{
@@ -575,7 +580,12 @@ int DBTraceAPI::DBUpdatePerson(int PersonID,int PersonModule,string TableName,in
     table=BASE_TABLE_PERSON;
     value="TableName='"+TableName+"', TraceID="+to_string(TraceID);
     limits="PersonID="+to_string(PersonID)+" AND PersonModule="+to_string(PersonModule);
-    flag_updata=DB.updateItem(table,value,limits);
+    string_table ret=DB.selectItem(table,"PersonID",limits);
+    if(ret.empty()){
+        flag_updata=false;
+    }else{
+        flag_updata=DB.updateItem(table,value,limits);
+    }
     if(flag_updata){
         return DB_RET_OK;
     }else{
@@ -609,9 +619,9 @@ int DBTraceAPI::DBAddTrace(const DBTrace&trace){
     }else{
         return DB_RET_ERORR;
     }
+    DB.autoCommitOff();
     bool flag_insert=true;
     int TraceID;
-    DB.autoCommitOff();
     string tableName=table;
     value="(null,"+to_string(trace.PersonID)+", "+to_string(trace.PersonModule)+", '"+trace.DeviceID+"', "+to_string(trace.X)+", "+to_string(trace.Y)+", '"+trace.Floor+"', "+to_string(trace.MapMark)+", '"+trace.time+"')";
     if(DB.insertItem(table,value)==false){

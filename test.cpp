@@ -322,7 +322,7 @@ int addSomeMaptest(DBTraceAPI&DBAPI){
 int addTracetest(DBTraceAPI&DBAPI){
 	DBTrace trace;
 	int info;
-	trace.setValue(101,1,"D101",1,1.2F,"1F",1,"2020-02-26 09:53:26");
+	trace.setValue(103,1,"D101",1,1.2F,"1F",1,"2020-02-28 09:53:26");
 	ptime tick,now;
 	time_duration diff;
 	tick=microsec_clock::local_time();  
@@ -543,6 +543,15 @@ int selectPersonID(DBTraceAPI&DBAPI){
 	diff=now-tick;	
 	cout<<"use "<<diff.total_milliseconds()<<" ms"<<endl;
 	for(auto &v:rec){
+		cout<<"TraceID="<<v.TraceID<<",PersonID="<<v.PersonID<<",PersonModule="<<v.PersonModule<<",DeviceID="<<v.DeviceID<<",X="<<v.X<<",Y="<<v.Y<<",Floor="<<v.Floor<<",MapMark="<<v.MapMark<<",Time="<<v.time<<endl;
+	}
+	return info;
+}
+int selectPersonIDs(DBTraceAPI&DBAPI){
+	int info;
+	vector<DBTrace> trace;
+	info=DBAPI.DBSearchPersonP(103,trace);
+	for(auto &v:trace){
 		cout<<"TraceID="<<v.TraceID<<",PersonID="<<v.PersonID<<",PersonModule="<<v.PersonModule<<",DeviceID="<<v.DeviceID<<",X="<<v.X<<",Y="<<v.Y<<",Floor="<<v.Floor<<",MapMark="<<v.MapMark<<",Time="<<v.time<<endl;
 	}
 	return info;
@@ -976,10 +985,10 @@ int main(int argc,char const *argv[]){
 	//assert(DB_RET_OK==addSomeMaptest(DBAPI));
 
 	//单条添加轨迹信息
-	//assert(DB_RET_OK==addTracetest(DBAPI));
+	assert(DB_RET_OK==addTracetest(DBAPI));
 
 	//多条添加轨迹信息
-	assert(DB_RET_OK==addSomeTracetest(DBAPI));
+	//assert(DB_RET_OK==addSomeTracetest(DBAPI));
 
 	//单条查询最近轨迹（按设备ID）
 	//assert(DB_RET_OK==selectDevicetest(DBAPI));
@@ -1055,8 +1064,8 @@ int main(int argc,char const *argv[]){
 	//	assert(DB_RET_OK==addTracestest(DBAPI));
 	//	assert(DB_RET_OK==addTracestest2(DBAPI));
 	//}
-	assert(DB_RET_OK==selectPersonModule(DBAPI));
-	assert(DB_RET_OK==selectPersonID(DBAPI));
+	//assert(DB_RET_OK==selectPersonModule(DBAPI));
+	assert(DB_RET_OK==selectPersonIDs(DBAPI));
 	//assert(DB_RET_OK==addcrossSomeTracetest(DBAPI));
 	//assert(DB_RET_OK==selectPersonTracetest2(DBAPI));
 	//assert(DB_RET_OK==selectDeviceTracetest2(DBAPI));

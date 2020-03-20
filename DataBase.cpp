@@ -122,7 +122,6 @@ bool DataBase::autoCommitOn(){
 }
 
 bool DataBase::commit(){
-	mysql_commit(sql);
 	if(mysql_commit(sql)){
 		cout << "Commit error!" << endl;
 		return false;
@@ -136,7 +135,6 @@ bool DataBase::commit(){
 }
 
 bool DataBase::rollback(){
-	mysql_commit(sql);
 	if(mysql_rollback(sql)){
 		cout << "Commit error!" << endl;
 		return false;
