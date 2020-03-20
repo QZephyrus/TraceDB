@@ -599,6 +599,8 @@ int DBTraceAPI::DBUpdatePerson(int PersonID,int PersonModule,string TableName,in
     DB_RET_FALL添加单条轨迹插入轨迹表失败或更新设备表/人员表最新轨迹失败（回滚）
     DB_RET_CREATE_TB_ERROR新建表格失败
     DB_RET_ERORR Trace表中存在错误（一个月份信息对应多张表）
+    DB_RET_DEVICE_ERROR 对应设备表更新失败
+    DB_RET_PERSON_ERROR 对应人员表更新失败
 */
 int DBTraceAPI::DBAddTrace(const DBTrace&trace){
     DB.useDB(database);
@@ -635,10 +637,12 @@ int DBTraceAPI::DBAddTrace(const DBTrace&trace){
         }else{
             TraceID=atoi(ret[0][0].c_str());
             if(DBUpdateDevice(trace.DeviceID,tableName,TraceID)!=DB_RET_OK){
-                flag_insert=false;
+                DB.rollback();
+                return DB_RET_DEVICE_ERROR;
             }
             if(DBUpdatePerson(trace.PersonID,trace.PersonModule,tableName,TraceID)!=DB_RET_OK){
-                flag_insert=false;
+                DB.rollback();
+                return DB_RET_PERSON_ERROR;
             }
         }
     }
@@ -656,6 +660,8 @@ int DBTraceAPI::DBAddTrace(const DBTrace&trace){
     DB_RET_OK成功添加轨迹
     DB_RET_FALL添加轨迹失败（回滚）
     DB_RET_NULL需要插入的轨迹为空
+    DB_RET_DEVICE_ERROR 对应设备表更新失败
+    DB_RET_PERSON_ERROR 对应人员表更新失败
 */
 int DBTraceAPI::DBAddTrace(const vector<DBTrace>&trace){
     DB.useDB(database);
@@ -761,7 +767,7 @@ int DBTraceAPI::DBAddTrace(const vector<DBTrace>&trace){
             TraceID=atoi(ret2[0][0].c_str());
             if(DBUpdatePerson(p.second.PersonID,p.second.PersonModule,tableName,TraceID)!=DB_RET_OK){
                 DB.rollback();
-                return DB_RET_ADD_ERROR;
+                return DB_RET_PERSON_ERROR;
             }
         }
         for(auto d:devMap){
@@ -787,7 +793,7 @@ int DBTraceAPI::DBAddTrace(const vector<DBTrace>&trace){
             TraceID=atoi(ret2[0][0].c_str());
             if(DBUpdateDevice(d.second.DeviceID,tableName,TraceID)!=DB_RET_OK){
                 DB.rollback();
-                return DB_RET_ADD_ERROR;
+                return DB_RET_DEVICE_ERROR;
             }
         }
         DB.commit();
