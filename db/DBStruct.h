@@ -99,6 +99,24 @@ class DBDeviceData
 	    int PersonID;
 	    short PersonModule;
         string DeviceID;
+        DBDeviceData(){};
+        DBDeviceData(int PID,short Module,string DID):PersonID(PID),PersonModule(Module),DeviceID(DID){};
+        DBDeviceData(string DID):PersonID(0),PersonModule(0),DeviceID(DID){};
+        DBDeviceData(int PID,short Module):PersonID(PID),PersonModule(Module){};
+        void setValue(string DID){
+            PersonID=0;
+            PersonModule=0;
+            DeviceID=DID;
+        };
+        void setValue(int PID,short Module,string DID){
+            PersonID=PID;
+            PersonModule=Module;
+            DeviceID=DID;
+        };
+        void setValue(int PID,short Module){
+            PersonID=PID;
+            PersonModule=Module;
+        };
 };
 
 //自定义Map类用于存储围栏信息和其对应的BCONID
@@ -108,6 +126,18 @@ class Map
         int MapID;
         int MapMark;
         int BCONID;
+        Map(){};
+        Map(int MID,int MMark,int BID):MapID(MID),MapMark(MMark),BCONID(BID){};
+        Map(int MMark,int BID):MapMark(MMark),BCONID(BID){};
+        void setValue(int MID,int MMark,int BID){
+            MapID=MID;
+            MapMark=MMark;
+            BCONID=BID;
+        };
+        void setValue(int MMark,int BID){
+            MapMark=MMark;
+            BCONID=BID;
+        };
 };
 
 //自定义BCON类用于存储BCON的位置信息
@@ -118,6 +148,14 @@ class BCON
         double BCONX;
         double BCONY;
         string Floor;
+        BCON(){};
+        BCON(int BID,double X,double Y,string floor):BCONID(BID),BCONX(X),BCONY(Y),Floor(floor){};
+        void setValue(int BID,double X,double Y,string floor){
+            BCONID=BID;
+            BCONX=X;
+            BCONY=Y;
+            Floor=floor;
+        };
 };
 
 //自定义DBMaoData类用于统计进出围栏次数和在围栏内持续时间
