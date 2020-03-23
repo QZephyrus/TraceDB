@@ -245,12 +245,14 @@ int DBTraceAPI::DBAddDevice(const DBDeviceData &deviceData) {
     //将新设备注册到设备表中
     table = BASE_TABLE_DEVICE;
     value = "('" + deviceData.DeviceID + "',null,null)";
-    flag_insert_device = DB.insertItem(table, value);
+    flag_insert_device = DB.replaceItem(table, value);
+    // flag_insert_device = DB.insertItem(table, value);
     //将新设备和对应人员关系更新到关系表中
     table = BASE_TABLE_DEVICE_PERSON_RELATE;
     value = "('" + deviceData.DeviceID + "', " + to_string(deviceData.PersonID) + ", " +
             to_string(deviceData.PersonModule) + ")";
-    flag_insert_relat = DB.insertItem(table, value);
+    flag_insert_relat = DB.replaceItem(table, value);
+    // flag_insert_relat = DB.insertItem(table, value);
     if (flag_insert_device && flag_insert_relat) {
         DB.commit();
         return DB_RET_OK;
@@ -291,14 +293,16 @@ int DBTraceAPI::DBAddDevice(const vector<DBDeviceData> &deviceData) {
     //将设备添加到设备表中
     table = BASE_TABLE_DEVICE;
     value = value1;
-    if (DB.insertItem(table, value) == false) {
+    if (DB.replaceItem(table, value) == false) {
+        // if (DB.insertItem(table, value) == false) {
         DB.rollback();
         return DB_RET_FALL;
     }
     //将设备与人员关系添加到关系表中
     table = BASE_TABLE_DEVICE_PERSON_RELATE;
     value = value2;
-    if (DB.insertItem(table, value) == false) {
+    if (DB.replaceItem(table, value) == false) {
+        // if (DB.insertItem(table, value) == false) {
         DB.rollback();
         return DB_RET_FALL;
     }
@@ -318,7 +322,8 @@ int DBTraceAPI::DBAddPerson(const DBDeviceData &deviceData) {
     //将新人员注册到人员表中
     table = BASE_TABLE_PERSON;
     value = "(" + to_string(deviceData.PersonID) + ", " + to_string(deviceData.PersonModule) + ",null,null)";
-    flag_insert_person = DB.insertItem(table, value);
+    // flag_insert_person = DB.insertItem(table, value);
+    flag_insert_person = DB.replaceItem(table, value);
     if (flag_insert_person) {
         return DB_RET_OK;
     } else {
@@ -350,7 +355,8 @@ int DBTraceAPI::DBAddPerson(const vector<DBDeviceData> &deviceData) {
         }
     }
     table = BASE_TABLE_PERSON;
-    if (DB.insertItem(table, value) == false) {
+    if (DB.replaceItem(table, value) == false) {
+        // if (DB.insertItem(table, value) == false) {
         DB.rollback();
         return DB_RET_FALL;
     }
@@ -419,7 +425,8 @@ int DBTraceAPI::DBAddMap(const Map &map) {
     bool flag_add = true;
     table = BASE_TABLE_MAP;
     value = "(null," + to_string(map.MapMark) + ", " + to_string(map.BCONID) + ")";
-    flag_add = DB.insertItem(table, value);
+    // flag_add = DB.insertItem(table, value);
+    flag_add = DB.replaceItem(table, value);
     if (flag_add) {
         return DB_RET_OK;
     } else {
@@ -450,7 +457,8 @@ int DBTraceAPI::DBAddMap(const vector<Map> &map) {
             value = value + ",(null," + to_string(v.MapMark) + ", " + to_string(v.BCONID) + ")";
         }
     }
-    if (DB.insertItem(table, value) == false) {
+    if (DB.replaceItem(table, value) == false) {
+        // if (DB.insertItem(table, value) == false) {
         DB.rollback();
         return DB_RET_FALL;
     }
@@ -469,7 +477,8 @@ int DBTraceAPI::DBAddBCON(const BCON &bcon) {
     table = BASE_TABLE_BCON;
     value = "(" + to_string(bcon.BCONID) + ", " + to_string(bcon.BCONX) + ", " + to_string(bcon.BCONY) + ", '" +
             bcon.Floor + "')";
-    flag_add = DB.insertItem(table, value);
+    // flag_add = DB.insertItem(table, value);
+    flag_add = DB.replaceItem(table, value);
     if (flag_add) {
         return DB_RET_OK;
     } else {
@@ -502,7 +511,8 @@ int DBTraceAPI::DBAddBCON(const vector<BCON> &bcon) {
                     v.Floor + "')";
         }
     }
-    if (DB.insertItem(table, value) == false) {
+    if (DB.replaceItem(table, value) == false) {
+        // if (DB.insertItem(table, value) == false) {
         DB.rollback();
         return DB_RET_FALL;
     }
@@ -520,7 +530,8 @@ int DBTraceAPI::DBAddMapMark(int mapMark) {
     bool flag_add = true;
     table = BASE_TABLE_MAPMARK;
     value = "(null," + to_string(mapMark) + ")";
-    flag_add = DB.insertItem(table, value);
+    // flag_add = DB.insertItem(table, value);
+    flag_add = DB.replaceItem(table, value);
     if (flag_add) {
         return DB_RET_OK;
     } else {
@@ -551,7 +562,8 @@ int DBTraceAPI::DBAddMapMark(const vector<int> &mapMark) {
             value = value + ",(null," + to_string(v) + ")";
         }
     }
-    if (DB.insertItem(table, value) == false) {
+    if (DB.replaceItem(table, value) == false) {
+        // if (DB.insertItem(table, value) == false) {
         DB.rollback();
         return DB_RET_FALL;
     }

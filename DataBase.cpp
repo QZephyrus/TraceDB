@@ -402,6 +402,18 @@ bool DataBase::deleteItem(const string &table, const string &value) {
     return true;
 }
 
+bool DataBase::replaceItem(const string &table, const string &value) {
+    string str = "replace " + table + " values" + value;
+    if (mysql_query(sql, str.c_str())) {
+        cout << str + " error!" << endl;
+        return false;
+    }
+    if (DEBUG) {
+        cout << str + " success!" << endl;
+    }
+    return true;
+}
+
 bool DataBase::updateItem(const string &table, const string &value, const string &limits) {
     string str = "update " + table + " set " + value + " where " + limits;
 

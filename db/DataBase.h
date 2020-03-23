@@ -46,6 +46,7 @@ class DataBase {
     bool insertItem(const string &table, const string &value);
     bool insertItem(const string &table, const string &value, const string &col);
     bool deleteItem(const string &table, const string &value);
+    bool replaceItem(const string &table, const string &value);
     bool updateItem(const string &table, const string &value, const string &limits);
     bool query(const string &command);
 };
