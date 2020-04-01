@@ -247,6 +247,14 @@ int DBTraceAPI::DBAddDevice(const DBDeviceData &deviceData) {
     value = "('" + deviceData.DeviceID + "',null,null)";
     flag_insert_device = DB.replaceItem(table, value);
     // flag_insert_device = DB.insertItem(table, value);
+    if (deviceData.PersonID != 0) {
+        string sentence;
+        sentence = "insert into " + BASE_TABLE_PERSON + " select " + to_string(deviceData.PersonID) + "," +
+                   to_string(deviceData.PersonModule) + ",null,null from dual where NOT EXISTS (SELECT PersonID from " +
+                   BASE_TABLE_PERSON + " where PersonID=" + to_string(deviceData.PersonID) +
+                   " AND PersonModule=" + to_string(deviceData.PersonModule) + ")";
+        DB.insertItem(sentence);
+    }
     //将新设备和对应人员关系更新到关系表中
     table = BASE_TABLE_DEVICE_PERSON_RELATE;
     value = "('" + deviceData.DeviceID + "', " + to_string(deviceData.PersonID) + ", " +
@@ -288,6 +296,14 @@ int DBTraceAPI::DBAddDevice(const vector<DBDeviceData> &deviceData) {
             value1 = value1 + ",('" + v.DeviceID + "',null,null)";
             value2 =
                 value2 + ",('" + v.DeviceID + "', " + to_string(v.PersonID) + ", " + to_string(v.PersonModule) + ")";
+        }
+        if (v.PersonID != 0) {
+            string sentence = "insert into " + BASE_TABLE_PERSON + " select " + to_string(v.PersonID) + "," +
+                              to_string(v.PersonModule) +
+                              ",null,null from dual where NOT EXISTS (SELECT PersonID from " + BASE_TABLE_PERSON +
+                              " where PersonID=" + to_string(v.PersonID) +
+                              " AND PersonModule=" + to_string(v.PersonModule) + ")";
+            DB.insertItem(sentence);
         }
     }
     //将设备添加到设备表中
@@ -371,12 +387,21 @@ int DBTraceAPI::DBAddPerson(const vector<DBDeviceData> &deviceData) {
 */
 int DBTraceAPI::DBUpdateDeviceRelat(const DBDeviceData &deviceData) {
     DB.useDB(database);
+    bool flag = true;
+    if (deviceData.PersonID != 0) {
+        string sentence;
+        sentence = "insert into " + BASE_TABLE_PERSON + " select " + to_string(deviceData.PersonID) + "," +
+                   to_string(deviceData.PersonModule) + ",null,null from dual where NOT EXISTS (SELECT PersonID from " +
+                   BASE_TABLE_PERSON + " where PersonID=" + to_string(deviceData.PersonID) +
+                   " AND PersonModule=" + to_string(deviceData.PersonModule) + ")";
+        flag = DB.insertItem(sentence);
+    }
     bool flag_updata = true;
     table = BASE_TABLE_DEVICE_PERSON_RELATE;
     value = "PersonID=" + to_string(deviceData.PersonID) + ", PersonModule=" + to_string(deviceData.PersonModule);
     limits = "DeviceID='" + deviceData.DeviceID + "'";
     flag_updata = DB.updateItem(table, value, limits);
-    if (flag_updata) {
+    if (flag_updata && flag) {
         return DB_RET_OK;
     } else {
         return DB_RET_FALL;
@@ -399,6 +424,17 @@ int DBTraceAPI::DBUpdateDeviceRelat(const vector<DBDeviceData> &deviceData) {
     table = BASE_TABLE_DEVICE_PERSON_RELATE;
     // for(int i=0;i<row;i++){
     for (auto &v : deviceData) {
+        if (v.PersonID != 0) {
+            string sentence;
+            sentence = "insert into " + BASE_TABLE_PERSON + " select " + to_string(v.PersonID) + "," +
+                       to_string(v.PersonModule) + ",null,null from dual where NOT EXISTS (SELECT PersonID from " +
+                       BASE_TABLE_PERSON + " where PersonID=" + to_string(v.PersonID) +
+                       " AND PersonModule=" + to_string(v.PersonModule) + ")";
+            if (DB.insertItem(sentence) == false) {
+                flag_updata = false;
+                break;
+            }
+        }
         value = "PersonID=" + to_string(v.PersonID) + ", PersonModule=" + to_string(v.PersonModule);
         limits = "DeviceID='" + v.DeviceID + "'";
         if (DB.updateItem(table, value, limits) == false) {

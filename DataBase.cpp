@@ -372,6 +372,20 @@ bool DataBase::insertItem(const string &table, const string &value) {
     return true;
 }
 
+bool DataBase::insertItem(const string &sentence) {
+    string str = sentence;
+    if (mysql_query(sql, str.c_str())) {
+        // cout << "insert into " + table + " error!" << endl;
+        cout << str + " error!" << endl;
+        return false;
+    }
+    if (DEBUG) {
+        // cout << "insert into " + table + " success!" << endl;
+        cout << str + " success!" << endl;
+    }
+    return true;
+}
+
 bool DataBase::insertItem(const string &table, const string &value, const string &col) {
     string str = "insert into " + table + " " + col + " values " + value;
 

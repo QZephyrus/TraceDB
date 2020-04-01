@@ -45,6 +45,7 @@ class DataBase {
     // vector<vector<string>> selectTrace(const string &table,const string &limits);
     bool insertItem(const string &table, const string &value);
     bool insertItem(const string &table, const string &value, const string &col);
+    bool insertItem(const string &sentence);
     bool deleteItem(const string &table, const string &value);
     bool replaceItem(const string &table, const string &value);
     bool updateItem(const string &table, const string &value, const string &limits);
