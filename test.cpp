@@ -408,10 +408,10 @@ int selectSomeDevicetest(DBTraceAPI &DBAPI) {
     vector<string> DeviceID;
     string DeviceIDtemp = "D101";
     DeviceID.push_back(DeviceIDtemp);
-    DeviceIDtemp = "D102";
+    DeviceIDtemp = "D110";
     DeviceID.push_back(DeviceIDtemp);
 
-    DeviceIDtemp = "D103";
+    DeviceIDtemp = "D111";
     DeviceID.push_back(DeviceIDtemp);
     ptime tick, now;
     time_duration diff;
@@ -421,9 +421,17 @@ int selectSomeDevicetest(DBTraceAPI &DBAPI) {
     diff = now - tick;
     cout << "select recent trace by deviceID use " << diff.total_milliseconds() << " ms" << endl;
     for (auto &v : rec) {
-        cout << "TraceID=" << v.TraceID << ",PersonID=" << v.PersonID << ",PersonModule=" << v.PersonModule
-             << ",DeviceID=" << v.DeviceID << ",X=" << v.X << ",Y=" << v.Y << ",Floor=" << v.Floor
-             << ",MapMark=" << v.MapMark << ",Time=" << v.time << endl;
+        if (v.found == true) {
+            cout << "TraceID=" << v.TraceID << ",PersonID=" << v.PersonID << ",PersonModule=" << v.PersonModule
+                 << ",DeviceID=" << v.DeviceID << ",X=" << v.X << ",Y=" << v.Y << ",Floor=" << v.Floor
+                 << ",MapMark=" << v.MapMark << ",Time=" << v.time << endl;
+        } else {
+            if (v.inTable == true) {
+                cout << "DeviceID=" << v.DeviceID << " have no trace" << endl;
+            } else {
+                cout << "DeviceID=" << v.DeviceID << " is no exist" << endl;
+            }
+        }
     }
     return info;
 }
@@ -439,10 +447,15 @@ int selectAllDevicetest(DBTraceAPI &DBAPI) {
     diff = now - tick;
     cout << "select all recent traces by deviceID use " << diff.total_milliseconds() << " ms" << endl;
     for (auto &v : rec) {
-        cout << "TraceID=" << v.TraceID << ",PersonID=" << v.PersonID << ",PersonModule=" << v.PersonModule
-             << ",DeviceID=" << v.DeviceID << ",X=" << v.X << ",Y=" << v.Y << ",Floor=" << v.Floor
-             << ",MapMark=" << v.MapMark << ",Time=" << v.time << endl;
+        if (v.found == true) {
+            cout << "TraceID=" << v.TraceID << ",PersonID=" << v.PersonID << ",PersonModule=" << v.PersonModule
+                 << ",DeviceID=" << v.DeviceID << ",X=" << v.X << ",Y=" << v.Y << ",Floor=" << v.Floor
+                 << ",MapMark=" << v.MapMark << ",Time=" << v.time << endl;
+        } else {
+            cout << "DeviceID=" << v.DeviceID << " have no trace" << endl;
+        }
     }
+
     return info;
 }
 //单条查询最近轨迹（按人员ID）
@@ -468,6 +481,20 @@ int selectSomePersontest(DBTraceAPI &DBAPI) {
     int info;
     vector<DBTrace> rec;
     vector<vector<int>> Person;
+    vector<int> temp;
+    temp.push_back(101);
+    temp.push_back(1);
+    Person.push_back(temp);
+    temp.clear();
+    temp.push_back(110);
+    temp.push_back(1);
+    Person.push_back(temp);
+    temp.clear();
+    temp.push_back(111);
+    temp.push_back(1);
+    Person.push_back(temp);
+    temp.clear();
+    /*
     for (int i = 1; i <= 3; i++) {
         vector<int> temp;
         int PersonID = 100 + i;
@@ -476,6 +503,7 @@ int selectSomePersontest(DBTraceAPI &DBAPI) {
         temp.push_back(PersonModule);
         Person.push_back(temp);
     }
+    */
     ptime tick, now;
     time_duration diff;
     tick = microsec_clock::local_time();
@@ -484,9 +512,17 @@ int selectSomePersontest(DBTraceAPI &DBAPI) {
     diff = now - tick;
     cout << "select recent trace by personID and module use " << diff.total_milliseconds() << " ms" << endl;
     for (auto &v : rec) {
-        cout << "TraceID=" << v.TraceID << ",PersonID=" << v.PersonID << ",PersonModule=" << v.PersonModule
-             << ",DeviceID=" << v.DeviceID << ",X=" << v.X << ",Y=" << v.Y << ",Floor=" << v.Floor
-             << ",MapMark=" << v.MapMark << ",Time=" << v.time << endl;
+        if (v.found == true) {
+            cout << "TraceID=" << v.TraceID << ",PersonID=" << v.PersonID << ",PersonModule=" << v.PersonModule
+                 << ",DeviceID=" << v.DeviceID << ",X=" << v.X << ",Y=" << v.Y << ",Floor=" << v.Floor
+                 << ",MapMark=" << v.MapMark << ",Time=" << v.time << endl;
+        } else {
+            if (v.inTable == true) {
+                cout << "PersonID=" << v.PersonID << ",PersonModule=" << v.PersonModule << " have no trace" << endl;
+            } else {
+                cout << "PersonID=" << v.PersonID << ",PersonModule=" << v.PersonModule << " is no exist" << endl;
+            }
+        }
     }
     return info;
 }
@@ -502,9 +538,13 @@ int selectAllPersontest(DBTraceAPI &DBAPI) {
     diff = now - tick;
     cout << "select all recent trace by personID and Module use " << diff.total_milliseconds() << " ms" << endl;
     for (auto &v : rec) {
-        cout << "TraceID=" << v.TraceID << ",PersonID=" << v.PersonID << ",PersonModule=" << v.PersonModule
-             << ",DeviceID=" << v.DeviceID << ",X=" << v.X << ",Y=" << v.Y << ",Floor=" << v.Floor
-             << ",MapMark=" << v.MapMark << ",Time=" << v.time << endl;
+        if (v.found == true) {
+            cout << "TraceID=" << v.TraceID << ",PersonID=" << v.PersonID << ",PersonModule=" << v.PersonModule
+                 << ",DeviceID=" << v.DeviceID << ",X=" << v.X << ",Y=" << v.Y << ",Floor=" << v.Floor
+                 << ",MapMark=" << v.MapMark << ",Time=" << v.time << endl;
+        } else {
+            cout << "PersonID=" << v.PersonID << ",PersonModule=" << v.PersonModule << " have no trace" << endl;
+        }
     }
     return info;
 }
@@ -1023,13 +1063,12 @@ int main(int argc, char const *argv[]) {
     assert(DB_RET_OK == selectDevices(DBAPI));
 
     //单条查询最近轨迹（按设备ID）
-    assert(DB_RET_OK == selectDevicetest(DBAPI));
-
+    // assert(DB_RET_OK == selectDevicetest(DBAPI));
     //多条查询最近轨迹（按设备ID）
     assert(DB_RET_OK == selectSomeDevicetest(DBAPI));
 
     //单条查询最近轨迹（按人员ID）
-    assert(DB_RET_OK == selectPersontest(DBAPI));
+    // assert(DB_RET_OK == selectPersontest(DBAPI));
 
     //多条查询最近轨迹（按人员ID）
     assert(DB_RET_OK == selectSomePersontest(DBAPI));
@@ -1079,20 +1118,20 @@ int main(int argc, char const *argv[]) {
     assert(DB_RET_OK == mapMarkCount(DBAPI));
 
     //删除单条轨迹
-    assert(DB_RET_OK == deleteTrace(DBAPI));
+    // assert(DB_RET_OK == deleteTrace(DBAPI));
 
     //删除单个设备
-    assert(DB_RET_OK == deleteDevice(DBAPI));
+    // assert(DB_RET_OK == deleteDevice(DBAPI));
 
     //删除单个围栏
-    assert(DB_RET_OK == deleteMap(DBAPI));
+    // assert(DB_RET_OK == deleteMap(DBAPI));
 
-    assert(DB_RET_OK == countMap(DBAPI));
+    // assert(DB_RET_OK == countMap(DBAPI));
 
     //清除所有轨迹数据
-    assert(DB_RET_OK == clearTable(DBAPI));
+    // assert(DB_RET_OK == clearTable(DBAPI));
 
-    assert(DB_RET_OK == deleteDBtest(DBAPI));
+    // assert(DB_RET_OK == deleteDBtest(DBAPI));
 
     return 0;
 }

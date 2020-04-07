@@ -71,6 +71,8 @@ class DBTrace {
     string time;
     string TableName;
     int TraceID;
+    bool found = true;
+    bool inTable = true;
 
     //用于从双重vector构成的string表（string_table）获取单条的轨迹信息并且保存自身
     DBTrace read(vector<string> ret) {

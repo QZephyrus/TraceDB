@@ -890,22 +890,33 @@ int DBTraceAPI::DBAddTrace(const vector<DBTrace> &trace) {
 int DBTraceAPI::DBSearchDevice(string DeviceID, DBTrace &pTrace) {
     DB.useDB(database);
     table = BASE_TABLE_DEVICE;
-    value = "TableName,TraceID";
-    limits = "DeviceID='" + DeviceID + "' AND TraceID IS NOT NULL";
+    value = "IFNULL(TableName,0),IFNULL(TraceID,0)";
+    limits = "DeviceID='" + DeviceID + "'";
     //搜索对应设备在设备表中记录的最近一条记录
     string_table ret = DB.selectItem(table, value, limits);
     if (ret.size() == 0) {
+        pTrace.DeviceID = DeviceID;
+        pTrace.found = false;
+        pTrace.inTable = false;
         return DB_RET_DEVICE_ERROR;
     } else if (ret.size() == 1) {
         //根据最近一条的轨迹信息来搜索轨迹具体信息
-        table = ret[0][0];
-        value = "*";
-        limits = "TraceID=" + ret[0][1];
-        string_table temp = DB.selectItem(table, value, limits);
-        if (temp.size() == 0) {
+        if (ret[0][0] == "0") {
+            pTrace.DeviceID = DeviceID;
+            pTrace.found = false;
             return DB_RET_NULL;
+        } else {
+            table = ret[0][0];
+            value = "*";
+            limits = "TraceID=" + ret[0][1];
+            string_table temp = DB.selectItem(table, value, limits);
+            if (temp.size() == 0) {
+                pTrace.DeviceID = DeviceID;
+                pTrace.found = false;
+                return DB_RET_NULL;
+            }
+            pTrace = pTrace.readTrace(temp);
         }
-        pTrace = pTrace.readTrace(temp);
     }
     return DB_RET_OK;
 }
@@ -920,9 +931,8 @@ int DBTraceAPI::DBSearchDevice(const vector<string> &DeviceID, vector<DBTrace> &
     DB.useDB(database);
     for (auto &v : DeviceID) {
         DBTrace tempTrace;
-        if (DBSearchDevice(v, tempTrace) == DB_RET_OK) {
-            Trace.push_back(tempTrace);
-        }
+        DBSearchDevice(v, tempTrace);
+        Trace.push_back(tempTrace);
     }
 
     if (Trace.size() == 0) {
@@ -943,23 +953,29 @@ int DBTraceAPI::DBSearchDevice(vector<DBTrace> &Traces) {
     string_table tablename;
     //读取所有设备
     table = BASE_TABLE_DEVICE;
-    value = "TableName,TraceID";
-    limits = "TraceID IS NOT NULL";
-    tablename = DB.selectItem(table, value, limits);
+    // value = "TableName,TraceID";
+    value = "DeviceID,IFNULL(TableName,0),IFNULL(TraceID,0)";
+    // limits = "TraceID IS NOT NULL";
+    tablename = DB.selectItem(table, value);
+    // tablename = DB.selectItem(table, value, limits);
     // int rows=tablename.size();
     if (tablename.empty()) {
         return DB_RET_DEVICE_ERROR;
     }
     value = "*";
     for (auto &v : tablename) {
-        table = v[0];
-        limits = "TraceID=" + v[1];
-        string_table temp = DB.selectItem(table, value, limits);
         DBTrace trace;
-        trace = trace.readTrace(temp);
+        if (v[1] != "0") {
+            table = v[1];
+            limits = "TraceID=" + v[2];
+            string_table temp = DB.selectItem(table, value, limits);
+            trace = trace.readTrace(temp);
+        } else {
+            trace.DeviceID = v[0];
+            trace.found = false;
+        }
         Traces.push_back(trace);
     }
-
     if (Traces.size() == 0) {
         return DB_RET_NULL;
     } else {
@@ -977,22 +993,35 @@ int DBTraceAPI::DBSearchDevice(vector<DBTrace> &Traces) {
 int DBTraceAPI::DBSearchPerson(int PersonID, int PersonModule, DBTrace &pTrace) {
     DB.useDB(database);
     table = BASE_TABLE_PERSON;
-    value = "TableName,TraceID";
-    limits =
-        "PersonID=" + to_string(PersonID) + " AND PersonModule=" + to_string(PersonModule) + " AND TraceID IS NOT NULL";
+    value = "IFNULL(TableName,0),IFNULL(TraceID,0)";
+    limits = "PersonID=" + to_string(PersonID) + " AND PersonModule=" + to_string(PersonModule);
     //搜索对应人员在人员表中记录的最近一条记录
     string_table ret = DB.selectItem(table, value, limits);
     if (ret.size() == 0) {
+        pTrace.PersonID = PersonID;
+        pTrace.PersonModule = PersonModule;
+        pTrace.found = false;
+        pTrace.inTable = false;
         return DB_RET_PERSON_ERROR;
     } else if (ret.size() == 1) {
-        table = ret[0][0];
-        value = "*";
-        limits = "TraceID=" + ret[0][1];
-        string_table temp = DB.selectItem(table, value, limits);
-        if (temp.size() == 0) {
+        if (ret[0][0] == "0") {
+            pTrace.PersonID = PersonID;
+            pTrace.PersonModule = PersonModule;
+            pTrace.found = false;
             return DB_RET_NULL;
+        } else {
+            table = ret[0][0];
+            value = "*";
+            limits = "TraceID=" + ret[0][1];
+            string_table temp = DB.selectItem(table, value, limits);
+            if (temp.size() == 0) {
+                pTrace.PersonID = PersonID;
+                pTrace.PersonModule = PersonModule;
+                pTrace.found = false;
+                return DB_RET_NULL;
+            }
+            pTrace = pTrace.readTrace(temp);
         }
-        pTrace = pTrace.readTrace(temp);
     }
     return DB_RET_OK;
 }
@@ -1007,9 +1036,8 @@ int DBTraceAPI::DBSearchPerson(const vector<vector<int>> &Person, vector<DBTrace
     DB.useDB(database);
     for (auto &v : Person) {
         DBTrace tempTrace;
-        if (DBSearchPerson(v[0], v[1], tempTrace) == DB_RET_OK) {
-            Trace.push_back(tempTrace);
-        }
+        DBSearchPerson(v[0], v[1], tempTrace);
+        Trace.push_back(tempTrace);
     }
     if (Trace.size() == 0) {
         return DB_RET_NULL;
@@ -1028,21 +1056,27 @@ int DBTraceAPI::DBSearchPerson(vector<DBTrace> &Traces) {
     DB.useDB(database);
     string_table tablename;
     table = BASE_TABLE_PERSON;
-    value = "TableName,TraceID";
-    limits = "TraceID IS NOT NULL";
+    value = "PersonID,PersonModule,IFNULL(TableName,0),IFNULL(TraceID,0)";
+    // limits = "TraceID IS NOT NULL";
     //获取所有人员最后一条轨迹的位置
-    tablename = DB.selectItem(table, value, limits);
+    tablename = DB.selectItem(table, value);
     // int rows=tablename.size();
     if (tablename.empty()) {
         return DB_RET_PERSON_ERROR;
     }
     value = "*";
     for (auto &v : tablename) {
-        table = v[0];
-        limits = "TraceID=" + v[1];
-        string_table temp = DB.selectItem(table, value, limits);
         DBTrace trace;
-        trace = trace.readTrace(temp);
+        if (v[2] != "0") {
+            table = v[2];
+            limits = "TraceID=" + v[3];
+            string_table temp = DB.selectItem(table, value, limits);
+            trace = trace.readTrace(temp);
+        } else {
+            trace.PersonID = atoi(v[0].c_str());
+            trace.PersonModule = atoi(v[1].c_str());
+            trace.found = false;
+        }
         Traces.push_back(trace);
     }
     if (Traces.size() == 0) {
