@@ -37,7 +37,7 @@ bool DataBase::connect(const string host, const string user, const string passwd
         cout << "connect error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << "connect success!" << endl;
     }
 
@@ -53,7 +53,7 @@ bool DataBase::connect(const string host, const string user, const string passwd
         cout << "connect error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << "connect success!" << endl;
     }
     return true;
@@ -66,7 +66,7 @@ void DataBase::disconnect() {
     sql = nullptr;
     res = nullptr;
     connect_flag = false;
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << "disconnect success!" << endl;
     }
 }
@@ -87,7 +87,7 @@ bool DataBase::createDB(const string &database) {
         cout << "create database " + database + " error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << "create database " + database + " success!" << endl;
     }
     return true;
@@ -99,7 +99,7 @@ bool DataBase::useDB(const string &database) {
         cout << "use database error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << "use " << database << " now!" << endl;
     }
     return true;
@@ -153,7 +153,7 @@ bool DataBase::deleteDB(const string &database) {
         cout << "delete database " + database + " error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << database << " has been deleted!" << endl;
     }
     return true;
@@ -175,7 +175,7 @@ bool DataBase::createTB(const string &table, const string &elements) {
         cerr << "create table " + table + " error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << "create table " + table + " success!" << endl;
     }
     return true;
@@ -186,7 +186,7 @@ bool DataBase::deleteTB(const string &table) {
         cout << "delete table " + table + " error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << table << " has been deleted!" << endl;
     }
     return true;
@@ -197,7 +197,7 @@ bool DataBase::clearTB(const string &table) {
         cout << "clear table " + table + " error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << table << " has been cleared!" << endl;
     }
     return true;
@@ -221,7 +221,7 @@ vector<vector<string>> DataBase::selectItem(const string &table, const string &v
     }
     mysql_free_result(res);
     res = nullptr;
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << str + " success!" << endl;
     }
     return ret;
@@ -245,7 +245,7 @@ vector<vector<string>> DataBase::selectItem(const string &table, const string &v
     }
     mysql_free_result(res);
     res = nullptr;
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << str + " success!" << endl;
     }
     return ret;
@@ -270,7 +270,7 @@ vector<vector<string>> DataBase::selectItem(const string &sentence) {
     }
     mysql_free_result(res);
     res = nullptr;
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << str + " success!" << endl;
     }
     return ret;
@@ -305,7 +305,7 @@ vector<DBTrace> DataBase::selectTrace(const string &table, const string &limits)
 
     mysql_free_result(res);
     res = nullptr;
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << str + " success!" << endl;
     }
     return ret;
@@ -338,7 +338,7 @@ limits; string str= "select PersonID,PersonModule,MapMark,Time from " + table + 
 
         mysql_free_result(res);
         res = nullptr;
-        if(DEBUG){
+        if(FZIDT_DB_DEBUG){
                 cout << str + " success!"<< endl;
         }
         return ret;
@@ -366,7 +366,7 @@ bool DataBase::insertItem(const string &table, const string &value) {
 
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << str + " success!" << endl;
     }
     return true;
@@ -379,7 +379,7 @@ bool DataBase::insertItem(const string &sentence) {
         cout << str + " error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         // cout << "insert into " + table + " success!" << endl;
         cout << str + " success!" << endl;
     }
@@ -394,7 +394,7 @@ bool DataBase::insertItem(const string &table, const string &value, const string
         cout << str + " error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         // cout << "insert into " + table + " success!" << endl;
         cout << str + " success!" << endl;
     }
@@ -409,7 +409,7 @@ bool DataBase::deleteItem(const string &table, const string &value) {
         cout << str + " error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         // cout << "delete from " + table + " success!" << endl;
         cout << str + " success!" << endl;
     }
@@ -422,7 +422,7 @@ bool DataBase::replaceItem(const string &table, const string &value) {
         cout << str + " error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << str + " success!" << endl;
     }
     return true;
@@ -436,7 +436,7 @@ bool DataBase::updateItem(const string &table, const string &value, const string
         cout << str + " error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         // cout << "update " + table + " success!" << endl;
         cout << str + " success!" << endl;
     }
@@ -448,7 +448,7 @@ bool DataBase::query(const string &command) {
         cout << "query error!" << endl;
         return false;
     }
-    if (DEBUG) {
+    if (FZIDT_DB_DEBUG) {
         cout << "query success!" << endl;
     }
     return true;

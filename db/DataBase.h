@@ -6,7 +6,7 @@
 #include "DBStruct.h"
 #include "mysql/mysql.h"
 
-#define DEBUG false
+#define FZIDT_DB_DEBUG false
 
 using std::string;
 using std::vector;
