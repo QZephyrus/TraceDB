@@ -1554,6 +1554,7 @@ DBMapData CountFre(vector<DBTrace> &trace, int PersonID, int PersonModule, int M
             flagOld = flagNew;
         }
     }
+    tempMapData.rate = tempMapData.Enter + tempMapData.Out;
     return tempMapData;
 }
 //具体围栏数据统计
@@ -1652,8 +1653,12 @@ int DBTraceAPI::MapMarkCount(int MapMark, ptime timeBegin, ptime timeEnd, DBMapD
     }
     MapData.MapMark = MapMark;
     MapData.rate = 0;
+    MapData.Out = 0;
+    MapData.Enter = 0;
     for (auto &v : tempData) {
         MapData.rate = MapData.rate + v.Enter + v.Out;
+        MapData.Enter = MapData.Enter + v.Enter;
+        MapData.Out = MapData.Out + v.Enter;
         MapData.StayTime = (MapData.StayTime + v.StayTime);
     }
 
@@ -1690,18 +1695,14 @@ int DBTraceAPI::MapCount(ptime timeBegin, ptime timeEnd, vector<DBMapData> &MapD
     }
     */
 
-    tick = microsec_clock::local_time();
     vector<DBTrace> trace;
     if (DBSearchTimeTrace(timeBegin, timeEnd, trace) != DB_RET_OK) {
         return DB_RET_SEARCH_ERROR;
     }
-    now = microsec_clock::local_time();
-    diff = now - tick;
-    cout << "use " << diff.total_milliseconds() << " ms" << endl;
 
     unordered_map<int, DBTrace> traceHash;
     unordered_map<int, DBTrace>::iterator traceget;
-    tick = microsec_clock::local_time();
+
     vector<vector<int>> PerData;
     for (auto &v : trace) {
         traceget = traceHash.find(v.PersonID * 10 + v.PersonModule);
@@ -1739,9 +1740,6 @@ int DBTraceAPI::MapCount(ptime timeBegin, ptime timeEnd, vector<DBMapData> &MapD
             }
         }
     }
-    now = microsec_clock::local_time();
-    diff = now - tick;
-    cout << "use " << diff.total_milliseconds() << " ms" << endl;
     for (auto m : mapHash) {
         MapData.push_back(m.second);
     }
