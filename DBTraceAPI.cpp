@@ -12,7 +12,12 @@ using namespace std;
 
 string ptime_to_string(ptime t) {
     string time = to_iso_extended_string(t);
-    time = time.replace(time.find("T"), 1, " ");
+    size_t found = time.find("T");
+    if (found == string::npos) {
+        // string error = "error";
+        return "error";
+    }
+    time = time.replace(found, 1, " ");
     return time;
 }
 
@@ -1246,6 +1251,9 @@ int DBTraceAPI::DBSearchPersonTrace(int PersonID, int PersonModule, ptime timeBe
     value = "distinct TableName";
     string timeB = ptime_to_string(timeBegin);
     string timeE = ptime_to_string(timeEnd);
+    if (timeE == "error" || timeB == "error") {
+        return DB_RET_ERORR;
+    }
 
     limits = "YearMonth>=" + timeB.substr(0, 4) + timeB.substr(5, 2) + " AND YearMonth<=" + timeE.substr(0, 4) +
              timeE.substr(5, 2);
@@ -1287,6 +1295,9 @@ int DBTraceAPI::DBSearchDeviceTrace(string DeviceID, ptime timeBegin, ptime time
     value = "distinct TableName";
     string timeB = ptime_to_string(timeBegin);
     string timeE = ptime_to_string(timeEnd);
+    if (timeE == "error" || timeB == "error") {
+        return DB_RET_ERORR;
+    }
     // string timeB=to_iso_extended_string(timeBegin);
     // timeB=timeB.replace(timeB.find("T"),1," ");
     // string timeE=to_iso_extended_string(timeEnd);
@@ -1331,6 +1342,9 @@ int DBTraceAPI::DBSearchTimeTrace(ptime timeBegin, ptime timeEnd, vector<DBTrace
     value = "distinct TableName";
     string timeB = ptime_to_string(timeBegin);
     string timeE = ptime_to_string(timeEnd);
+    if (timeE == "error" || timeB == "error") {
+        return DB_RET_ERORR;
+    }
     limits = "YearMonth>=" + timeB.substr(0, 4) + timeB.substr(5, 2) + " AND YearMonth<=" + timeE.substr(0, 4) +
              timeE.substr(5, 2);
     //检索在时间区间内的所有轨迹表
@@ -1560,6 +1574,8 @@ int DBTraceAPI::DBMapCount(int PersonID, int PersonModule, int MapMark, ptime ti
         MapData = CountFre(Traces, PersonID, PersonModule, MapMark);
     } else if (res == DB_RET_NULL) {
         return DB_RET_NULL;
+    } else if (res == DB_RET_ERORR) {
+        return DB_RET_ERORR;
     } else {
         return DB_RET_FALL;
     }
@@ -1586,8 +1602,9 @@ int DBTraceAPI::DBMapPersonCount(int PersonID, int PersonModule, ptime timeBegin
             DBMapData tempMapData = CountFre(Traces, PersonID, PersonModule, MapMark);
             MapData.push_back(tempMapData);
         }
-
         return DB_RET_OK;
+    } else if (res == DB_RET_ERORR) {
+        return DB_RET_ERORR;
     } else {
         return DB_RET_FALL;
     }
