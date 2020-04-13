@@ -392,21 +392,29 @@ int DBTraceAPI::DBAddPerson(const vector<DBDeviceData> &deviceData) {
 */
 int DBTraceAPI::DBUpdateDeviceRelat(const DBDeviceData &deviceData) {
     DB.useDB(database);
-    bool flag = true;
+    bool flag_Person = true;
     if (deviceData.PersonID != 0) {
         string sentence;
         sentence = "insert into " + BASE_TABLE_PERSON + " select " + to_string(deviceData.PersonID) + "," +
                    to_string(deviceData.PersonModule) + ",null,null from dual where NOT EXISTS (SELECT PersonID from " +
                    BASE_TABLE_PERSON + " where PersonID=" + to_string(deviceData.PersonID) +
                    " AND PersonModule=" + to_string(deviceData.PersonModule) + ")";
-        flag = DB.insertItem(sentence);
+        flag_Person = DB.insertItem(sentence);
     }
+    bool flag_Device = true;
+    string sentence;
+    sentence = "insert into " + BASE_TABLE_DEVICE + " select '" + deviceData.DeviceID +
+               "',null,null from dual where NOT EXISTS (SELECT DeviceID from " + BASE_TABLE_DEVICE +
+               " where DeviceID='" + deviceData.DeviceID + "')";
+    flag_Device = DB.insertItem(sentence);
     bool flag_updata = true;
     table = BASE_TABLE_DEVICE_PERSON_RELATE;
-    value = "PersonID=" + to_string(deviceData.PersonID) + ", PersonModule=" + to_string(deviceData.PersonModule);
-    limits = "DeviceID='" + deviceData.DeviceID + "'";
-    flag_updata = DB.updateItem(table, value, limits);
-    if (flag_updata && flag) {
+    value = "('" + deviceData.DeviceID + "'," + to_string(deviceData.PersonID) + "," +
+            to_string(deviceData.PersonModule) + ")";
+    // limits = "DeviceID='" + deviceData.DeviceID + "'";
+    // flag_updata = DB.updateItem(table, value, limits);
+    flag_updata = DB.replaceItem(table, value);
+    if (flag_updata && flag_Person && flag_Device) {
         return DB_RET_OK;
     } else {
         return DB_RET_FALL;
@@ -429,6 +437,12 @@ int DBTraceAPI::DBUpdateDeviceRelat(const vector<DBDeviceData> &deviceData) {
     table = BASE_TABLE_DEVICE_PERSON_RELATE;
     // for(int i=0;i<row;i++){
     for (auto &v : deviceData) {
+        int flag = DBUpdateDeviceRelat(v);
+        if (flag != DB_RET_OK) {
+            flag_updata = false;
+            break;
+        }
+        /*
         if (v.PersonID != 0) {
             string sentence;
             sentence = "insert into " + BASE_TABLE_PERSON + " select " + to_string(v.PersonID) + "," +
@@ -446,6 +460,7 @@ int DBTraceAPI::DBUpdateDeviceRelat(const vector<DBDeviceData> &deviceData) {
             flag_updata = false;
             break;
         }
+        */
     }
     if (flag_updata) {
         DB.commit();

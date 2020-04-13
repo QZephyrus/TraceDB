@@ -107,7 +107,8 @@ int addSomeDeviceDBtest(DBTraceAPI &DBAPI) {
 int updateRelatedtest(DBTraceAPI &DBAPI) {
     int info;
     DBDeviceData temp1;
-    temp1.DeviceID = "D101";
+    temp1.setValue(0, 0, "D120");
+
     ptime tick, now;
     time_duration diff;
     tick = microsec_clock::local_time();
@@ -117,7 +118,7 @@ int updateRelatedtest(DBTraceAPI &DBAPI) {
     cout << "update one Device use " << diff.total_milliseconds() << " ms" << endl;
     cout << info << endl;
     DBDeviceData temp2;
-    temp2.setValue(106, 1, "D106");
+    temp2.setValue(121, 1, "D121");
     // temp2.DeviceID="D106";
     // temp2.PersonID=106;
     // temp2.PersonModule=1;
@@ -151,6 +152,11 @@ int updateSomeRelatedtest(DBTraceAPI &DBAPI) {
         // temp.PersonModule=1;
         deviceData.push_back(temp);
     }
+    for (int i = 2; i <= 5; i++) {
+        DBDeviceData temp(120 + i, 1, "D" + to_string(120 + i));
+        deviceData.push_back(temp);
+    }
+
     ptime tick, now;
     time_duration diff;
     tick = microsec_clock::local_time();
