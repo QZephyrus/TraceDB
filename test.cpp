@@ -57,6 +57,14 @@ int creatDBtest(DBTraceAPI &DBAPI) {
     cout << "Create Database use " << diff.total_milliseconds() << " ms" << endl;
     return info;
 }
+//预构建轨迹表（1年）
+int creatTraceTable(DBTraceAPI &DBAPI) {
+    int year = 2020;
+    int month = 3;
+    //构建2020年轨迹表，每3个月存一张表
+    int info = DBAPI.DBCreatYearTraceTable(year, month);
+    return info;
+}
 //单条设备输入验证
 int addDeviceDBtest(DBTraceAPI &DBAPI) {
     int info;
@@ -1015,6 +1023,8 @@ int main(int argc, char const *argv[]) {
 
     //数据库创建
     assert(DB_RET_OK == creatDBtest(DBAPI));
+
+    assert(DB_RET_OK == creatTraceTable(DBAPI));
 
     //单条添加设备
     assert(DB_RET_OK == addDeviceDBtest(DBAPI));

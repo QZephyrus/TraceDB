@@ -59,7 +59,7 @@ class DBTraceAPI {
     int DBCreateDB();
     int DBCreateRelatTB();
     int DBCreateTable(const DBTrace& trace);
-
+    int DBCreatYearTraceTable(const int year,const int monthGap);
     int DBAddDevice(const DBDeviceData& deviceData);
     int DBAddDevice(const vector<DBDeviceData>& deviceData);
 

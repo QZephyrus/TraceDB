@@ -195,6 +195,50 @@ int DBTraceAPI::DBCreateRelatTB() {
     DB_RET_CREATE_TB_ERROR具体轨迹表创建失败
     DB_RET_ADD_ERROR具体轨迹表创建成功，但插入到Trace表失败（失败回滚，需重新创表）
 */
+int DBTraceAPI::DBCreatYearTraceTable(const int year, const int monthGap) {
+    int month = 1;
+    bool flag_create = false;
+    bool flag_temp = false;
+    DB.useDB(database);
+    DB.autoCommitOff();
+    for (month = 1; month <= 12; month++) {
+        table = BASE_TABLE_TRACE + to_string((year * 100) + month);
+        flag_create =
+            DB.createTB(table,
+                        "TraceID int UNSIGNED NOT NULL AUTO_INCREMENT,PersonID bigint NULL,PersonModule tinyint "
+                        "NULL,DeviceID varchar(255) NULL,X double NULL,Y double NULL,Floor char(4) NULL,MapMark "
+                        "bigint NULL,Time datetime NULL,PRIMARY KEY (TraceID)");
+        if (flag_create) {
+            for (int i = 0; i < monthGap; i++) {
+                string yearmonth;
+                yearmonth = to_string(year * 100 + month);
+                value = "(null,'" + table + "', " + yearmonth + ")";
+                flag_temp = DB.insertItem("Trace", value);
+                if (!flag_temp) {
+                    break;
+                }
+                month++;
+                if (month > 12) {
+                    break;
+                }
+            }
+            if (!flag_temp) {
+                break;
+            }
+            month--;
+        } else {
+            break;
+        }
+    }
+    if (flag_temp && flag_create) {
+        DB.commit();
+        return DB_RET_OK;
+    } else {
+        DB.rollback();
+        return DB_RET_FALL;
+    }
+}
+
 int DBTraceAPI::DBCreateTable(const DBTrace &trace) {
     DB.useDB(database);
     bool flag_create = true;
