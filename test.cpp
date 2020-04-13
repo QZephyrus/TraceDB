@@ -239,7 +239,7 @@ int addSomeMapMarktest(DBTraceAPI &DBAPI) {
 //单条BCON信息测试方法
 int addBCONtest(DBTraceAPI &DBAPI) {
     int info;
-    BCON bcon(1, 1, 1, "1F");
+    BCON bcon("1", 1, 1, "1F");
     // bcon.BCONID=1;
     // bcon.BCONX=1;
     // bcon.BCONY=1;
@@ -259,7 +259,7 @@ int addSomeBCONtest(DBTraceAPI &DBAPI) {
     vector<BCON> bcon;
 
     for (int i = 2; i <= 3; i++) {
-        BCON tempbcon(i, 1, i, "1F");
+        BCON tempbcon(to_string(i), 1, i, "1F");
         // tempbcon.BCONID=i;
         // tempbcon.BCONX=1;
         // tempbcon.BCONY=i;
@@ -267,7 +267,7 @@ int addSomeBCONtest(DBTraceAPI &DBAPI) {
         bcon.push_back(tempbcon);
     }
     for (int i = 4; i <= 7; i++) {
-        BCON tempbcon(i, 2, i - 3, "2F");
+        BCON tempbcon(to_string(i), 2, i - 3, "2F");
         // tempbcon.BCONID=i;
         // tempbcon.BCONX=2;
         // tempbcon.BCONY=i-3;
@@ -275,7 +275,7 @@ int addSomeBCONtest(DBTraceAPI &DBAPI) {
         bcon.push_back(tempbcon);
     }
     for (int i = 8; i <= 10; i++) {
-        BCON tempbcon(i, 3, i - 7, "3F");
+        BCON tempbcon(to_string(i), 3, i - 7, "3F");
         // tempbcon.BCONID=i;
         // tempbcon.BCONX=3;
         // tempbcon.BCONY=i-7;
@@ -294,7 +294,7 @@ int addSomeBCONtest(DBTraceAPI &DBAPI) {
 //单条添加BCON和MapMark关系表测试方法
 int addMaptest(DBTraceAPI &DBAPI) {
     int info;
-    Map map(1, 1);
+    Map map(1, "1");
     // map.MapMark=1;
     // map.BCONID=1;
     ptime tick, now;
@@ -311,19 +311,19 @@ int addSomeMaptest(DBTraceAPI &DBAPI) {
     int info;
     vector<Map> map;
     for (int i = 2; i <= 3; i++) {
-        Map tempmap(1, i);
+        Map tempmap(1, to_string(i));
         // tempmap.MapMark=1;
         // tempmap.BCONID=i;
         map.push_back(tempmap);
     }
     for (int i = 4; i <= 7; i++) {
-        Map tempmap(2, i);
+        Map tempmap(2, to_string(i));
         // tempmap.MapMark=2;
         // tempmap.BCONID=i;
         map.push_back(tempmap);
     }
     for (int i = 8; i <= 10; i++) {
-        Map tempmap(3, i);
+        Map tempmap(3, to_string(i));
         // tempmap.MapMark=3;
         // tempmap.BCONID=i;
         map.push_back(tempmap);
@@ -335,6 +335,39 @@ int addSomeMaptest(DBTraceAPI &DBAPI) {
     now = microsec_clock::local_time();
     diff = now - tick;
     cout << "add some Map use " << diff.total_milliseconds() << " ms" << endl;
+    return info;
+}
+//批量BCON和围栏信息
+int addMap_BCON(DBTraceAPI &DBAPI) {
+    vector<BCON> bcon;
+    vector<Map> map;
+    Map temp;
+    temp.setValue(10, "10");
+    map.push_back(temp);
+    temp.setValue(10, "20");
+    map.push_back(temp);
+    temp.setValue(10, "30");
+    map.push_back(temp);
+    temp.setValue(20, "40");
+    map.push_back(temp);
+    temp.setValue(20, "50");
+    map.push_back(temp);
+    temp.setValue(30, "60");
+    map.push_back(temp);
+    BCON temp_bcon;
+    temp_bcon.setValue("10", 10, 10, "1F");
+    bcon.push_back(temp_bcon);
+    temp_bcon.setValue("20", 20, 20, "1F");
+    bcon.push_back(temp_bcon);
+    temp_bcon.setValue("30", 30, 30, "1F");
+    bcon.push_back(temp_bcon);
+    temp_bcon.setValue("40", 40, 40, "2F");
+    bcon.push_back(temp_bcon);
+    temp_bcon.setValue("50", 50, 50, "2F");
+    bcon.push_back(temp_bcon);
+    temp_bcon.setValue("60", 60, 60, "3F");
+    bcon.push_back(temp_bcon);
+    int info = DBAPI.DBAddAllMap(map, bcon);
     return info;
 }
 //单条添加轨迹测试方法
@@ -1025,6 +1058,8 @@ int main(int argc, char const *argv[]) {
     assert(DB_RET_OK == creatDBtest(DBAPI));
 
     assert(DB_RET_OK == creatTraceTable(DBAPI));
+
+    assert(DB_RET_OK == addMap_BCON(DBAPI));
 
     //单条添加设备
     assert(DB_RET_OK == addDeviceDBtest(DBAPI));

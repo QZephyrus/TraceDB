@@ -153,15 +153,16 @@ int DBTraceAPI::DBCreateRelatTB() {
         flag_success = false;
     }
     //创建围栏BCON关系表
-    flag_state = DB.createTB(
-        BASE_TABLE_MAP, "MapID int NOT NULL AUTO_INCREMENT,MapMark bigint NULL,BCONID bigint NULL,PRIMARY KEY (MapID)");
+    flag_state = DB.createTB(BASE_TABLE_MAP,
+                             "MapID int NOT NULL AUTO_INCREMENT,MapMark bigint NULL,BCONID varchar(255) NULL,PRIMARY "
+                             "KEY (MapID),unique key(BCONID)");
     if (flag_state == false) {
         flag_success = false;
     }
     //创建BCON表
     flag_state = DB.createTB(
         BASE_TABLE_BCON,
-        "BCONID bigint NOT NULL,BCONX double NULL,BCONY double NULL,BCONFloor char(4) NULL,PRIMARY KEY (BCONID)");
+        "BCONID varchar(255) NOT NULL,BCONX double NULL,BCONY double NULL,BCONFloor char(4) NULL,PRIMARY KEY (BCONID)");
     if (flag_state == false) {
         flag_success = false;
     }
@@ -524,7 +525,7 @@ int DBTraceAPI::DBAddMap(const Map &map) {
     DB.useDB(database);
     bool flag_add = true;
     table = BASE_TABLE_MAP;
-    value = "(null," + to_string(map.MapMark) + ", " + to_string(map.BCONID) + ")";
+    value = "(null," + to_string(map.MapMark) + ", '" + map.BCONID + "')";
     // flag_add = DB.insertItem(table, value);
     flag_add = DB.replaceItem(table, value);
     if (flag_add) {
@@ -551,10 +552,10 @@ int DBTraceAPI::DBAddMap(const vector<Map> &map) {
     bool flag_first = true;
     for (auto &v : map) {
         if (flag_first) {
-            value = "(null," + to_string(v.MapMark) + ", " + to_string(v.BCONID) + ")";
+            value = "(null," + to_string(v.MapMark) + ", '" + v.BCONID + "')";
             flag_first = false;
         } else {
-            value = value + ",(null," + to_string(v.MapMark) + ", " + to_string(v.BCONID) + ")";
+            value = value + ",(null," + to_string(v.MapMark) + ", '" + v.BCONID + "')";
         }
     }
     if (DB.replaceItem(table, value) == false) {
@@ -575,8 +576,8 @@ int DBTraceAPI::DBAddBCON(const BCON &bcon) {
     DB.useDB(database);
     bool flag_add = true;
     table = BASE_TABLE_BCON;
-    value = "(" + to_string(bcon.BCONID) + ", " + to_string(bcon.BCONX) + ", " + to_string(bcon.BCONY) + ", '" +
-            bcon.Floor + "')";
+    value =
+        "('" + bcon.BCONID + "', " + to_string(bcon.BCONX) + ", " + to_string(bcon.BCONY) + ", '" + bcon.Floor + "')";
     // flag_add = DB.insertItem(table, value);
     flag_add = DB.replaceItem(table, value);
     if (flag_add) {
@@ -603,11 +604,10 @@ int DBTraceAPI::DBAddBCON(const vector<BCON> &bcon) {
     bool flag_first = true;
     for (auto &v : bcon) {
         if (flag_first) {
-            value = "(" + to_string(v.BCONID) + ", " + to_string(v.BCONX) + ", " + to_string(v.BCONY) + ", '" +
-                    v.Floor + "')";
+            value = "('" + v.BCONID + "', " + to_string(v.BCONX) + ", " + to_string(v.BCONY) + ", '" + v.Floor + "')";
             flag_first = false;
         } else {
-            value = value + ",(" + to_string(v.BCONID) + ", " + to_string(v.BCONX) + ", " + to_string(v.BCONY) + ", '" +
+            value = value + ",('" + v.BCONID + "', " + to_string(v.BCONX) + ", " + to_string(v.BCONY) + ", '" +
                     v.Floor + "')";
         }
     }
@@ -664,6 +664,68 @@ int DBTraceAPI::DBAddMapMark(const vector<int> &mapMark) {
     }
     if (DB.replaceItem(table, value) == false) {
         // if (DB.insertItem(table, value) == false) {
+        DB.rollback();
+        return DB_RET_FALL;
+    }
+    DB.commit();
+    return DB_RET_OK;
+}
+//清空围栏信息并导入新的围栏（包括BCON信息）
+int DBTraceAPI::DBAddAllMap(const vector<Map> &map, const vector<BCON> &bcon) {
+    DB.useDB(database);
+    DB.autoCommitOff();
+    DB.clearTB(BASE_TABLE_MAP);
+    DB.clearTB(BASE_TABLE_MAPMARK);
+    DB.clearTB(BASE_TABLE_BCON);
+    if (bcon.empty()) {
+        return DB_RET_BCON_NULL;
+    }
+    bool flag_first = true;
+    for (auto v : bcon) {
+        if (flag_first) {
+            value = "('" + v.BCONID + "', " + to_string(v.BCONX) + ", " + to_string(v.BCONY) + ", '" + v.Floor + "')";
+            flag_first = false;
+        } else {
+            value = value + ",('" + v.BCONID + "', " + to_string(v.BCONX) + ", " + to_string(v.BCONY) + ", '" +
+                    v.Floor + "')";
+        }
+    }
+    table = BASE_TABLE_BCON;
+    if (DB.replaceItem(table, value) == false) {
+        DB.rollback();
+        return DB_RET_FALL;
+    }
+    if (map.empty()) {
+        DB.rollback();
+        return DB_RET_NULL;
+    }
+    flag_first = true;
+    string value1, value2;
+    unordered_map<int, int> Mark;
+    unordered_map<int, int>::iterator iter_map;
+    // vector<int> Mark;
+    for (auto v : map) {
+        if (flag_first) {
+            value1 = "(null," + to_string(v.MapMark) + ")";
+            Mark.insert(pair<int, int>(v.MapMark, v.MapMark));
+            value2 = "(null," + to_string(v.MapMark) + ", '" + v.BCONID + "')";
+            flag_first = false;
+        } else {
+            iter_map = Mark.find(v.MapMark);
+            if (iter_map == Mark.end()) {
+                value1 = value1 + ",(null," + to_string(v.MapMark) + ")";
+                Mark.insert(pair<int, int>(v.MapMark, v.MapMark));
+            }
+            value2 = value2 + ",(null," + to_string(v.MapMark) + ", '" + v.BCONID + "')";
+        }
+    }
+    table = BASE_TABLE_MAPMARK;
+    if (DB.replaceItem(table, value1) == false) {
+        DB.rollback();
+        return DB_RET_FALL;
+    }
+    table = BASE_TABLE_MAP;
+    if (DB.replaceItem(table, value2) == false) {
         DB.rollback();
         return DB_RET_FALL;
     }

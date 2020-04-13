@@ -98,16 +98,10 @@ class DBTrace {
     vector<DBTrace> readTraces(string_table ret) {
         vector<DBTrace> Trace;
         DBTrace trace;
-        ptime tick, now;
-        time_duration diff;
-        tick = microsec_clock::local_time();
         for (auto &v : ret) {
             trace = read(v);
             Trace.push_back(trace);
         }
-        now = microsec_clock::local_time();
-        diff = now - tick;
-        cout << "use " << diff.total_milliseconds() << " ms" << endl;
         return Trace;
     }
 };
@@ -143,16 +137,16 @@ class Map {
    public:
     int MapID;
     int MapMark;
-    int BCONID;
+    string BCONID;
     Map(){};
-    Map(int MID, int MMark, int BID) : MapID(MID), MapMark(MMark), BCONID(BID){};
-    Map(int MMark, int BID) : MapMark(MMark), BCONID(BID){};
-    void setValue(int MID, int MMark, int BID) {
+    Map(int MID, int MMark, string BID) : MapID(MID), MapMark(MMark), BCONID(BID){};
+    Map(int MMark, string BID) : MapMark(MMark), BCONID(BID){};
+    void setValue(int MID, int MMark, string BID) {
         MapID = MID;
         MapMark = MMark;
         BCONID = BID;
     };
-    void setValue(int MMark, int BID) {
+    void setValue(int MMark, string BID) {
         MapMark = MMark;
         BCONID = BID;
     };
@@ -161,13 +155,13 @@ class Map {
 //自定义BCON类用于存储BCON的位置信息
 class BCON {
    public:
-    int BCONID;
+    string BCONID;
     double BCONX;
     double BCONY;
     string Floor;
     BCON(){};
-    BCON(int BID, double X, double Y, string floor) : BCONID(BID), BCONX(X), BCONY(Y), Floor(floor){};
-    void setValue(int BID, double X, double Y, string floor) {
+    BCON(string BID, double X, double Y, string floor) : BCONID(BID), BCONX(X), BCONY(Y), Floor(floor){};
+    void setValue(string BID, double X, double Y, string floor) {
         BCONID = BID;
         BCONX = X;
         BCONY = Y;
