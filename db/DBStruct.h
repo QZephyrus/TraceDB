@@ -61,6 +61,14 @@ class DBTrace {
         MapMark = MMark;
         time = t;
     };
+    void setValue(string DevID, double XF, double YF, string FloorF, int MMark, string t) {
+        DeviceID = DevID;
+        X = XF;
+        Y = YF;
+        Floor = FloorF;
+        MapMark = MMark;
+        time = t;
+    };
     int PersonID;
     short PersonModule;
     string DeviceID;

@@ -82,6 +82,8 @@ class DBTraceAPI {
 
     int DBAddTrace(const DBTrace& trace);
     int DBAddTrace(const vector<DBTrace>& trace);
+    int DBAddTraceD(DBTrace& trace);
+    int DBAddTraceD(vector<DBTrace>& trace);
 
     int DBSearchDevice(string DeviceID, DBTrace& pTrace);
     int DBSearchDevice(const vector<string>& DeviceID, vector<DBTrace>& Trace);

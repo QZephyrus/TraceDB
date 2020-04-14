@@ -1005,6 +1005,204 @@ int DBTraceAPI::DBAddTrace(const vector<DBTrace> &trace) {
         return DB_RET_OK;
     }
 }
+
+int DBTraceAPI::DBAddTraceD(DBTrace &trace) {
+    DB.useDB(database);
+    table = BASE_TABLE_DEVICE_PERSON_RELATE;
+    value = "PersonID,PersonModule";
+    limits = "DeviceID='" + trace.DeviceID + "'";
+    string_table ret = DB.selectItem(table, value, limits);
+    if (ret.empty()) {
+        return DB_RET_PERSON_ERROR;
+    } else {
+        if (atoi(ret[0][0].c_str()) == 0) {
+            return DB_RET_PERSON_ERROR;
+        } else {
+            trace.PersonID = atoi(ret[0][0].c_str());
+            trace.PersonModule = atoi(ret[0][1].c_str());
+        }
+    }
+    table = BASE_TABLE_TRACE;
+    value = "TableName";
+    limits = "YearMonth=" + trace.time.substr(0, 4) + trace.time.substr(5, 2);
+    ret = DB.selectItem(table, value, limits);
+    if (ret.empty()) {
+        if (DBCreatYearTraceTable(atoi(trace.time.substr(0, 4).c_str()), MemoryMonth) != DB_RET_OK) {
+            return DB_RET_CREATE_TB_ERROR;
+        }
+        ret = DB.selectItem(table, value, limits);
+        if (ret.empty()) {
+            return DB_RET_CREATE_TB_ERROR;
+        }
+    } else if (ret.size() > 1) {
+        return DB_RET_ERORR;
+    }
+    DB.autoCommitOff();
+    table = ret[0][0];
+    bool flag_insert = false;
+    int TraceID;
+    string tableName = table;
+    value = "(null," + to_string(trace.PersonID) + ", " + to_string(trace.PersonModule) + ", '" + trace.DeviceID +
+            "', " + to_string(trace.X) + ", " + to_string(trace.Y) + ", '" + trace.Floor + "', " +
+            to_string(trace.MapMark) + ", '" + trace.time + "')";
+    if (DB.insertItem(table, value) == false) {
+        flag_insert = false;
+    } else {
+        // flag_insert=true;
+        value = "TraceID";
+        limits = "PersonID=" + to_string(trace.PersonID) + " AND PersonModule=" + to_string(trace.PersonModule) +
+                 " AND DeviceID='" + trace.DeviceID + "' AND X=" + to_string(trace.X) + " AND Y=" + to_string(trace.Y) +
+                 " AND Floor='" + trace.Floor + "' AND MapMark=" + to_string(trace.MapMark) + " AND Time='" +
+                 trace.time + "'";
+        string_table ret = DB.selectItem(table, value, limits);
+        if (ret.empty()) {
+            flag_insert = false;
+        } else {
+            flag_insert = true;
+            TraceID = atoi(ret[0][0].c_str());
+            if (DBUpdateDevice(trace.DeviceID, tableName, TraceID) != DB_RET_OK) {
+                DB.rollback();
+                return DB_RET_DEVICE_ERROR;
+            }
+            if (DBUpdatePerson(trace.PersonID, trace.PersonModule, tableName, TraceID) != DB_RET_OK) {
+                DB.rollback();
+                return DB_RET_PERSON_ERROR;
+            }
+        }
+    }
+    if (flag_insert) {
+        DB.commit();
+        return DB_RET_OK;
+    } else {
+        DB.rollback();
+        return DB_RET_FALL;
+    }
+}
+
+int DBTraceAPI::DBAddTraceD(vector<DBTrace> &trace) {
+    DB.useDB(database);
+    if (trace.empty()) {
+        return DB_RET_NULL;
+    }
+    unordered_map<string, DBTrace> devMap;
+    unordered_map<string, DBTrace>::iterator dev;
+    for (auto v : trace) {
+        dev = devMap.find(v.DeviceID);
+        if (dev == devMap.end()) {
+            devMap.insert(pair<string, DBTrace>(v.DeviceID, v));
+        } else {
+            ptime tm1 = time_from_string(v.time);
+            ptime tm2 = time_from_string(dev->second.time);
+            if (tm1 > tm2) {
+                dev->second = v;
+            }
+        }
+    }
+    table = BASE_TABLE_DEVICE_PERSON_RELATE;
+    value = "DeviceID,PersonID,PersonModule";
+    string_table temp = DB.selectItem(table, value);
+    for (auto v : temp) {
+        if (atoi(v[1].c_str()) != 0) {
+            dev = devMap.find(v[0]);
+            if (dev != devMap.end()) {
+                dev->second.PersonID = atoi(v[1].c_str());
+                dev->second.PersonModule = atoi(v[2].c_str());
+            }
+        }
+    }
+    bool flag_frist = true;
+    DB.autoCommitOff();
+    string yearmonth = "000000";
+    for (auto v : trace) {
+        if (yearmonth != (v.time.substr(0, 4) + v.time.substr(5, 2))) {
+            if (flag_frist != true) {
+                limits = "(TraceID,PersonID,PersonModule,DeviceID,X,Y,Floor,MapMark,Time)";
+                if (DB.insertItem(table, value, limits) == false) {
+                    DB.rollback();
+                    return DB_RET_ADD_ERROR;
+                }
+                // string_table ret = DB.selectItem(table, "distinct PersonID");
+            }
+            table = BASE_TABLE_TRACE;
+            value = "TableName";
+            yearmonth = v.time.substr(0, 4) + v.time.substr(5, 2);
+            limits = "YearMonth=" + v.time.substr(0, 4) + v.time.substr(5, 2);
+            string_table ret = DB.selectItem(table, value, limits);
+            if (ret.empty()) {
+                if (DBCreatYearTraceTable(atoi(v.time.substr(0, 4).c_str()), MemoryMonth) != DB_RET_OK) {
+                    DB.rollback();
+                    return DB_RET_CREATE_TB_ERROR;
+                }
+                ret = DB.selectItem(table, value, limits);
+                if (ret.empty()) {
+                    DB.rollback();
+                    return DB_RET_CREATE_TB_ERROR;
+                }
+                flag_frist = true;
+                table = ret[0][0];
+            } else if (ret.size() == 1) {
+                table = ret[0][0];
+                flag_frist = true;
+            } else {
+                DB.rollback();
+                return DB_RET_ERORR;
+            }
+        }
+        if (flag_frist) {
+            dev = devMap.find(v.DeviceID);
+            value = "(null," + to_string(dev->second.PersonID) + ", " + to_string(dev->second.PersonModule) + ", '" +
+                    v.DeviceID + "', " + to_string(v.X) + ", " + to_string(v.Y) + ", '" + v.Floor + "', " +
+                    to_string(v.MapMark) + ", '" + v.time + "')";
+            flag_frist = false;
+        } else {
+            dev = devMap.find(v.DeviceID);
+            value = value + ",(null," + to_string(dev->second.PersonID) + ", " + to_string(dev->second.PersonModule) +
+                    ", '" + v.DeviceID + "', " + to_string(v.X) + ", " + to_string(v.Y) + ", '" + v.Floor + "', " +
+                    to_string(v.MapMark) + ", '" + v.time + "')";
+        }
+    }
+    limits = "(TraceID,PersonID,PersonModule,DeviceID,X,Y,Floor,MapMark,Time)";
+    if (DB.insertItem(table, value, limits) == false) {
+        DB.rollback();
+        return DB_RET_ADD_ERROR;
+    } else {
+        for (auto d : devMap) {
+            table = BASE_TABLE_TRACE;
+            value = "TableName";
+            limits = "YearMonth=" + d.second.time.substr(0, 4) + d.second.time.substr(5, 2);
+            string_table ret1 = DB.selectItem(table, value, limits);
+            if (ret1.empty()) {
+                DB.rollback();
+                return DB_RET_SEARCH_ERROR;
+            }
+            string tableName = ret1[0][0];
+            table = tableName;
+            value = "TraceID";
+            limits = "PersonID=" + to_string(d.second.PersonID) +
+                     " AND PersonModule=" + to_string(d.second.PersonModule) + " AND DeviceID='" + d.second.DeviceID +
+                     "' AND X=" + to_string(d.second.X) + " AND Y=" + to_string(d.second.Y) + " AND Floor='" +
+                     d.second.Floor + "' AND MapMark=" + to_string(d.second.MapMark) + " AND Time='" + d.second.time +
+                     "'";
+            string_table ret2 = DB.selectItem(table, value, limits);
+            if (ret2.empty()) {
+                DB.rollback();
+                return DB_RET_SEARCH_ERROR;
+            }
+            int TraceID;
+            TraceID = atoi(ret2[0][0].c_str());
+            if (DBUpdateDevice(d.second.DeviceID, tableName, TraceID) != DB_RET_OK) {
+                DB.rollback();
+                return DB_RET_DEVICE_ERROR;
+            }
+            if (DBUpdatePerson(d.second.PersonID, d.second.PersonModule, tableName, TraceID) != DB_RET_OK) {
+                DB.rollback();
+                return DB_RET_PERSON_ERROR;
+            }
+        }
+    }
+    DB.commit();
+    return DB_RET_OK;
+}
 //搜索某一设备最近一条的轨迹信息
 /*
     PTrace用来回传轨迹信息将会包含（TraceID，PersonID,PersonModule,DeviceID,X,Y,Floor,MapMark,Time)

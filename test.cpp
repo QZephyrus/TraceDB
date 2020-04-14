@@ -419,6 +419,58 @@ int addSomeTracetest(DBTraceAPI &DBAPI) {
     cout << "add some trace use " << diff.total_milliseconds() << " ms" << endl;
     return info;
 }
+//通过设备ID联系轨迹的Person数据并保存轨迹
+int addTraceDevice(DBTraceAPI &DBAPI) {
+    DBTrace trace;
+    trace.setValue("D121", 1, 1.2, "1F", 1, "2020-04-28 09:53:26");
+    ptime tick, now;
+    time_duration diff;
+    tick = microsec_clock::local_time();
+    int info = DBAPI.DBAddTraceD(trace);
+    now = microsec_clock::local_time();
+    diff = now - tick;
+    cout << "add one trace use " << diff.total_milliseconds() << " ms" << endl;
+    cout << info << endl;
+    trace.setValue("D120", 1, 1.2, "1F", 1, "2020-04-28 09:53:26");
+    info = DBAPI.DBAddTraceD(trace);
+    cout << info << endl;
+    return info;
+}
+int addSomeTraceDevice(DBTraceAPI &DBAPI) {
+    vector<DBTrace> trace;
+    DBTrace temp;
+    int info;
+    ptime time;
+    string ti;
+    time_duration onesecond = seconds(1);
+    time = second_clock::local_time();
+    ti = ptime_to_string(time);
+    temp.setValue("D121", 2, 2, "1F", 1, ti);
+    trace.push_back(temp);
+    time = time + onesecond;
+    ti = ptime_to_string(time);
+    temp.setValue("D121", 3, 3, "2F", 2, ti);
+    trace.push_back(temp);
+    time = time + onesecond;
+    ti = ptime_to_string(time);
+    temp.setValue("D120", 4, 4, "2F", 2, ti);
+    trace.push_back(temp);
+    time = time + onesecond;
+    ti = ptime_to_string(time);
+    temp.setValue("D120", 4, 4, "2F", 2, ti);
+    trace.push_back(temp);
+    time = time + onesecond;
+    ti = ptime_to_string(time);
+    ptime tick, now;
+    time_duration diff;
+    tick = microsec_clock::local_time();
+    info = DBAPI.DBAddTraceD(trace);
+    now = microsec_clock::local_time();
+    diff = now - tick;
+    cout << "add some trace use " << diff.total_milliseconds() << " ms" << endl;
+    return info;
+}
+
 //删除数据库测试方法
 int deleteDBtest(DBTraceAPI &DBAPI) {
     int info;
@@ -1153,8 +1205,10 @@ int main(int argc, char const *argv[]) {
     assert(DB_RET_OK == countMapMark(DBAPI));
     //跨表统计，返回所有区域的统计数据
     assert(DB_RET_OK == countMap(DBAPI));
-
+    //按module返回最近轨迹
     assert(DB_RET_OK == selectPersonModule(DBAPI));
+    //按ID返回最近轨迹
+    assert(DB_RET_OK == selectPersonID(DBAPI));
 
     assert(DB_RET_OK == selectPersonTracetest2(DBAPI));
     assert(DB_RET_OK == selectDeviceTracetest2(DBAPI));
