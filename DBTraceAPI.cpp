@@ -601,7 +601,7 @@ int DBTraceAPI::DBAddBCON(const vector<BCON> &bcon) {
         return DB_RET_NULL;
     }
     DB.autoCommitOff();
-    DB.clearTB(BASE_TABLE_BCON);
+    DB.emptyTB(BASE_TABLE_BCON);
     table = BASE_TABLE_BCON;
     bool flag_first = true;
     for (auto &v : bcon) {
