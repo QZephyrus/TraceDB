@@ -21,7 +21,8 @@ enum {
     DB_RET_PERSON_ERROR = 8,
     DB_RET_ERORR = 9,
     DB_RET_SEARCH_ERROR = 10,
-    DB_RET_BCON_NULL = 11
+    DB_RET_BCON_NULL = 11,
+    DB_RET_MAP_NULL = 12
 };
 
 //定义每张具体轨迹表存储的月份
@@ -79,6 +80,8 @@ class DBTraceAPI {
     int DBAddMapMark(int mapMark);
     int DBAddMapMark(const vector<int>& mapMark);
     int DBAddAllMap(const vector<Map>& map, const vector<BCON>& bcon);
+    int DBAddFence(const Map& map);
+    int DBAddFence(const vector<Map>& map);
 
     int DBAddTrace(const DBTrace& trace);
     int DBAddTrace(const vector<DBTrace>& trace);

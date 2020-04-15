@@ -167,8 +167,9 @@ int DBTraceAPI::DBCreateRelatTB() {
         flag_success = false;
     }
     //创建围栏表
-    flag_state = DB.createTB(BASE_TABLE_MAPMARK,
-                             "MapMarkID int NOT NULL AUTO_INCREMENT,MapMark bigint NOT NULL,PRIMARY KEY (MapMarkID)");
+    flag_state = DB.createTB(
+        BASE_TABLE_MAPMARK,
+        "MapMarkID int NOT NULL AUTO_INCREMENT,MapMark bigint NOT NULL,PRIMARY KEY (MapMarkID),unique key(MapMark)");
     if (flag_state == false) {
         flag_success = false;
     }
@@ -600,6 +601,7 @@ int DBTraceAPI::DBAddBCON(const vector<BCON> &bcon) {
         return DB_RET_NULL;
     }
     DB.autoCommitOff();
+    DB.clearTB(BASE_TABLE_BCON);
     table = BASE_TABLE_BCON;
     bool flag_first = true;
     for (auto &v : bcon) {
@@ -674,9 +676,9 @@ int DBTraceAPI::DBAddMapMark(const vector<int> &mapMark) {
 int DBTraceAPI::DBAddAllMap(const vector<Map> &map, const vector<BCON> &bcon) {
     DB.useDB(database);
     DB.autoCommitOff();
-    DB.clearTB(BASE_TABLE_MAP);
-    DB.clearTB(BASE_TABLE_MAPMARK);
-    DB.clearTB(BASE_TABLE_BCON);
+    DB.emptyTB(BASE_TABLE_MAP);
+    DB.emptyTB(BASE_TABLE_MAPMARK);
+    DB.emptyTB(BASE_TABLE_BCON);
     if (bcon.empty()) {
         return DB_RET_BCON_NULL;
     }
@@ -717,6 +719,87 @@ int DBTraceAPI::DBAddAllMap(const vector<Map> &map, const vector<BCON> &bcon) {
                 Mark.insert(pair<int, int>(v.MapMark, v.MapMark));
             }
             value2 = value2 + ",(null," + to_string(v.MapMark) + ", '" + v.BCONID + "')";
+        }
+    }
+    table = BASE_TABLE_MAPMARK;
+    if (DB.replaceItem(table, value1) == false) {
+        DB.rollback();
+        return DB_RET_FALL;
+    }
+    table = BASE_TABLE_MAP;
+    if (DB.replaceItem(table, value2) == false) {
+        DB.rollback();
+        return DB_RET_FALL;
+    }
+    DB.commit();
+    return DB_RET_OK;
+}
+int DBTraceAPI::DBAddFence(const Map &map) {
+    DB.useDB(database);
+    table = BASE_TABLE_BCON;
+    value = "BCONID";
+    limits = "BCONID='" + map.BCONID + "'";
+    string_table ret = DB.selectItem(table, value, limits);
+    if (ret.empty()) {
+        return DB_RET_BCON_NULL;
+    }
+    DB.autoCommitOff();
+    table = BASE_TABLE_MAPMARK;
+    value = "(null," + to_string(map.MapMark) + ")";
+    if (!DB.replaceItem(table, value)) {
+        DB.rollback();
+        return DB_RET_FALL;
+    }
+    table = BASE_TABLE_MAP;
+    value = "(null," + to_string(map.MapMark) + ", '" + map.BCONID + "')";
+    if (!DB.replaceItem(table, value)) {
+        DB.rollback();
+        return DB_RET_FALL;
+    }
+    DB.commit();
+    return DB_RET_OK;
+}
+int DBTraceAPI::DBAddFence(const vector<Map> &map) {
+    DB.useDB(database);
+    table = BASE_TABLE_BCON;
+    value = "BCONID";
+    string_table ret = DB.selectItem(table, value);
+    if (ret.empty()) {
+        return DB_RET_BCON_NULL;
+    }
+    if (map.empty()) {
+        return DB_RET_MAP_NULL;
+    }
+    DB.autoCommitOff();
+    DB.emptyTB(BASE_TABLE_MAP);
+    DB.emptyTB(BASE_TABLE_MAPMARK);
+    unordered_map<string, string> bcon;
+    unordered_map<string, string>::iterator iter_bcon;
+    for (auto v : ret) {
+        bcon.insert(pair<string, string>(v[0], v[0]));
+    }
+    bool flag_first = true;
+    string value1, value2;
+    unordered_map<int, int> Map;
+    unordered_map<int, int>::iterator iter_map;
+    for (auto v : map) {
+        iter_bcon = bcon.find(v.BCONID);
+        iter_map = Map.find(v.MapMark);
+        if (iter_bcon == bcon.end()) {
+            return DB_RET_ERORR;
+        } else {
+            if (flag_first) {
+                value1 = "(null," + to_string(v.MapMark) + ")";
+                Map.insert(pair<int, int>(v.MapMark, v.MapMark));
+                value2 = "(null," + to_string(v.MapMark) + ", '" + v.BCONID + "')";
+                flag_first = false;
+            } else {
+                if (iter_map == Map.end()) {
+                    value1 = value1 + ",(null," + to_string(v.MapMark) + ")";
+                    Map.insert(pair<int, int>(v.MapMark, v.MapMark));
+                }
+                value2 = value2 + ",(null," + to_string(v.MapMark) + ", '" + v.BCONID + "')";
+            }
         }
     }
     table = BASE_TABLE_MAPMARK;

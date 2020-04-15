@@ -155,6 +155,7 @@ class Map {
         BCONID = BID;
     };
     void setValue(int MMark, string BID) {
+        MapID = 0;
         MapMark = MMark;
         BCONID = BID;
     };

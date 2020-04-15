@@ -337,6 +337,41 @@ int addSomeMaptest(DBTraceAPI &DBAPI) {
     cout << "add some Map use " << diff.total_milliseconds() << " ms" << endl;
     return info;
 }
+
+int addFence(DBTraceAPI &DBAPI) {
+    Map map;
+    map.MapMark = 1;
+    map.BCONID = "10";
+    int info = DBAPI.DBAddFence(map);
+    return info;
+}
+
+int addFences(DBTraceAPI &DBAPI) {
+    vector<Map> map;
+    Map temp;
+    temp.setValue(1, "10");
+    map.push_back(temp);
+    temp.setValue(2, "2");
+    map.push_back(temp);
+    temp.setValue(2, "3");
+    map.push_back(temp);
+    temp.setValue(2, "4");
+    map.push_back(temp);
+    temp.setValue(3, "5");
+    map.push_back(temp);
+    temp.setValue(3, "6");
+    map.push_back(temp);
+    temp.setValue(4, "7");
+    map.push_back(temp);
+    temp.setValue(4, "8");
+    map.push_back(temp);
+    temp.setValue(4, "9");
+    map.push_back(temp);
+    temp.setValue(4, "11");
+    map.push_back(temp);
+    int info = DBAPI.DBAddFence(map);
+    return info;
+}
 //批量BCON和围栏信息
 int addMap_BCON(DBTraceAPI &DBAPI) {
     vector<BCON> bcon;
@@ -1105,138 +1140,140 @@ int main(int argc, char const *argv[]) {
 
     //数据库建立连接
     assert(DB_RET_OK == connectDBtest(DBAPI));
+    /*
+        //数据库创建
+        assert(DB_RET_OK == creatDBtest(DBAPI));
 
-    //数据库创建
-    assert(DB_RET_OK == creatDBtest(DBAPI));
+        assert(DB_RET_OK == creatTraceTable(DBAPI));
 
-    assert(DB_RET_OK == creatTraceTable(DBAPI));
+        assert(DB_RET_OK == addMap_BCON(DBAPI));
 
-    assert(DB_RET_OK == addMap_BCON(DBAPI));
+        //单条添加设备
+        assert(DB_RET_OK == addDeviceDBtest(DBAPI));
 
-    //单条添加设备
-    assert(DB_RET_OK == addDeviceDBtest(DBAPI));
+        //多条添加设备
+        assert(DB_RET_OK == addSomeDeviceDBtest(DBAPI));
 
-    //多条添加设备
-    assert(DB_RET_OK == addSomeDeviceDBtest(DBAPI));
+        //单条更新设备人员关系
+        assert(DB_RET_OK == updateRelatedtest(DBAPI));
 
-    //单条更新设备人员关系
-    assert(DB_RET_OK == updateRelatedtest(DBAPI));
+        //多条更新设备人员关系
+        assert(DB_RET_OK == updateSomeRelatedtest(DBAPI));
 
-    //多条更新设备人员关系
-    assert(DB_RET_OK == updateSomeRelatedtest(DBAPI));
+        //单条添加人员
+        assert(DB_RET_OK == addPersontest(DBAPI));
 
-    //单条添加人员
-    assert(DB_RET_OK == addPersontest(DBAPI));
+        //多条添加人员
+        assert(DB_RET_OK == addSomePersontest(DBAPI));
 
-    //多条添加人员
-    assert(DB_RET_OK == addSomePersontest(DBAPI));
+        //单条添加围栏
+        assert(DB_RET_OK == addMapMarktest(DBAPI));
 
-    //单条添加围栏
-    assert(DB_RET_OK == addMapMarktest(DBAPI));
+        //多条添加围栏
+        assert(DB_RET_OK == addSomeMapMarktest(DBAPI));
 
-    //多条添加围栏
-    assert(DB_RET_OK == addSomeMapMarktest(DBAPI));
+        //单条添加BCON
+        assert(DB_RET_OK == addBCONtest(DBAPI));
 
-    //单条添加BCON
-    assert(DB_RET_OK == addBCONtest(DBAPI));
+        //多条添加BCON
+        assert(DB_RET_OK == addSomeBCONtest(DBAPI));
 
-    //多条添加BCON
-    assert(DB_RET_OK == addSomeBCONtest(DBAPI));
+        //单条添加围栏和BCON对应关系
+        assert(DB_RET_OK == addMaptest(DBAPI));
 
-    //单条添加围栏和BCON对应关系
-    assert(DB_RET_OK == addMaptest(DBAPI));
+        //多条添加围栏和BCON对应关系
+        assert(DB_RET_OK == addSomeMaptest(DBAPI));
 
-    //多条添加围栏和BCON对应关系
-    assert(DB_RET_OK == addSomeMaptest(DBAPI));
+        //单条添加轨迹信息
+        assert(DB_RET_OK == addTracetest(DBAPI));
 
-    //单条添加轨迹信息
-    assert(DB_RET_OK == addTracetest(DBAPI));
+        //多条添加轨迹信息
+        assert(DB_RET_OK == addSomeTracetest(DBAPI));
 
-    //多条添加轨迹信息
-    assert(DB_RET_OK == addSomeTracetest(DBAPI));
+        //添加轨迹数据（跨表添加)
+        assert(DB_RET_OK == addcrossSomeTracetest2(DBAPI));
 
-    //添加轨迹数据（跨表添加)
-    assert(DB_RET_OK == addcrossSomeTracetest2(DBAPI));
+        assert(DB_RET_OK == addTracestest(DBAPI));
+        assert(DB_RET_OK == addTracestest2(DBAPI));
+        assert(DB_RET_OK == addcrossSomeTracetest(DBAPI));
 
-    assert(DB_RET_OK == addTracestest(DBAPI));
-    assert(DB_RET_OK == addTracestest2(DBAPI));
-    assert(DB_RET_OK == addcrossSomeTracetest(DBAPI));
+        //查询所有已有设备ID
+        assert(DB_RET_OK == selectDevices(DBAPI));
 
-    //查询所有已有设备ID
-    assert(DB_RET_OK == selectDevices(DBAPI));
+        //单条查询最近轨迹（按设备ID）
+        // assert(DB_RET_OK == selectDevicetest(DBAPI));
+        //多条查询最近轨迹（按设备ID）
+        assert(DB_RET_OK == selectSomeDevicetest(DBAPI));
 
-    //单条查询最近轨迹（按设备ID）
-    // assert(DB_RET_OK == selectDevicetest(DBAPI));
-    //多条查询最近轨迹（按设备ID）
-    assert(DB_RET_OK == selectSomeDevicetest(DBAPI));
+        //单条查询最近轨迹（按人员ID）
+        // assert(DB_RET_OK == selectPersontest(DBAPI));
 
-    //单条查询最近轨迹（按人员ID）
-    // assert(DB_RET_OK == selectPersontest(DBAPI));
+        //多条查询最近轨迹（按人员ID）
+        assert(DB_RET_OK == selectSomePersontest(DBAPI));
 
-    //多条查询最近轨迹（按人员ID）
-    assert(DB_RET_OK == selectSomePersontest(DBAPI));
+        //查询所有最近轨迹（按设备ID）
+        assert(DB_RET_OK == selectAllDevicetest(DBAPI));
 
-    //查询所有最近轨迹（按设备ID）
-    assert(DB_RET_OK == selectAllDevicetest(DBAPI));
+        //查询所有最近轨迹（按人员ID）
+        assert(DB_RET_OK == selectAllPersontest(DBAPI));
 
-    //查询所有最近轨迹（按人员ID）
-    assert(DB_RET_OK == selectAllPersontest(DBAPI));
+        //查询时间区间内的轨迹（人员ID+时间）
+        assert(DB_RET_OK == selectPersonTracetest(DBAPI));
 
-    //查询时间区间内的轨迹（人员ID+时间）
-    assert(DB_RET_OK == selectPersonTracetest(DBAPI));
+        //查询时间区间内的轨迹（设备ID+时间）
+        assert(DB_RET_OK == selectDeviceTracetest(DBAPI));
 
-    //查询时间区间内的轨迹（设备ID+时间）
-    assert(DB_RET_OK == selectDeviceTracetest(DBAPI));
+        //更新单条轨迹
+        assert(DB_RET_OK == updateTrace(DBAPI));
 
-    //更新单条轨迹
-    assert(DB_RET_OK == updateTrace(DBAPI));
+        //验证跨表查询
+        assert(DB_RET_OK == selectPersonTracetest(DBAPI));
+        assert(DB_RET_OK == selectDeviceTracetest(DBAPI));
 
-    //验证跨表查询
-    assert(DB_RET_OK == selectPersonTracetest(DBAPI));
-    assert(DB_RET_OK == selectDeviceTracetest(DBAPI));
+        //跨表统计（有具体Person、MapMark和时间）
+        assert(DB_RET_OK == mapCount(DBAPI));
+        //跨表统计（有具体MapMark和时间）统计分人返回
+        assert(DB_RET_OK == mapMarkCount(DBAPI));
+        //跨表统计（有具体Person和时间）
+        assert(DB_RET_OK == mapPersonCount(DBAPI));
+        //跨表统计（有具体MapMark和时间），统计不在分人返回只看区域
+        assert(DB_RET_OK == countMapMark(DBAPI));
+        //跨表统计，返回所有区域的统计数据
+        assert(DB_RET_OK == countMap(DBAPI));
+        //按module返回最近轨迹
+        assert(DB_RET_OK == selectPersonModule(DBAPI));
+        //按ID返回最近轨迹
+        assert(DB_RET_OK == selectPersonID(DBAPI));
 
-    //跨表统计（有具体Person、MapMark和时间）
-    assert(DB_RET_OK == mapCount(DBAPI));
-    //跨表统计（有具体MapMark和时间）统计分人返回
-    assert(DB_RET_OK == mapMarkCount(DBAPI));
-    //跨表统计（有具体Person和时间）
-    assert(DB_RET_OK == mapPersonCount(DBAPI));
-    //跨表统计（有具体MapMark和时间），统计不在分人返回只看区域
-    assert(DB_RET_OK == countMapMark(DBAPI));
-    //跨表统计，返回所有区域的统计数据
-    assert(DB_RET_OK == countMap(DBAPI));
-    //按module返回最近轨迹
-    assert(DB_RET_OK == selectPersonModule(DBAPI));
-    //按ID返回最近轨迹
-    assert(DB_RET_OK == selectPersonID(DBAPI));
+        assert(DB_RET_OK == selectPersonTracetest2(DBAPI));
+        assert(DB_RET_OK == selectDeviceTracetest2(DBAPI));
 
-    assert(DB_RET_OK == selectPersonTracetest2(DBAPI));
-    assert(DB_RET_OK == selectDeviceTracetest2(DBAPI));
+        //统计标识（PersonID+Time+MapMark）
+        assert(DB_RET_OK == mapCount(DBAPI));
 
-    //统计标识（PersonID+Time+MapMark）
-    assert(DB_RET_OK == mapCount(DBAPI));
+        //统计标识（PersonID+Time）
+        assert(DB_RET_OK == mapPersonCount(DBAPI));
 
-    //统计标识（PersonID+Time）
-    assert(DB_RET_OK == mapPersonCount(DBAPI));
+        //统计标识（Time+MapMark）
+        assert(DB_RET_OK == mapMarkCount(DBAPI));
 
-    //统计标识（Time+MapMark）
-    assert(DB_RET_OK == mapMarkCount(DBAPI));
+        //删除单条轨迹
+        // assert(DB_RET_OK == deleteTrace(DBAPI));
 
-    //删除单条轨迹
-    // assert(DB_RET_OK == deleteTrace(DBAPI));
+        //删除单个设备
+        // assert(DB_RET_OK == deleteDevice(DBAPI));
 
-    //删除单个设备
-    // assert(DB_RET_OK == deleteDevice(DBAPI));
+        //删除单个围栏
+        // assert(DB_RET_OK == deleteMap(DBAPI));
 
-    //删除单个围栏
-    // assert(DB_RET_OK == deleteMap(DBAPI));
+        // assert(DB_RET_OK == countMap(DBAPI));
 
-    // assert(DB_RET_OK == countMap(DBAPI));
+        //清除所有轨迹数据
+        // assert(DB_RET_OK == clearTable(DBAPI));
 
-    //清除所有轨迹数据
-    // assert(DB_RET_OK == clearTable(DBAPI));
-
-    // assert(DB_RET_OK == deleteDBtest(DBAPI));
-
+        // assert(DB_RET_OK == deleteDBtest(DBAPI));
+    */
+    int info = addFences(DBAPI);
+    cout << info << endl;
     return 0;
 }

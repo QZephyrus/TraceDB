@@ -36,6 +36,7 @@ class DataBase {
     bool deleteDB(const string &database);
     bool deleteTB(const string &table);
     bool clearTB(const string &table);
+    bool emptyTB(const string &table);
     bool showTB();
     bool createTB(const string &table, const string &elements);
     vector<vector<string>> selectItem(const string &table, const string &value);

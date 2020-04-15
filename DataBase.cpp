@@ -203,6 +203,18 @@ bool DataBase::clearTB(const string &table) {
     return true;
 }
 
+bool DataBase::emptyTB(const string &table) {
+    string str = "delete from " + table;
+    if (mysql_query(sql, str.c_str())) {
+        cout << "empty table " + table + " error!" << endl;
+        return false;
+    }
+    if (_FZIDT_DB_DEBUG) {
+        cout << table << " has been empty!" << endl;
+    }
+    return true;
+}
+
 vector<vector<string>> DataBase::selectItem(const string &table, const string &value) {
     string str = "select " + value + " from " + table;
 
