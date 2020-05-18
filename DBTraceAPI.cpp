@@ -1452,6 +1452,26 @@ int DBTraceAPI::DBSearchPerson(const vector<vector<int>> &Person, vector<DBTrace
         return DB_RET_OK;
     }
 }
+//搜索某几个相同类型点人员最近一条的轨迹信息
+/*
+    Trace用来回传轨迹信息将会包含（TraceID，PersonID,PersonModule,DeviceID,X,Y,Floor,MapMark,Time)
+    返回值：
+    DB_RET_OK成功查询轨迹
+    DB_RET_NULL需查询设备无最近轨迹记录
+*/
+int DBTraceAPI::DBSearchPerson(const vector<int>& PersonID,int Module,vector<DBTrace>& Trace){
+    DB.useDB(database);
+    for (auto &v : PersonID) {
+        DBTrace tempTrace;
+        DBSearchPerson(v, Module, tempTrace);
+        Trace.push_back(tempTrace);
+    }
+    if (Trace.size() == 0) {
+        return DB_RET_NULL;
+    } else {
+        return DB_RET_OK;
+    }
+}
 //搜索所有人员最近一条的轨迹信息
 /*
     Traces用来回传轨迹信息将会包含（TraceID，PersonID,PersonModule,DeviceID,X,Y,Floor,MapMark,Time)
