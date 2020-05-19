@@ -1459,8 +1459,11 @@ int DBTraceAPI::DBSearchPerson(const vector<vector<int>> &Person, vector<DBTrace
     DB_RET_OK成功查询轨迹
     DB_RET_NULL需查询设备无最近轨迹记录
 */
-int DBTraceAPI::DBSearchPerson(const vector<int>& PersonID,int Module,vector<DBTrace>& Trace){
+int DBTraceAPI::DBSearchPerson(const vector<int> &PersonID, int Module, vector<DBTrace> &Trace) {
     DB.useDB(database);
+    if (PersonID.empty()) {
+        return DB_RET_NULL;
+    }
     for (auto &v : PersonID) {
         DBTrace tempTrace;
         DBSearchPerson(v, Module, tempTrace);
@@ -1596,24 +1599,43 @@ int DBTraceAPI::DBSearchPersonP(vector<int> PersonID, vector<DBTrace> &Trace) {
 int DBTraceAPI::DBSearchPersonM(int PersonModule, vector<DBTrace> &Trace) {
     DB.useDB(database);
     table = BASE_TABLE_PERSON;
-    value = "TableName,TraceID";
-    limits = "PersonModule=" + to_string(PersonModule) + " AND TraceID IS NOT NULL";
+    value = "IFNULL(TableName,0),IFNULL(TraceID,0),PersonID";
+    // value = "TableName,TraceID";
+    limits = "PersonModule=" + to_string(PersonModule);
+    // limits = "PersonModule=" + to_string(PersonModule) + " AND TraceID IS NOT NULL";
     //搜索对应人员在人员表中记录的最近一条记录
     string_table ret = DB.selectItem(table, value, limits);
     if (ret.empty()) {
+        DBTrace temp;
+        temp.PersonModule = PersonModule;
+        temp.found = false;
+        temp.inTable = false;
+        Trace.push_back(temp);
         return DB_RET_PERSON_ERROR;
     } else {
         for (auto &v : ret) {
-            table = v[0];
-            value = "*";
-            limits = "TraceID=" + v[1];
-            string_table temp = DB.selectItem(table, value, limits);
-            if (temp.empty()) {
-                return DB_RET_NULL;
+            if (v[0] == "0") {
+                DBTrace tempTrace;
+                tempTrace.PersonID = atoi(v[2].c_str());
+                tempTrace.PersonModule = PersonModule;
+                tempTrace.found = false;
+                Trace.push_back(tempTrace);
             } else {
-                DBTrace t;
-                t = t.readTrace(temp);
-                Trace.push_back(t);
+                table = v[0];
+                value = "*";
+                limits = "TraceID=" + v[1];
+                string_table temp = DB.selectItem(table, value, limits);
+                if (temp.empty()) {
+                    DBTrace tempTrace;
+                    tempTrace.PersonID = atoi(v[2].c_str());
+                    tempTrace.PersonModule = PersonModule;
+                    tempTrace.found = false;
+                    Trace.push_back(tempTrace);
+                } else {
+                    DBTrace t;
+                    t = t.readTrace(temp);
+                    Trace.push_back(t);
+                }
             }
         }
     }
@@ -1628,6 +1650,7 @@ int DBTraceAPI::DBSearchPersonM(int PersonModule, vector<DBTrace> &Trace) {
     DB_RET_NULL需查询设备无最近轨迹记录
 */
 int DBTraceAPI::DBSearchPersonM(vector<int> PersonModule, vector<DBTrace> &Trace) {
+    /*
     DB.useDB(database);
     table = BASE_TABLE_PERSON;
     value = "TableName,TraceID";
@@ -1655,6 +1678,10 @@ int DBTraceAPI::DBSearchPersonM(vector<int> PersonModule, vector<DBTrace> &Trace
                 Trace.push_back(t);
             }
         }
+    }
+    */
+    for (auto v : PersonModule) {
+        DBSearchPersonM(v, Trace);
     }
     return DB_RET_OK;
 }
