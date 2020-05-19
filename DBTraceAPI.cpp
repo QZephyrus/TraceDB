@@ -1607,6 +1607,7 @@ int DBTraceAPI::DBSearchPersonM(int PersonModule, vector<DBTrace> &Trace) {
     string_table ret = DB.selectItem(table, value, limits);
     if (ret.empty()) {
         DBTrace temp;
+        temp.PersonID = -1;
         temp.PersonModule = PersonModule;
         temp.found = false;
         temp.inTable = false;
